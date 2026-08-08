@@ -1,0 +1,42 @@
+{
+  "name": "@ooopsstudio/scene-three",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Three.js WebGPU and WebGL 2 runtime for Ooops interactive scenes.",
+  "type": "module",
+  "publishConfig": {"access": "public"},
+  "sideEffects": false,
+  "license": "MIT",
+  "engines": {"node": ">=22.14.0"},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ooops-studio/ooops-ui.git",
+    "directory": "packages/scene-three"
+  },
+  "homepage": "https://github.com/ooops-studio/ooops-ui/tree/main/packages/scene-three#readme",
+  "bugs": {"url": "https://github.com/ooops-studio/ooops-ui/issues"},
+  "exports": {
+    ".": {"types": "./dist/index.d.ts", "import": "./dist/index.js"}
+  },
+  "files": ["dist", "README.md", "CHANGELOG.md"],
+  "dependencies": {"@ooopsstudio/scene-core": "workspace:^"},
+  "peerDependencies": {
+    "@types/three": "^0.183.1",
+    "three": "^0.185.0"
+  },
+  "peerDependenciesMeta": {
+    "@types/three": {"optional": true}
+  },
+  "devDependencies": {"@types/three": "^0.183.1", "three": "0.185.1"},
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "build": "tsup",
+    "size": "size-limit --config .size-limit.json",
+    "depcruise": "depcruise --config ../../.dependency-cruiser.cjs src",
+    "publint": "publint",
+    "attw": "attw --pack --ignore-rules no-resolution --ignore-rules cjs-resolves-to-esm",
+    "pack:dry": "pnpm build && npm pack --dry-run"
+  }
+}

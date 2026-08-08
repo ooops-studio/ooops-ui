@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "requiredEnvironments": [
+    {"id": "voiceover-safari", "os": "macOS", "assistiveTechnology": "VoiceOver", "browser": "Safari"},
+    {"id": "nvda-firefox", "os": "Windows", "assistiveTechnology": "NVDA", "browser": "Firefox"},
+    {"id": "nvda-chrome", "os": "Windows", "assistiveTechnology": "NVDA", "browser": "Chrome"}
+  ],
+  "scenarios": [
+    {"id": "field-errors", "components": ["Input", "Textarea"], "expect": ["label and description are announced", "required and invalid states are announced", "error is announced once"]},
+    {"id": "checkbox-state", "components": ["Checkbox", "Switch", "RadioGroup"], "expect": ["name, role and checked state are announced", "mixed and disabled transitions are announced"]},
+    {"id": "collection-selection", "components": ["Select", "Combobox", "MultiSelect"], "expect": ["expanded state and active option are announced", "selection count and removals remain understandable", "loading, empty and error states are announced"]},
+    {"id": "menu-navigation", "components": ["DropdownMenu"], "expect": ["menu item roles and checked states are announced", "submenu expansion and directional navigation are understandable"]},
+    {"id": "layer-context", "components": ["Tooltip", "Popover", "Dialog", "Modal"], "expect": ["tooltip description is associated with its trigger", "dialog name and modal context are announced", "focus remains inside the top modal and returns to the trigger"]},
+    {"id": "disclosure-navigation", "components": ["Tabs", "Accordion"], "expect": ["selected tab and panel relationship are announced", "navigation-mode links are announced as links", "expanded accordion state is announced"]},
+    {"id": "value-controls", "components": ["Slider", "NumberInput", "SegmentedControl"], "expect": ["current value, range and orientation are announced", "dual thumbs have distinct names", "intermediate invalid numeric input remains understandable"]}
+  ],
+  "evidence": {
+    "requiredFields": ["environmentId", "tester", "date", "app", "commit", "scenarioResults", "notes"],
+    "allowedResults": ["pass", "fail", "blocked", "not-run"]
+  }
+}

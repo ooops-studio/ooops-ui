@@ -1,0 +1,63 @@
+---
+import type {SelectOption} from '@ooopsstudio/ui-primitives';
+import {serializeUiConfig} from './index';
+
+type Props = {
+  id: string;
+  name?: string;
+  label?: string;
+  description?: string;
+  error?: string;
+  value?: string;
+  placeholder?: string;
+  options: SelectOption[];
+  required?: boolean;
+  disabled?: boolean;
+  allowEmpty?: boolean;
+  portal?: boolean;
+  class?: string;
+};
+
+const {
+  id, name = id, label, description, error, value = '', placeholder = 'Select an option', options,
+  required = false, disabled = false, allowEmpty = true, portal = true, class: className = ''
+} = Astro.props;
+const labelId = label ? `${id}-label` : undefined;
+const descriptionId = description ? `${id}-description` : undefined;
+const errorId = error ? `${id}-error` : undefined;
+const listboxId = `${id}-listbox`;
+const selected = options.find((option) => option.value === value) ?? null;
+const config = serializeUiConfig({id, value, defaultValue: value, disabled, allowEmpty, portal, options});
+---
+
+<div class:list={['ooops-select', className]} data-ooops-select-root={id} data-part="root" data-placeholder={placeholder}>
+  {label ? <label id={labelId} for={`${id}-trigger`} data-part="label">{label}</label> : null}
+  {description ? <span id={descriptionId} data-part="description">{description}</span> : null}
+  <button id={`${id}-trigger`} type="button" role="combobox" aria-haspopup="listbox" aria-controls={listboxId} aria-expanded="false" aria-labelledby={labelId} aria-describedby={[descriptionId, errorId].filter(Boolean).join(' ') || undefined} aria-invalid={error ? 'true' : undefined} disabled={disabled} data-part="trigger">
+    <span data-part="value">
+      {selected?.icon ? <span data-part="value-icon" aria-hidden="true">{selected.icon}</span> : null}
+      {selected?.iconUrl ? <img data-part="value-image" src={selected.iconUrl} alt="" loading="lazy" /> : null}
+      {selected?.label ?? placeholder}
+    </span>
+    <span data-part="indicator" aria-hidden="true"></span>
+  </button>
+  <select name={name} value={value} required={required} disabled={disabled} tabindex="-1" aria-hidden="true" data-part="native-select">
+    {allowEmpty ? <option value="">{placeholder}</option> : null}
+    {options.map((option) => <option value={option.value} disabled={option.disabled}>{option.label}</option>)}
+  </select>
+  {error ? <span id={errorId} data-part="error">{error}</span> : null}
+  <script is:inline type="application/json" data-ooops-ui-config set:html={config} />
+</div>
+
+<div id={listboxId} role="listbox" aria-labelledby={labelId} data-ooops-select-listbox={id} data-part="listbox" hidden>
+  {options.map((option, index) => <>
+    {(index === 0 || option.group !== options[index - 1]?.group) && option.group ? <div role="presentation" data-part="group-label">{option.group}</div> : null}
+    <div id={`${id}-option-${index}`} role="option" aria-selected={option.value === value} aria-disabled={option.disabled ? 'true' : undefined} data-ooops-select-option data-option-index={index} data-part="option" data-selected={option.value === value ? 'true' : 'false'} data-disabled={option.disabled ? 'true' : 'false'}>
+      {option.icon ? <span data-part="option-icon" aria-hidden="true">{option.icon}</span> : null}
+      {option.iconUrl ? <img data-part="option-image" src={option.iconUrl} alt="" loading="lazy" /> : null}
+      <span data-part="option-copy"><span>{option.label}</span>{option.description ? <small>{option.description}</small> : null}</span>
+    </div>
+  </>)}
+</div>
+
+<script>import {installAstroUi} from '@ooopsstudio/ui-astro'; installAstroUi();</script>

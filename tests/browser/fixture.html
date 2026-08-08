@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+  <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width"><title>Ooops UI browser fixture</title></head>
+  <body>
+    <main>
+      <h1>UI fixture</h1>
+      <form id="form" novalidate>
+        <label for="name">Name</label><input id="name" name="name" required>
+        <p id="name-error" role="status" aria-live="polite" hidden></p>
+        <label for="country">Country</label>
+        <div id="combo-root"><input id="country" role="combobox" aria-controls="countries" aria-expanded="false"><input id="country-value" type="hidden" name="country"></div>
+        <div id="countries" role="listbox" hidden><div id="country-gr" role="option" data-option-index="0">Greece</div><div id="country-it" role="option" data-option-index="1">Italy</div></div>
+        <label for="tags">Tags</label>
+        <div id="multi-root"><input id="tags" role="combobox" aria-controls="tag-options" aria-expanded="false"></div>
+        <div id="tag-options" role="listbox" aria-multiselectable="true" hidden><div role="option" data-option-index="0">Design</div><div role="option" data-option-index="1">Code</div></div>
+        <button type="submit">Submit</button>
+      </form>
+      <button id="menu-trigger" aria-haspopup="menu" aria-controls="menu">Actions</button>
+      <div id="menu" role="menu" hidden><button role="menuitem" data-value="edit">Edit</button><span><button role="menuitem" aria-haspopup="menu" aria-expanded="false" data-value="more">More</button><span role="menu" aria-label="More actions" data-submenu="true" hidden><button role="menuitem" data-value="duplicate">Duplicate</button></span></span><button role="menuitem" data-value="delete">Delete</button></div>
+      <button id="tooltip-trigger" aria-describedby="tooltip">Help</button><span id="tooltip" role="tooltip" hidden>Helpful context</span>
+      <div id="dialog-root"><button id="dialog-trigger">Open dialog</button><div id="dialog" role="dialog" aria-modal="true" aria-labelledby="dialog-title" hidden><h2 id="dialog-title">Confirm</h2><button id="dialog-close">Close</button></div></div>
+      <div id="tabs" role="tablist" aria-label="Views"><button role="tab" data-tab data-value="one">One</button><button role="tab" data-tab data-value="two">Two</button></div>
+      <div id="panels"><section role="tabpanel" data-value="one">One panel</section><section role="tabpanel" data-value="two">Two panel</section></div>
+      <div data-accordion-root><h2><button data-accordion-trigger data-value="details" aria-controls="details-panel">Details</button></h2><div id="details-panel" role="region" data-value="details">Details panel</div></div>
+      <div id="slider"><div role="slider" tabindex="0" data-part="thumb" aria-label="Minimum"></div><div role="slider" tabindex="0" data-part="thumb" aria-label="Maximum"></div><input type="hidden"><input type="hidden"></div>
+      <output id="result" aria-live="polite"></output>
+    </main>
+    <script type="module">
+      import {createAccordionController, createComboboxController, createDialogController, createFieldController, createFormController, createMenuController, createMultiSelectController, createSliderController, createTabsController, createTooltipController} from '/packages/ui-primitives/dist/index.js'
+      const nameInput = document.querySelector('#name')
+      const nameError = document.querySelector('#name-error')
+      const nameField = createFieldController({value: '', getElement: () => nameInput})
+      const formController = createFormController({name: ''})
+      formController.register('name', nameField)
+      nameField.subscribe((state) => { const issue = state.issues[0]; nameError.hidden = !issue; nameError.textContent = issue?.message ?? ''; nameInput.setAttribute('aria-invalid', String(!state.valid)); nameInput.setAttribute('aria-describedby', 'name-error') })
+      nameInput.addEventListener('input', () => void nameField.setValue(nameInput.value))
+      nameInput.addEventListener('blur', () => nameField.setTouched())
+      document.querySelector('#form').addEventListener('submit', (event) => { event.preventDefault(); void formController.submit(({name}) => { document.querySelector('#result').value = `submitted:${name}` }) })
+      const options = [{value: 'gr', label: 'Greece'}, {value: 'it', label: 'Italy'}]
+      const combo = createComboboxController({options, getRoot: () => document.querySelector('#combo-root'), getInput: () => document.querySelector('#country'), getListbox: () => document.querySelector('#countries'), getOptions: () => [...document.querySelectorAll('#countries [role=option]')], getNativeInput: () => document.querySelector('#country-value'), onChange: ({value}) => { document.querySelector('#result').value = `country:${value}` }})
+      combo.mount()
+      const multi = createMultiSelectController({options: [{value: 'design', label: 'Design'}, {value: 'code', label: 'Code'}], getRoot: () => document.querySelector('#multi-root'), getInput: () => document.querySelector('#tags'), getListbox: () => document.querySelector('#tag-options'), getOptions: () => [...document.querySelectorAll('#tag-options [role=option]')], onChange: (values) => { document.querySelector('#result').value = `tags:${values.join(',')}` }})
+      multi.mount()
+      const menu = createMenuController({getTrigger: () => document.querySelector('#menu-trigger'), getMenu: () => document.querySelector('#menu'), getItems: () => [...document.querySelectorAll('#menu [role^=menuitem]')], getSubmenu: (item) => item.nextElementSibling})
+      menu.mount()
+      const tooltip = createTooltipController({openDelayMs: 0, closeDelayMs: 0, getTrigger: () => document.querySelector('#tooltip-trigger'), getTooltip: () => document.querySelector('#tooltip')})
+      tooltip.mount()
+      const dialog = createDialogController({getRoot: () => document.querySelector('#dialog-root'), getDialog: () => document.querySelector('#dialog'), getInitialFocus: () => document.querySelector('#dialog-close'), getRestoreFocusTo: () => document.querySelector('#dialog-trigger')})
+      dialog.mount(); document.querySelector('#dialog-trigger').addEventListener('click', dialog.open); document.querySelector('#dialog-close').addEventListener('click', () => dialog.close())
+      const tabs = createTabsController({activeId: 'one', getTabs: () => [...document.querySelectorAll('#tabs [role=tab]')], getPanels: () => [...document.querySelectorAll('#panels [role=tabpanel]')]})
+      tabs.mount()
+      const accordion = createAccordionController({getTriggers: () => [...document.querySelectorAll('[data-accordion-trigger]')], getPanels: () => [document.querySelector('#details-panel')]})
+      accordion.mount()
+      const sliderRoot = document.querySelector('#slider'); sliderRoot.getBoundingClientRect = () => ({x: 0, y: 0, left: 0, top: 0, right: 100, bottom: 10, width: 100, height: 10, toJSON: () => ({})})
+      const slider = createSliderController({value: [20, 80], getRoot: () => sliderRoot, getThumbs: () => [...sliderRoot.querySelectorAll('[role=slider]')], getInputs: () => [...sliderRoot.querySelectorAll('input')]})
+      slider.mount()
+    </script>
+  </body>
+</html>

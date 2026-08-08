@@ -1,0 +1,18 @@
+---
+import {serializeUiConfig} from './index';
+type Props = {id: string; name?: string; type?: 'text' | 'email' | 'url' | 'tel' | 'password' | 'search' | 'number' | 'date' | 'datetime-local' | 'time' | 'color'; value?: string; defaultValue?: string; label?: string; description?: string; hint?: string; error?: string; placeholder?: string; required?: boolean; disabled?: boolean; readonly?: boolean; clearable?: boolean; revealable?: boolean; autocomplete?: string; min?: string | number; max?: string | number; step?: string | number; class?: string};
+const {id, name = id, type = 'text', value = '', defaultValue = value, label, description, hint, error, placeholder, required = false, disabled = false, readonly = false, clearable = false, revealable = false, autocomplete, min, max, step, class: className = ''} = Astro.props;
+const describedBy = [description && `${id}-description`, error ? `${id}-error` : hint && `${id}-hint`].filter(Boolean).join(' ') || undefined;
+const config = serializeUiConfig({value, defaultValue});
+---
+<div class:list={['ooops-input', className]} data-ooops-input-root data-part="root" data-disabled={String(disabled)} data-invalid={String(Boolean(error))}>
+  {label ? <label for={id} data-part="label">{label}</label> : null}
+  {description ? <span id={`${id}-description`} data-part="description">{description}</span> : null}
+  <span data-part="input-shell"><slot name="prefix" /><input {id} {name} {type} {value} {placeholder} {required} {disabled} {readonly} {autocomplete} {min} {max} {step} aria-invalid={error ? 'true' : undefined} aria-describedby={describedBy} data-part="control" />
+    {clearable ? <button type="button" aria-label="Clear" data-part="clear">×</button> : null}
+    {revealable && type === 'password' ? <button type="button" aria-label="Show or hide password" data-part="reveal">Show</button> : null}<slot name="suffix" />
+  </span>
+  {error ? <span id={`${id}-error`} data-part="error" aria-live="polite">{error}</span> : hint ? <span id={`${id}-hint`} data-part="hint">{hint}</span> : null}
+  <script is:inline type="application/json" data-ooops-ui-config set:html={config} />
+</div>
+<script>import {installInput} from '@ooopsstudio/ui-astro/runtime/forms'; installInput();</script>

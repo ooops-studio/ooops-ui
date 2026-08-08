@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+		"outDir": "dist",
+		"lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "types": ["node", "svelte", "vitest/globals"]
+  },
+  "include": ["src", "svelte.config.js", "vitest.config.ts"],
+  "exclude": ["dist", "coverage", "node_modules"]
+}

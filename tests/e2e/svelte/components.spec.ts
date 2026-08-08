@@ -1,0 +1,203 @@
+import {expect, test} from '@playwright/test'
+
+import {expectNoAxeViolations, watchRuntimeErrors} from '../support'
+
+let assertNoRuntimeErrors: () => void
+
+test.beforeEach(async({page}) => {
+	assertNoRuntimeErrors = watchRuntimeErrors(page)
+	await page.goto('/')
+	await expect(page.getByRole('heading', {name: 'Svelte component laboratory'})).toBeVisible()
+	await expect(page.locator('#hydration-status')).toHaveAttribute('data-hydrated', 'true')
+})
+
+test.afterEach(() => assertNoRuntimeErrors())
+
+test('@critical SSR markup hydrates without mismatch or runtime errors', async({request, page}) => {
+	const response = await request.get('/')
+	const html = await response.text()
+	expect(html).toContain('Svelte component laboratory')
+	expect(html).toContain('server-rendered')
+	expect(html).toContain('data-testid="select-trigger-snippet"')
+	await expect(page.locator('#hydration-status')).toHaveText('hydrated')
+	await expect(page.getByTestId('svelte-prefix')).toHaveText('@')
+	await expect(page.getByTestId('svelte-suffix')).toHaveText('.dev')
+})
+
+test('Field, Input and Textarea preserve bindings, snippets and error state', async({page}) => {
+	await page.locator('#svelte-name').fill('Lin')
+	await expect(page.locator('#binding-output')).toContainText('Lin|')
+	await page.locator('[data-part="root"]').filter({has: page.locator('#svelte-name')}).getByRole('button', {name: 'Clear'}).click()
+	await expect(page.locator('#svelte-name')).toHaveValue('')
+	await page.getByRole('button', {name: 'Set server error'}).click()
+	await expect(page.locator('#svelte-name')).toHaveAttribute('aria-invalid', 'true')
+	await expect(page.getByText('Server rejected value')).toHaveAttribute('aria-live', 'polite')
+	await page.locator('#svelte-password').fill('secret')
+	await page.getByRole('button', {name: 'Show password'}).click()
+	await expect(page.locator('#svelte-password')).toHaveAttribute('type', 'text')
+	await page.locator('#svelte-bio').fill('Longer biography')
+	await expect(page.locator('[data-part="root"]').filter({has: page.locator('#svelte-bio')}).locator('[data-part="counter"]')).toHaveText('16/120')
+})
+
+test('@critical form controls bind, serialize and reset', async({page}) => {
+	await page.locator('#svelte-field-control-control').fill('standalone')
+	const terms = page.locator('#svelte-terms')
+	await terms.focus()
+	await terms.press('Space')
+	await expect(terms).toBeChecked()
+	await page.getByLabel('Pro').check()
+	const notifications = page.locator('#svelte-switch')
+	await notifications.focus()
+	await notifications.press('Space')
+	await expect(notifications).toBeChecked()
+	await page.getByRole('radio', {name: 'List'}).click()
+	await page.getByRole('button', {name: 'Submit Svelte form'}).click()
+	const output = page.locator('#svelte-form-output')
+	await expect(output).toContainText('standalone=standalone')
+	await expect(output).toContainText('terms=on')
+	await expect(output).toContainText('plan=pro')
+	await expect(output).toContainText('notifications=on')
+	await expect(output).toContainText('view=list')
+	await page.getByRole('button', {name: 'Reset Svelte form'}).click()
+	await expect(terms).not.toBeChecked()
+})
+
+test('@critical Select, Combobox and MultiSelect support keyboard and reactive options', async({page}) => {
+	const select = page.locator('#svelte-select-trigger')
+	await select.focus()
+	await page.keyboard.press('ArrowDown')
+	await page.keyboard.press('ArrowDown')
+	await page.keyboard.press('Enter')
+	await expect(page.locator('select[name="country"]')).toHaveValue('it')
+	await expect(page.locator('#binding-output')).toContainText('|it|')
+
+	await page.getByRole('button', {name: 'Add option'}).click()
+	await select.click()
+	await expect(page.getByRole('option', {name: 'France'})).toBeVisible()
+	await select.focus()
+	await expect(select).toBeFocused()
+	await select.press('Escape')
+
+	const combo = page.locator('#svelte-combobox-input')
+	await combo.fill('Jap')
+	await page.keyboard.press('ArrowDown')
+	await page.keyboard.press('Enter')
+	await expect(page.locator('input[name="searchCountry"]')).toHaveValue('jp')
+	await expect(page.getByTestId('combo-option-snippet').first()).toBeAttached()
+
+	const multi = page.locator('#svelte-multi-input')
+	await multi.fill('Code')
+	await page.keyboard.press('ArrowDown')
+	await page.keyboard.press('Enter')
+	await expect(page.getByTestId('multi-chip-snippet')).toHaveText('Code')
+	await expect(page.locator('input[name="tags[]"]')).toHaveValue('code')
+})
+
+test('async Combobox uses latest-result-wins and exposes error state', async({page}) => {
+	const input = page.locator('#svelte-async-combobox-input')
+	await input.fill('slow')
+	await input.fill('Japan')
+	await expect(page.getByRole('option', {name: 'Japan'})).toBeVisible()
+	await expect(page.getByText('No options')).toHaveCount(0)
+	await input.fill('error')
+	await expect(page.getByRole('alert')).toHaveText('Async options failed')
+})
+
+test('@critical nested menu, Dialog and Modal handle Escape and focus restoration', async({page}) => {
+	const menuTrigger = page.getByRole('button', {name: 'Svelte actions'})
+	await menuTrigger.click()
+	await expect(page.getByRole('menuitem', {name: 'Edit'})).toBeFocused()
+	const submenuTrigger = page.getByRole('menuitem', {name: 'More'})
+	await page.keyboard.press('End')
+	await expect(submenuTrigger).toBeFocused()
+	await submenuTrigger.press('ArrowRight')
+	await expect(page.getByRole('menu', {name: 'More'})).toBeVisible()
+	await page.keyboard.press('Escape')
+	await expect(page.getByRole('menu', {name: 'More'})).toBeHidden()
+	await page.keyboard.press('Escape')
+	await expect(menuTrigger).toBeFocused()
+
+	const dialogTrigger = page.getByRole('button', {name: 'Open dialog'})
+	await dialogTrigger.click()
+	await expect(page.getByRole('dialog', {name: 'Confirm action'})).toBeVisible()
+	await expect(page.getByRole('button', {name: 'Cancel'})).toBeFocused()
+	await page.keyboard.press('Escape')
+	await expect(dialogTrigger).toBeFocused()
+
+	const modalTrigger = page.getByRole('button', {name: 'Open modal'})
+	await modalTrigger.click()
+	await expect(page.getByRole('dialog', {name: 'Modal title'})).toBeVisible()
+	await page.keyboard.press('Escape')
+	await expect(modalTrigger).toBeFocused()
+})
+
+test('Tooltip and Popover expose reactive trigger state and dismissal', async({page}) => {
+	await page.locator('#svelte-tooltip-trigger').focus()
+	await expect(page.getByRole('tooltip')).toBeVisible()
+	await page.keyboard.press('Escape')
+	await expect(page.getByRole('tooltip')).toBeHidden()
+
+	const trigger = page.getByRole('button', {name: 'Popover closed'})
+	await trigger.click()
+	await expect(page.getByRole('button', {name: 'Popover open'})).toBeVisible()
+	await expect(page.getByRole('dialog', {name: 'Svelte popover'})).toBeVisible()
+	await expect(page.locator('#svelte-popover-action')).toBeFocused()
+	await page.keyboard.press('Escape')
+	await expect(page.getByRole('button', {name: 'Popover closed'})).toBeFocused()
+})
+
+test('@critical Tabs, Accordion, NumberInput, Slider and Part remain reactive', async({page}) => {
+	const tabs = page.locator('#svelte-tabs')
+	await tabs.getByRole('tab', {name: 'Overview'}).focus()
+	await page.keyboard.press('ArrowRight')
+	await expect(tabs.getByRole('tab', {name: 'Details'})).toHaveAttribute('aria-selected', 'true')
+	await expect(page.locator('#binding-output')).toContainText('|details|')
+
+	await page.getByRole('button', {name: 'First section'}).click()
+	await page.getByRole('button', {name: 'Second section'}).click()
+	await expect(page.getByRole('button', {name: 'First section'})).toHaveAttribute('aria-expanded', 'true')
+	await expect(page.getByRole('button', {name: 'Second section'})).toHaveAttribute('aria-expanded', 'true')
+
+	await page.getByRole('button', {name: 'Increase'}).click()
+	await expect(page.locator('#svelte-number')).toHaveValue('3')
+	const firstThumb = page.locator('#svelte-slider [role="slider"]').first()
+	await firstThumb.focus()
+	await page.keyboard.press('ArrowRight')
+	await expect(firstThumb).toHaveAttribute('aria-valuenow', '25')
+	await expect(page.getByTestId('slider-thumb-snippet').first()).toHaveText('0:25')
+	await expect(page.getByTestId('svelte-part')).toHaveAttribute('data-state', 'ready')
+
+	await page.getByRole('button', {name: 'Set external values'}).click()
+	await expect(page.locator('#svelte-name')).toHaveValue('Grace')
+	await expect(page.locator('select[name="country"]')).toHaveValue('it')
+	await expect(tabs.getByRole('tab', {name: 'Details'})).toHaveAttribute('aria-selected', 'true')
+	await expect(firstThumb).toHaveAttribute('aria-valuenow', '30')
+})
+
+test('@critical navigation unmounts portals and remounts without duplicate callbacks', async({page}) => {
+	await page.getByRole('button', {name: 'Svelte actions'}).click()
+	await expect(page.getByRole('menu', {name: 'Svelte actions'})).toBeVisible()
+	await Promise.all([page.waitForURL((url) => url.pathname === '/cleanup'), page.locator('#cleanup-link').click()])
+	await expect(page.locator('#cleanup-marker')).toBeVisible()
+	await expect(page.locator('[role="menu"]')).toHaveCount(0)
+	await expect(page.locator('#cleanup-count')).toHaveText('cleanups:1')
+	await Promise.all([
+		page.waitForURL((url) => url.pathname === '/'),
+		page.getByRole('link', {name: 'Return to components'}).click()
+	])
+	await expect(page.locator('#mount-count')).toHaveText('mounts:2')
+	await page.getByRole('button', {name: 'Svelte actions'}).click()
+	await page.getByRole('menuitem', {name: 'Edit'}).click()
+	await expect(page.locator('#menu-selection-count')).toHaveText('menu selections:1')
+})
+
+test('has no axe violations in base, validation and open-layer states', async({page}, testInfo) => {
+	await expectNoAxeViolations(page, testInfo)
+	await page.getByRole('button', {name: 'Set server error'}).click()
+	await expectNoAxeViolations(page, testInfo)
+	await page.getByRole('button', {name: 'Open dialog'}).click()
+	await expectNoAxeViolations(page, testInfo)
+	await page.keyboard.press('Escape')
+	await page.getByRole('button', {name: 'Svelte actions'}).click()
+	await expectNoAxeViolations(page, testInfo)
+})

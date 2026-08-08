@@ -1,0 +1,58 @@
+:where([class^='ooops-'], [class*=' ooops-']) {
+	font: inherit;
+	color: inherit;
+}
+
+:where(button, input, textarea, select)[data-part] {
+	font: inherit;
+	color: inherit;
+}
+
+:where(button, input, textarea, select)[data-part]:focus-visible,
+:where([role='option'], [role^='menuitem'], [role='tab'], [role='slider'])[data-part]:focus-visible {
+	outline: 2px solid currentColor;
+	outline-offset: 2px;
+}
+
+[hidden] {
+	display: none !important;
+}
+
+[data-part='native-select'],
+[data-part='native-input'],
+.ooops-checkbox [data-part='control'],
+.ooops-switch [data-part='control'] {
+	position: absolute;
+	inline-size: 1px;
+	block-size: 1px;
+	margin: -1px;
+	padding: 0;
+	clip-path: inset(50%);
+	overflow: hidden;
+	white-space: nowrap;
+	border: 0;
+}
+
+:where(.ooops-select-listbox, .ooops-popover-panel, [data-part='listbox'], [data-part='content'], [data-part='submenu-content']) {
+	position: fixed;
+	z-index: var(--ooops-ui-layer-z, 1000);
+	overflow: auto;
+}
+
+:where(dialog[data-part='dialog']) {
+	padding: 0;
+}
+
+[data-part='root'][data-orientation='vertical'] {
+	touch-action: pan-x;
+}
+
+[data-part='root'][data-orientation='horizontal'] {
+	touch-action: pan-y;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	:where([data-part]) {
+		scroll-behavior: auto !important;
+	}
+}

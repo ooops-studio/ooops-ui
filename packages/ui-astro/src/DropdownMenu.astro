@@ -1,0 +1,19 @@
+---
+import {serializeUiConfig} from './index';
+export type MenuItem = {id: string; label?: string; href?: string; value?: string; type?: 'item' | 'checkbox' | 'radio' | 'separator' | 'label'; checked?: boolean; disabled?: boolean; group?: string; keepOpen?: boolean; children?: MenuItem[]};
+type Props = {id: string; triggerLabel?: string; ariaLabel?: string; items?: MenuItem[]; open?: boolean; loop?: boolean; portal?: boolean; class?: string};
+const {id, triggerLabel = 'Menu', ariaLabel = 'Menu', items = [], open = false, loop = true, portal = true, class: className = ''} = Astro.props;
+const config = serializeUiConfig({id, open, loop, portal});
+---
+<span class:list={['ooops-menu', className]} data-ooops-menu-root data-part="root">
+  <button type="button" aria-haspopup="menu" aria-expanded="false" aria-controls={`${id}-menu`} data-part="trigger"><slot name="trigger">{triggerLabel}</slot></button>
+  <script is:inline type="application/json" data-ooops-ui-config set:html={config} />
+</span>
+<div id={`${id}-menu`} role="menu" aria-label={ariaLabel} data-ooops-menu-content={id} data-part="content" hidden>
+  {items.map((item) => item.type === 'separator' ? <hr role="separator" data-part="separator" /> : item.type === 'label' ? <div data-part="label">{item.label}</div> : item.href ? <a href={item.href} role="menuitem" aria-disabled={item.disabled ? 'true' : undefined} data-part="item" data-value={item.value ?? item.id} data-label={item.label}>{item.label}</a> : <div data-part={item.children?.length ? 'submenu-group' : 'item-wrapper'}>
+    <button type="button" role={item.type === 'checkbox' ? 'menuitemcheckbox' : item.type === 'radio' ? 'menuitemradio' : 'menuitem'} aria-checked={item.type === 'checkbox' || item.type === 'radio' ? Boolean(item.checked) : undefined} disabled={item.disabled} aria-haspopup={item.children?.length ? 'menu' : undefined} data-part={item.children?.length ? 'submenu-trigger' : 'item'} data-value={item.value ?? item.id} data-group={item.group} data-label={item.label} data-keep-open={String(Boolean(item.keepOpen))}>{item.type === 'checkbox' || item.type === 'radio' ? <span data-part="indicator"></span> : null}{item.label}</button>
+    {item.children?.length ? <div role="menu" aria-label={item.label} data-part="submenu-content" data-submenu="true" hidden>{item.children.map((child) => <button type="button" role={child.type === 'checkbox' ? 'menuitemcheckbox' : child.type === 'radio' ? 'menuitemradio' : 'menuitem'} aria-checked={child.type === 'checkbox' || child.type === 'radio' ? Boolean(child.checked) : undefined} disabled={child.disabled} data-part="item" data-value={child.value ?? child.id} data-label={child.label}>{child.label}</button>)}</div> : null}
+  </div>)}
+  <slot />
+</div>
+<script>import {installDropdownMenu} from '@ooopsstudio/ui-astro/runtime/overlays'; installDropdownMenu();</script>

@@ -1,0 +1,14 @@
+---
+import type {SelectOption} from '@ooopsstudio/ui-primitives'; import {serializeUiConfig} from './index';
+type Props = {id: string; name?: string; label?: string; description?: string; error?: string; value?: string; defaultValue?: string; options: SelectOption[]; placeholder?: string; allowCustomValue?: boolean; clearable?: boolean; required?: boolean; disabled?: boolean; portal?: boolean; class?: string};
+const {id, name = id, label, description, error, value = '', defaultValue = value, options, placeholder = 'Search options', allowCustomValue = false, clearable = true, required = false, disabled = false, portal = true, class: className = ''} = Astro.props;
+const selected = options.find((option) => option.value === value); const listboxId = `${id}-listbox`; const config = serializeUiConfig({id, value, defaultValue, options, allowCustomValue, disabled, portal});
+---
+<div class:list={['ooops-combobox', className]} data-ooops-combobox-root data-part="root" data-invalid={String(Boolean(error))}>
+  {label ? <label for={id} data-part="label">{label}</label> : null}{description ? <span id={`${id}-description`} data-part="description">{description}</span> : null}
+  <span data-part="control"><input {id} type="text" value={selected?.label ?? value} {placeholder} {disabled} role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls={listboxId} aria-invalid={error ? 'true' : undefined} data-part="input" />{clearable ? <button type="button" aria-label="Clear" data-part="clear">×</button> : null}<span aria-hidden="true" data-part="indicator"></span></span>
+  <input type="hidden" {name} {value} {required} data-part="native-input" />{error ? <span data-part="error" aria-live="polite">{error}</span> : null}
+  <script is:inline type="application/json" data-ooops-ui-config set:html={config} />
+</div>
+<div id={listboxId} role="listbox" data-ooops-combobox-listbox={id} data-part="listbox" hidden></div>
+<script>import {installCombobox} from '@ooopsstudio/ui-astro/runtime/selections'; installCombobox();</script>

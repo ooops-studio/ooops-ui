@@ -1,0 +1,24 @@
+---
+import Popover from '@ooopsstudio/ui-astro/Popover.astro';
+import Layout from '../layouts/Layout.astro';
+---
+<Layout title="Astro layer collision fixture">
+  <h1>Layer collision fixture</h1>
+  <div class="edge edge-bottom-right">
+    <Popover id="edge-bottom" triggerLabel="Bottom edge" placement="bottom" align="end" ariaLabel="Bottom edge panel">
+      <div class="large-layer">Bottom collision content</div>
+    </Popover>
+  </div>
+  <div class="edge edge-top-left">
+    <Popover id="edge-top" triggerLabel="Top edge" placement="top" align="start" ariaLabel="Top edge panel">
+      <div class="large-layer">Top collision content</div>
+    </Popover>
+  </div>
+</Layout>
+
+<style>
+  .edge { position: fixed; }
+  .edge-bottom-right { right: 2px; bottom: 2px; }
+  .edge-top-left { left: 2px; top: 4rem; }
+  .large-layer { width: 280px; min-height: 160px; }
+</style>

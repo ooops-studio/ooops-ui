@@ -1,0 +1,8 @@
+[
+  {
+    "name": "scene-three",
+    "path": "dist/index.js",
+    "limit": "7.75 KB",
+    "ignore": ["@ooopsstudio/scene-core", "three"]
+  }
+]

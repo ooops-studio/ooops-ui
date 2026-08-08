@@ -1,0 +1,132 @@
+{
+	"name": "@ooopsstudio/ui-astro",
+	"version": "0.1.0",
+	"type": "module",
+	"publishConfig": {
+		"access": "public"
+	},
+	"files": [
+		"dist",
+		"README.md",
+		"CHANGELOG.md"
+	],
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js"
+		},
+		"./runtime/forms": {
+			"types": "./dist/runtime/forms.d.ts",
+			"import": "./dist/runtime/forms.js"
+		},
+		"./runtime/selections": {
+			"types": "./dist/runtime/selections.d.ts",
+			"import": "./dist/runtime/selections.js"
+		},
+		"./runtime/navigation": {
+			"types": "./dist/runtime/navigation.d.ts",
+			"import": "./dist/runtime/navigation.js"
+		},
+		"./runtime/overlays": {
+			"types": "./dist/runtime/overlays.d.ts",
+			"import": "./dist/runtime/overlays.js"
+		},
+		"./Select.astro": {
+			"default": "./dist/Select.astro"
+		},
+		"./Dialog.astro": {
+			"default": "./dist/Dialog.astro"
+		},
+		"./Modal.astro": {
+			"default": "./dist/Modal.astro"
+		},
+		"./Popover.astro": {
+			"default": "./dist/Popover.astro"
+		},
+		"./Field.astro": {
+			"default": "./dist/Field.astro"
+		},
+		"./Input.astro": {
+			"default": "./dist/Input.astro"
+		},
+		"./Textarea.astro": {
+			"default": "./dist/Textarea.astro"
+		},
+		"./Checkbox.astro": {
+			"default": "./dist/Checkbox.astro"
+		},
+		"./RadioGroup.astro": {
+			"default": "./dist/RadioGroup.astro"
+		},
+		"./Switch.astro": {
+			"default": "./dist/Switch.astro"
+		},
+		"./Combobox.astro": {
+			"default": "./dist/Combobox.astro"
+		},
+		"./MultiSelect.astro": {
+			"default": "./dist/MultiSelect.astro"
+		},
+		"./DropdownMenu.astro": {
+			"default": "./dist/DropdownMenu.astro"
+		},
+		"./Tooltip.astro": {
+			"default": "./dist/Tooltip.astro"
+		},
+		"./Tabs.astro": {
+			"default": "./dist/Tabs.astro"
+		},
+		"./Accordion.astro": {
+			"default": "./dist/Accordion.astro"
+		},
+		"./Slider.astro": {
+			"default": "./dist/Slider.astro"
+		},
+		"./NumberInput.astro": {
+			"default": "./dist/NumberInput.astro"
+		},
+		"./SegmentedControl.astro": {
+			"default": "./dist/SegmentedControl.astro"
+		},
+		"./Part.astro": {
+			"default": "./dist/Part.astro"
+		},
+		"./base.css": "./dist/base.css"
+	},
+	"sideEffects": [
+		"**/*.css"
+	],
+	"dependencies": {
+		"@ooopsstudio/ui-primitives": "workspace:^"
+	},
+	"peerDependencies": {
+		"astro": ">=7 <8"
+	},
+	"devDependencies": {
+		"astro": "^7.1.6"
+	},
+	"scripts": {
+		"typecheck": "astro check",
+		"build": "tsup && node ./scripts/copy-astro.mjs",
+		"test": "pnpm --filter @ooopsstudio/ui-primitives build && vitest run",
+		"size": "size-limit --config .size-limit.mjs",
+		"depcruise": "depcruise --config ../../.dependency-cruiser.cjs src",
+		"publint": "publint",
+		"attw": "attw --pack --ignore-rules no-resolution --ignore-rules cjs-resolves-to-esm",
+		"pack:dry": "pnpm build && npm pack --dry-run"
+	},
+	"license": "MIT",
+	"description": "Astro 7 progressive-enhancement adapters for @ooopsstudio/ui-primitives.",
+	"engines": {
+		"node": ">=22.14.0"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/ooops-studio/ooops-ui.git",
+		"directory": "packages/ui-astro"
+	},
+	"homepage": "https://github.com/ooops-studio/ooops-ui",
+	"bugs": {
+		"url": "https://github.com/ooops-studio/ooops-ui/issues"
+	}
+}

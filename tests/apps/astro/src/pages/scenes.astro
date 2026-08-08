@@ -1,0 +1,20 @@
+---
+import InteractiveScene from '@ooopsstudio/scene-astro/InteractiveScene.astro';
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Scene fixture">
+  <h1>Interactive scene fixture</h1>
+  <InteractiveScene
+    id="fixture-scene"
+    scene="fixture-scene"
+    config={{color: '#16a085'}}
+    poster="/fixture-scene.png"
+    description="A color field responds to pointer interaction."
+  />
+  <a href="/transition">Leave scene</a>
+</Layout>
+
+<script>
+  import '../scenes';
+</script>

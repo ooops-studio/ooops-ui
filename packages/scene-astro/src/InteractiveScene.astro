@@ -1,0 +1,80 @@
+---
+import {serializeSceneConfig} from '@ooopsstudio/scene-astro';
+
+type Props = {
+  id?: string;
+  scene: string;
+  config?: unknown;
+  quality?: 'low' | 'auto' | 'high';
+  poster: string;
+  description?: string;
+  decorative?: boolean;
+  aspectRatio?: string;
+  pauseControl?: boolean;
+  class?: string;
+  editorId?: string;
+};
+
+const {
+  scene,
+  config = {},
+  quality = 'auto',
+  poster,
+  description,
+  decorative = false,
+  aspectRatio = '16 / 9',
+  pauseControl = true,
+  class: className = '',
+  editorId
+} = Astro.props;
+const id = Astro.props.id
+  ?? `ooops-scene-${Astro.url.pathname.replace(/[^a-z0-9]+/gi, '-') || 'root'}-${scene}`;
+
+if (!decorative && (!description?.trim() || !pauseControl)) {
+  throw new Error('Meaningful interactive scenes require a description and pause control.');
+}
+if (!poster || /^(?:https?:|data:|blob:|javascript:)/i.test(poster)) {
+  throw new Error('Interactive scene poster must be a local project asset.');
+}
+if (!/^\d+(?:\.\d+)?\s*\/\s*\d+(?:\.\d+)?$/.test(aspectRatio)) {
+  throw new Error('Interactive scene aspectRatio must use a numeric width / height ratio.');
+}
+const serialized = serializeSceneConfig({scene, config, quality, mode: 'select'});
+const descriptionId = `${id}-description`;
+const editorMode = import.meta.env.DEV && import.meta.env.OOOPS_EDITOR_MODE === '1';
+---
+
+<figure
+  id={id}
+  class:list={['ooops-interactive-scene', className]}
+  data-ooops-scene-root={scene}
+  data-ooops-scene-state="idle"
+  data-ooops-scene-backend="unknown"
+  data-ooops-scene-quality={quality}
+  data-ooops-scene-mode="select"
+  data-ooops-editor-id={editorMode ? editorId : undefined}
+  data-part="root"
+  aria-hidden={decorative ? 'true' : undefined}
+  style={`--ooops-scene-aspect-ratio: ${aspectRatio}`}
+>
+  <canvas
+    data-part="canvas"
+    role={decorative ? undefined : 'img'}
+    aria-labelledby={decorative ? undefined : descriptionId}
+    tabindex="-1"
+  ></canvas>
+  <img data-part="poster" src={poster} alt="" loading="eager" decoding="async" />
+  {!decorative ? <figcaption id={descriptionId} data-part="description">{description}</figcaption> : null}
+  {!decorative && pauseControl ? (
+    <button type="button" data-part="pause-control" data-ooops-scene-pause aria-pressed="false">
+      Pause animation
+    </button>
+  ) : null}
+  <div data-part="fallback"><slot name="fallback" /></div>
+  <script is:inline type="application/json" data-ooops-scene-config set:html={serialized} />
+</figure>
+
+<script>
+  import {installInteractiveScenes} from '@ooopsstudio/scene-astro/runtime';
+  installInteractiveScenes();
+</script>

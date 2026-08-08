@@ -1,0 +1,23 @@
+:root { color-scheme: light; font-family: system-ui, sans-serif; color: #111; background: #fff; }
+* { box-sizing: border-box; }
+body { margin: 0; }
+main { max-width: 76rem; margin: 0 auto; padding: 1.5rem; }
+h1, h2 { line-height: 1.2; }
+.skip-link { position: absolute; left: .5rem; top: -4rem; }
+.skip-link:focus { top: .5rem; z-index: 1000; background: #fff; color: #111; padding: .5rem; }
+.lab-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr)); gap: 1rem; }
+.lab-section { border: 1px solid #777; padding: 1rem; min-width: 0; }
+.lab-section > :where(div, fieldset, label) { margin-block: .65rem; }
+button, input, textarea, select, a { font: inherit; }
+button, input, textarea, select { min-height: 2.5rem; }
+button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible, a:focus-visible { outline: 3px solid #075fc4; outline-offset: 2px; }
+[data-part="listbox"], [data-part="content"], [data-part="panel"] { background: #fff; color: #111; border: 1px solid #333; padding: .5rem; z-index: 50; }
+[data-part="option"], [role^="menuitem"] { display: block; padding: .4rem; }
+[data-active="true"], [data-selected="true"] { background: #dbeafe; }
+dialog { color: #111; background: #fff; border: 2px solid #222; max-width: 32rem; }
+dialog::backdrop { background: rgb(0 0 0 / .35); }
+[data-part="track"] { position: relative; display: block; width: 14rem; height: 1.25rem; background: #ddd; }
+[data-part="thumb"] { min-height: 1.5rem; min-width: 1.5rem; }
+[data-part="chips"] { display: flex; gap: .25rem; }
+[data-part="error"] { color: #8a0014; }
+.status { min-height: 1.5rem; font-family: ui-monospace, monospace; }

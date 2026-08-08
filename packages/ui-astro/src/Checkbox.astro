@@ -1,0 +1,12 @@
+---
+import {serializeUiConfig} from './index';
+type Props = {id: string; name?: string; value?: string; label: string; description?: string; error?: string; checked?: boolean; defaultChecked?: boolean; indeterminate?: boolean; required?: boolean; disabled?: boolean; class?: string};
+const {id, name = id, value = 'on', label, description, error, checked = false, defaultChecked = checked, indeterminate = false, required = false, disabled = false, class: className = ''} = Astro.props;
+const config = serializeUiConfig({checked, defaultChecked, indeterminate});
+---
+<div class:list={['ooops-checkbox', className]} data-ooops-checkbox-root data-part="root" data-state={indeterminate ? 'indeterminate' : checked ? 'checked' : 'unchecked'}>
+  <label data-part="label"><input {id} {name} type="checkbox" {value} {checked} {required} {disabled} aria-invalid={error ? 'true' : undefined} aria-describedby={description ? `${id}-description` : undefined} data-part="control" /><span aria-hidden="true" data-part="indicator"></span><span data-part="label-copy">{label}</span></label>
+  {description ? <span id={`${id}-description`} data-part="description">{description}</span> : null}{error ? <span data-part="error" aria-live="polite">{error}</span> : null}
+  <script is:inline type="application/json" data-ooops-ui-config set:html={config} />
+</div>
+<script>import {installCheckbox} from '@ooopsstudio/ui-astro/runtime/forms'; installCheckbox();</script>

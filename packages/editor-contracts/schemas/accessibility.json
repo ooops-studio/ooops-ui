@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.ooops.studio/editor/accessibility-v2.json",
+  "title": "Ooops accessibility editor manifest v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "id", "owner", "storageKey", "persistence", "preferences", "components"],
+  "properties": {
+    "schemaVersion": {"const": 2},
+    "id": {"type": "string", "pattern": "^[A-Za-z][A-Za-z0-9]*(?:[._-][A-Za-z0-9]+)*$"},
+    "owner": {"type": "string", "pattern": "^@[a-z0-9._-]+/[a-z0-9._-]+$"},
+    "storageKey": {"type": "string", "minLength": 1, "maxLength": 256},
+    "persistence": {"const": "local-storage"},
+    "preferences": {
+      "type": "array",
+      "maxItems": 128,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "label", "type", "default"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^[A-Za-z][A-Za-z0-9]*(?:[._-][A-Za-z0-9]+)*$"},
+          "label": {"type": "string", "minLength": 1, "maxLength": 256},
+          "type": {"enum": ["toggle", "range"]},
+          "default": {"type": ["boolean", "number"]},
+          "min": {"type": "number"},
+          "max": {"type": "number"},
+          "step": {"type": "number", "exclusiveMinimum": 0},
+          "className": {"type": "string", "minLength": 1, "maxLength": 256},
+          "cssVariable": {"type": "string", "pattern": "^--[a-z][a-z0-9-]*$"}
+        }
+      }
+    },
+    "components": {"type": "array", "maxItems": 256, "items": {"$ref": "component.json"}}
+  }
+}

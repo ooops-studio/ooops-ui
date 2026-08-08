@@ -1,0 +1,21 @@
+---
+import {serializeUiConfig} from './index';
+type Props = {id: string; title: string; description?: string; triggerLabel?: string; confirmLabel?: string; cancelLabel?: string; tone?: 'primary' | 'danger'; open?: boolean; busy?: boolean; closeOnBackdrop?: boolean; closeOnEscape?: boolean; class?: string};
+const {id, title, description, triggerLabel, confirmLabel = 'Confirm', cancelLabel = 'Cancel', tone = 'primary', open = false, busy = false, closeOnBackdrop = true, closeOnEscape = true, class: className = ''} = Astro.props;
+const config = serializeUiConfig({id, open, busy, closeOnBackdrop, closeOnEscape, type: 'dialog'});
+---
+{triggerLabel ? <button type="button" data-ooops-dialog-open={id} data-part="trigger">{triggerLabel}</button> : null}
+<span class:list={['ooops-dialog-root', className]} data-ooops-dialog-root={id} data-part="root">
+  <dialog aria-labelledby={`${id}-title`} aria-describedby={description ? `${id}-description` : undefined} data-part="dialog" data-tone={tone}>
+    <div data-part="surface">
+      <header data-part="header"><h2 id={`${id}-title`}>{title}</h2>{description ? <p id={`${id}-description`}>{description}</p> : null}</header>
+      <div data-part="body"><slot /></div>
+      <footer data-part="footer">
+        <button type="button" data-dialog-cancel data-initial-focus disabled={busy} data-part="cancel">{cancelLabel}</button>
+        <button type="button" data-dialog-confirm disabled={busy} data-part="confirm">{confirmLabel}</button>
+      </footer>
+    </div>
+  </dialog>
+  <script is:inline type="application/json" data-ooops-ui-config set:html={config} />
+</span>
+<script>import {installAstroUi} from '@ooopsstudio/ui-astro'; installAstroUi();</script>

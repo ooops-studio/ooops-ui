@@ -1,0 +1,12 @@
+---
+import type {ChoiceOption} from '@ooopsstudio/ui-primitives'; import {serializeUiConfig} from './index';
+type Props = {id: string; name?: string; label?: string; value?: string; defaultValue?: string; options: ChoiceOption[]; orientation?: 'horizontal' | 'vertical'; disabled?: boolean; class?: string};
+const {id, name = id, label, value = '', defaultValue = value, options, orientation = 'horizontal', disabled = false, class: className = ''} = Astro.props;
+const config = serializeUiConfig({value, defaultValue, options, type: 'segmented'});
+---
+<div class:list={['ooops-segmented', className]} id={id} data-ooops-segmented-root data-part="root" data-orientation={orientation} role="radiogroup" aria-label={label}>
+  <input type="hidden" {name} {value} data-part="input" />
+  {options.map((option) => <button type="button" role="radio" aria-checked={option.value === value} value={option.value} disabled={disabled || option.disabled} data-part="option" data-selected={String(option.value === value)}><span data-part="indicator"></span><span data-part="label">{option.label}</span></button>)}
+  <script is:inline type="application/json" data-ooops-ui-config set:html={config} />
+</div>
+<script>import {installSegmentedControl} from '@ooopsstudio/ui-astro/runtime/forms'; installSegmentedControl();</script>

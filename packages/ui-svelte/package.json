@@ -1,0 +1,165 @@
+{
+	"name": "@ooopsstudio/ui-svelte",
+	"version": "0.1.1",
+	"private": false,
+	"type": "module",
+	"publishConfig": {
+		"access": "public"
+	},
+	"files": [
+		"dist",
+		"README.md",
+		"CHANGELOG.md"
+	],
+	"svelte": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"svelte": "./dist/index.js",
+			"import": "./dist/index.js"
+		},
+		"./Select.svelte": {
+			"types": "./dist/Select.svelte.d.ts",
+			"svelte": "./dist/Select.svelte",
+			"default": "./dist/Select.svelte"
+		},
+		"./Dialog.svelte": {
+			"types": "./dist/Dialog.svelte.d.ts",
+			"svelte": "./dist/Dialog.svelte",
+			"default": "./dist/Dialog.svelte"
+		},
+		"./Modal.svelte": {
+			"types": "./dist/Modal.svelte.d.ts",
+			"svelte": "./dist/Modal.svelte",
+			"default": "./dist/Modal.svelte"
+		},
+		"./Popover.svelte": {
+			"types": "./dist/Popover.svelte.d.ts",
+			"svelte": "./dist/Popover.svelte",
+			"default": "./dist/Popover.svelte"
+		},
+		"./Accordion.svelte": {
+			"types": "./dist/Accordion.svelte.d.ts",
+			"svelte": "./dist/Accordion.svelte",
+			"default": "./dist/Accordion.svelte"
+		},
+		"./Checkbox.svelte": {
+			"types": "./dist/Checkbox.svelte.d.ts",
+			"svelte": "./dist/Checkbox.svelte",
+			"default": "./dist/Checkbox.svelte"
+		},
+		"./Combobox.svelte": {
+			"types": "./dist/Combobox.svelte.d.ts",
+			"svelte": "./dist/Combobox.svelte",
+			"default": "./dist/Combobox.svelte"
+		},
+		"./DropdownMenu.svelte": {
+			"types": "./dist/DropdownMenu.svelte.d.ts",
+			"svelte": "./dist/DropdownMenu.svelte",
+			"default": "./dist/DropdownMenu.svelte"
+		},
+		"./Field.svelte": {
+			"types": "./dist/Field.svelte.d.ts",
+			"svelte": "./dist/Field.svelte",
+			"default": "./dist/Field.svelte"
+		},
+		"./Input.svelte": {
+			"types": "./dist/Input.svelte.d.ts",
+			"svelte": "./dist/Input.svelte",
+			"default": "./dist/Input.svelte"
+		},
+		"./MultiSelect.svelte": {
+			"types": "./dist/MultiSelect.svelte.d.ts",
+			"svelte": "./dist/MultiSelect.svelte",
+			"default": "./dist/MultiSelect.svelte"
+		},
+		"./NumberInput.svelte": {
+			"types": "./dist/NumberInput.svelte.d.ts",
+			"svelte": "./dist/NumberInput.svelte",
+			"default": "./dist/NumberInput.svelte"
+		},
+		"./Part.svelte": {
+			"types": "./dist/Part.svelte.d.ts",
+			"svelte": "./dist/Part.svelte",
+			"default": "./dist/Part.svelte"
+		},
+		"./RadioGroup.svelte": {
+			"types": "./dist/RadioGroup.svelte.d.ts",
+			"svelte": "./dist/RadioGroup.svelte",
+			"default": "./dist/RadioGroup.svelte"
+		},
+		"./SegmentedControl.svelte": {
+			"types": "./dist/SegmentedControl.svelte.d.ts",
+			"svelte": "./dist/SegmentedControl.svelte",
+			"default": "./dist/SegmentedControl.svelte"
+		},
+		"./Slider.svelte": {
+			"types": "./dist/Slider.svelte.d.ts",
+			"svelte": "./dist/Slider.svelte",
+			"default": "./dist/Slider.svelte"
+		},
+		"./Switch.svelte": {
+			"types": "./dist/Switch.svelte.d.ts",
+			"svelte": "./dist/Switch.svelte",
+			"default": "./dist/Switch.svelte"
+		},
+		"./Tabs.svelte": {
+			"types": "./dist/Tabs.svelte.d.ts",
+			"svelte": "./dist/Tabs.svelte",
+			"default": "./dist/Tabs.svelte"
+		},
+		"./Textarea.svelte": {
+			"types": "./dist/Textarea.svelte.d.ts",
+			"svelte": "./dist/Textarea.svelte",
+			"default": "./dist/Textarea.svelte"
+		},
+		"./Tooltip.svelte": {
+			"types": "./dist/Tooltip.svelte.d.ts",
+			"svelte": "./dist/Tooltip.svelte",
+			"default": "./dist/Tooltip.svelte"
+		},
+		"./base.css": "./dist/base.css"
+	},
+	"sideEffects": [
+		"**/*.css"
+	],
+	"dependencies": {
+		"@ooopsstudio/ui-primitives": "workspace:^"
+	},
+	"peerDependencies": {
+		"svelte": ">=5"
+	},
+	"scripts": {
+		"typecheck": "tsc -p tsconfig.json --noEmit",
+		"build": "svelte-package && node ./scripts/finalize-package.mjs",
+		"test": "pnpm --filter @ooopsstudio/ui-primitives build && vitest run",
+		"size": "node ./scripts/check-size.mjs",
+		"depcruise": "depcruise --config ../../.dependency-cruiser.cjs src",
+		"publint": "publint",
+		"attw": "attw --pack --ignore-rules no-resolution --ignore-rules cjs-resolves-to-esm",
+		"pack:dry": "pnpm build && npm pack --dry-run"
+	},
+	"devDependencies": {
+		"@sveltejs/package": "^2.5.8",
+		"@sveltejs/vite-plugin-svelte": "^6.2.4",
+		"@testing-library/svelte": "^5.4.2",
+		"jsdom": "^27.4.0",
+		"svelte": "^5.56.8",
+		"vite": "^7.3.6"
+	},
+	"license": "MIT",
+	"description": "Svelte 5 adapters for @ooopsstudio/ui-primitives.",
+	"engines": {
+		"node": ">=22.14.0"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/ooops-studio/ooops-ui.git",
+		"directory": "packages/ui-svelte"
+	},
+	"homepage": "https://github.com/ooops-studio/ooops-ui",
+	"bugs": {
+		"url": "https://github.com/ooops-studio/ooops-ui/issues"
+	}
+}

@@ -1,0 +1,11 @@
+---
+import {serializeUiConfig} from './index';
+type Props = {id: string; name?: string; label?: string; value?: number | null; defaultValue?: number | null; min?: number; max?: number; step?: number; clampOnBlur?: boolean; required?: boolean; disabled?: boolean; class?: string};
+const {id, name = id, label, value = null, defaultValue = value, min, max, step = 1, clampOnBlur = true, required = false, disabled = false, class: className = ''} = Astro.props;
+const config = serializeUiConfig({value, defaultValue, min, max, step, clampOnBlur});
+---
+<div class:list={['ooops-number-input', className]} data-ooops-number-root data-part="root">
+  {label ? <label for={id} data-part="label">{label}</label> : null}<span data-part="input-shell"><button type="button" aria-label="Decrease" disabled={disabled} data-part="decrement">−</button><input {id} {name} type="number" value={value ?? ''} {min} {max} {step} {required} {disabled} data-part="control" /><button type="button" aria-label="Increase" disabled={disabled} data-part="increment">+</button></span>
+  <script is:inline type="application/json" data-ooops-ui-config set:html={config} />
+</div>
+<script>import {installNumberInput} from '@ooopsstudio/ui-astro/runtime/forms'; installNumberInput();</script>

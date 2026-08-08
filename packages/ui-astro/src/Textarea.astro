@@ -1,0 +1,15 @@
+---
+import {serializeUiConfig} from './index';
+type Props = {id: string; name?: string; value?: string; defaultValue?: string; label?: string; description?: string; hint?: string; error?: string; placeholder?: string; rows?: number; minRows?: number; maxRows?: number; maxlength?: number; required?: boolean; disabled?: boolean; readonly?: boolean; autoResize?: boolean; showCount?: boolean; class?: string};
+const {id, name = id, value = '', defaultValue = value, label, description, hint, error, placeholder, rows = 4, minRows = rows, maxRows = 20, maxlength, required = false, disabled = false, readonly = false, autoResize = false, showCount = false, class: className = ''} = Astro.props;
+const describedBy = [description && `${id}-description`, error ? `${id}-error` : hint && `${id}-hint`].filter(Boolean).join(' ') || undefined;
+const config = serializeUiConfig({value, defaultValue, autoResize, minRows, maxRows});
+---
+<div class:list={['ooops-textarea', className]} data-ooops-textarea-root data-part="root" data-disabled={String(disabled)} data-invalid={String(Boolean(error))}>
+  {label ? <label for={id} data-part="label">{label}</label> : null}{description ? <span id={`${id}-description`} data-part="description">{description}</span> : null}
+  <textarea {id} {name} {rows} {placeholder} {maxlength} {required} {disabled} {readonly} aria-invalid={error ? 'true' : undefined} aria-describedby={describedBy} data-part="control">{value}</textarea>
+  {showCount ? <span data-part="counter" aria-live="polite">{value.length}{maxlength ? `/${maxlength}` : ''}</span> : null}
+  {error ? <span id={`${id}-error`} data-part="error" aria-live="polite">{error}</span> : hint ? <span id={`${id}-hint`} data-part="hint">{hint}</span> : null}
+  <script is:inline type="application/json" data-ooops-ui-config set:html={config} />
+</div>
+<script>import {installTextarea} from '@ooopsstudio/ui-astro/runtime/forms'; installTextarea();</script>

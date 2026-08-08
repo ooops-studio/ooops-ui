@@ -1,0 +1,4 @@
+[
+  {"name": "scene-astro runtime", "path": "dist/runtime.js", "limit": "4.2 KB"},
+  {"name": "scene-astro editor", "path": "dist/editor.js", "limit": "0.76 KB"}
+]

@@ -1,0 +1,43 @@
+{
+  "name": "@ooopsstudio/scene-astro",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Astro 7 adapter for Ooops interactive scenes.",
+  "type": "module",
+  "publishConfig": {"access": "public"},
+  "sideEffects": ["**/*.css"],
+  "license": "MIT",
+  "engines": {"node": ">=22.14.0"},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ooops-studio/ooops-ui.git",
+    "directory": "packages/scene-astro"
+  },
+  "homepage": "https://github.com/ooops-studio/ooops-ui/tree/main/packages/scene-astro#readme",
+  "bugs": {"url": "https://github.com/ooops-studio/ooops-ui/issues"},
+  "exports": {
+    ".": {"types": "./dist/index.d.ts", "import": "./dist/index.js"},
+    "./runtime": {"types": "./dist/runtime.d.ts", "import": "./dist/runtime.js"},
+    "./editor": {"types": "./dist/editor.d.ts", "import": "./dist/editor.js"},
+    "./InteractiveScene.astro": {"default": "./dist/InteractiveScene.astro"},
+    "./base.css": "./dist/base.css"
+  },
+  "files": ["dist", "README.md", "CHANGELOG.md"],
+  "dependencies": {
+    "@ooopsstudio/editor-contracts": "workspace:^",
+    "@ooopsstudio/scene-core": "workspace:^"
+  },
+  "peerDependencies": {"astro": ">=7 <8"},
+  "devDependencies": {"astro": "^7.1.6"},
+  "scripts": {
+    "typecheck": "astro check",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "build": "tsup && node ./scripts/copy-astro.mjs",
+    "size": "size-limit --config .size-limit.json",
+    "depcruise": "depcruise --config ../../.dependency-cruiser.cjs src",
+    "publint": "publint",
+    "attw": "attw --pack --ignore-rules no-resolution --ignore-rules cjs-resolves-to-esm",
+    "pack:dry": "pnpm build && npm pack --dry-run"
+  }
+}

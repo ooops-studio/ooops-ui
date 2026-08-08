@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "sourceMap": true,
+    "outDir": "dist",
+		"lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "types": ["node"],
+		"stripInternal": true
+  },
+  "include": ["src"],
+  "exclude": ["dist", "coverage", "node_modules"]
+}

@@ -1,0 +1,13 @@
+---
+import {serializeUiConfig} from './index';
+type Props = {id: string; triggerLabel?: string; open?: boolean; placement?: 'top' | 'bottom' | 'left' | 'right'; align?: 'start' | 'center' | 'end'; role?: 'dialog' | 'region' | 'menu' | 'listbox'; ariaLabel?: string; closeOnOutside?: boolean; closeOnOutsideFocus?: boolean; closeOnEscape?: boolean; focusOnOpen?: boolean; trapFocus?: boolean; portal?: boolean; class?: string};
+const {id, triggerLabel = 'Open', open = false, placement = 'bottom', align = 'start', role = 'dialog', ariaLabel = 'Popover', closeOnOutside = true, closeOnOutsideFocus = false, closeOnEscape = true, focusOnOpen = false, trapFocus = false, portal = true, class: className = ''} = Astro.props;
+const config = serializeUiConfig({id, open, portal, placement, align, closeOnOutside, closeOnOutsideFocus, closeOnEscape, focusOnOpen, trapFocus});
+const ariaHasPopup = role === 'region' ? undefined : role;
+---
+<span class:list={['ooops-popover-root', className]} data-ooops-popover-root={id} data-part="root">
+  <button type="button" aria-haspopup={ariaHasPopup} aria-controls={`${id}-panel`} aria-expanded="false" data-part="trigger"><slot name="trigger">{triggerLabel}</slot></button>
+  <script is:inline type="application/json" data-ooops-ui-config set:html={config} />
+</span>
+<div id={`${id}-panel`} role={role} aria-label={ariaLabel} data-ooops-popover-panel={id} data-part="panel" hidden><slot /></div>
+<script>import {installAstroUi} from '@ooopsstudio/ui-astro'; installAstroUi();</script>

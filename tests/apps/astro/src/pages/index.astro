@@ -1,0 +1,152 @@
+---
+import Accordion from '@ooopsstudio/ui-astro/Accordion.astro';
+import Checkbox from '@ooopsstudio/ui-astro/Checkbox.astro';
+import Combobox from '@ooopsstudio/ui-astro/Combobox.astro';
+import Dialog from '@ooopsstudio/ui-astro/Dialog.astro';
+import DropdownMenu from '@ooopsstudio/ui-astro/DropdownMenu.astro';
+import Field from '@ooopsstudio/ui-astro/Field.astro';
+import Input from '@ooopsstudio/ui-astro/Input.astro';
+import Modal from '@ooopsstudio/ui-astro/Modal.astro';
+import MultiSelect from '@ooopsstudio/ui-astro/MultiSelect.astro';
+import NumberInput from '@ooopsstudio/ui-astro/NumberInput.astro';
+import Part from '@ooopsstudio/ui-astro/Part.astro';
+import Popover from '@ooopsstudio/ui-astro/Popover.astro';
+import RadioGroup from '@ooopsstudio/ui-astro/RadioGroup.astro';
+import SegmentedControl from '@ooopsstudio/ui-astro/SegmentedControl.astro';
+import Select from '@ooopsstudio/ui-astro/Select.astro';
+import Slider from '@ooopsstudio/ui-astro/Slider.astro';
+import Switch from '@ooopsstudio/ui-astro/Switch.astro';
+import Tabs from '@ooopsstudio/ui-astro/Tabs.astro';
+import Textarea from '@ooopsstudio/ui-astro/Textarea.astro';
+import Tooltip from '@ooopsstudio/ui-astro/Tooltip.astro';
+import Layout from '../layouts/Layout.astro';
+
+const countries = [
+  {value: 'gr', label: 'Greece', description: 'Athens', group: 'Europe'},
+  {value: 'it', label: 'Italy', description: 'Rome', group: 'Europe'},
+  {value: 'jp', label: 'Japan', description: 'Tokyo', group: 'Asia'},
+  {value: 'disabled', label: 'Disabled', disabled: true}
+];
+const tags = [
+  {value: 'design', label: 'Design'},
+  {value: 'code', label: 'Code'},
+  {value: 'research', label: 'Research'}
+];
+const choices = [
+  {value: 'basic', label: 'Basic', description: 'Basic plan'},
+  {value: 'pro', label: 'Pro', description: 'Professional plan'},
+  {value: 'disabled', label: 'Disabled', disabled: true}
+];
+---
+<Layout title="Ooops UI Astro E2E">
+  <h1>Astro component laboratory</h1>
+  <p><a href="/transition" data-astro-prefetch id="transition-link">Test view transition</a></p>
+
+  <form id="astro-form">
+    <div class="lab-grid">
+      <section class="lab-section" data-lab="text-fields">
+        <h2>Text fields</h2>
+        <Field id="astro-field-control" label="Standalone field" description="Field description" hint="Field hint" required>
+          <input id="astro-field-control" name="standalone" required />
+        </Field>
+        <Input id="astro-name" name="name" label="Name" description="Public name" hint="Required" required clearable value="Ada">
+          <span slot="prefix" data-testid="astro-prefix">@</span>
+          <span slot="suffix" data-testid="astro-suffix">.dev</span>
+        </Input>
+        <Input id="astro-password" name="password" type="password" label="Password" value="secret" revealable />
+        <Input id="astro-invalid" label="Invalid input" error="Invalid value" value="bad" />
+        <Textarea id="astro-bio" name="bio" label="Biography" value="Hello" rows={2} minRows={2} maxRows={4} maxlength={120} autoResize showCount />
+      </section>
+
+      <section class="lab-section" data-lab="choices">
+        <h2>Choices</h2>
+        <Checkbox id="astro-terms" name="terms" label="Accept terms" description="Required agreement" required />
+        <Checkbox id="astro-mixed" name="mixed" label="Mixed selection" indeterminate />
+        <Checkbox id="astro-disabled-check" name="disabledCheck" label="Disabled choice" disabled />
+        <RadioGroup id="astro-plan" name="plan" label="Plan" options={choices} value="basic" />
+        <Switch id="astro-switch" name="notifications" label="Notifications" description="Receive updates" />
+        <SegmentedControl id="astro-view" name="view" label="View" value="grid" options={[{value: 'grid', label: 'Grid'}, {value: 'list', label: 'List'}]} />
+      </section>
+
+      <section class="lab-section" data-lab="selections">
+        <h2>Selections</h2>
+        <Select id="astro-select" name="country" label="Country select" description="Choose a country" options={countries} />
+        <Combobox id="astro-combobox" name="searchCountry" label="Country combobox" options={countries} />
+        <MultiSelect id="astro-multi" name="tags" label="Tags" options={tags} maxSelected={2} />
+      </section>
+
+      <section class="lab-section" data-lab="overlays">
+        <h2>Layers</h2>
+        <DropdownMenu id="astro-menu" triggerLabel="Actions" ariaLabel="Astro actions" portal={false} items={[
+          {id: 'edit', label: 'Edit'},
+          {id: 'setting', label: 'Setting', type: 'checkbox', checked: true, keepOpen: true},
+          {id: 'compact', label: 'Compact', type: 'radio', group: 'density', checked: true, keepOpen: true},
+          {id: 'comfortable', label: 'Comfortable', type: 'radio', group: 'density', keepOpen: true},
+          {id: 'more', label: 'More', children: [{id: 'duplicate', label: 'Duplicate'}]},
+          {id: 'disabled', label: 'Disabled action', disabled: true}
+        ]} />
+        <div dir="rtl">
+          <DropdownMenu id="astro-menu-rtl" triggerLabel="RTL actions" ariaLabel="RTL actions" portal={false} items={[
+            {id: 'rtl-more', label: 'More RTL', children: [{id: 'rtl-child', label: 'RTL child'}]}
+          ]} />
+        </div>
+        <Tooltip id="astro-tooltip" label="Helpful Astro context" openDelayMs={0} closeDelayMs={0}>
+          <button type="button" id="astro-tooltip-trigger">Astro help</button>
+        </Tooltip>
+        <Tooltip id="astro-tooltip-delayed" label="Delayed Astro context" openDelayMs={180} closeDelayMs={120}>
+          <button type="button" id="astro-tooltip-delayed-trigger">Delayed help</button>
+        </Tooltip>
+        <Popover id="astro-popover" triggerLabel="Open popover" ariaLabel="Astro popover" focusOnOpen trapFocus>
+          <button type="button" id="astro-popover-action">Popover action</button>
+          <a href="/transition" id="popover-transition-link">Transition from popover</a>
+        </Popover>
+        <Dialog id="astro-dialog" title="Confirm action" description="Dialog description" triggerLabel="Open dialog">
+          <p>Dialog body</p>
+          <Modal id="astro-nested-modal" title="Nested modal" triggerLabel="Open nested modal">
+            <button type="button" id="astro-nested-action">Nested action</button>
+          </Modal>
+        </Dialog>
+        <Modal id="astro-modal" title="Modal title" triggerLabel="Open modal">
+          <button type="button" id="astro-modal-action">Modal action</button>
+        </Modal>
+      </section>
+
+      <section class="lab-section" data-lab="navigation">
+        <h2>Navigation</h2>
+        <Tabs id="astro-tabs" items={[{id: 'overview', label: 'Overview', content: 'Overview panel'}, {id: 'details', label: 'Details', content: 'Details panel'}, {id: 'disabled', label: 'Disabled', disabled: true}]} />
+        <Tabs id="astro-tabs-manual" activation="manual" items={[{id: 'first', label: 'Manual first', content: 'Manual first panel'}, {id: 'second', label: 'Manual second', content: 'Manual second panel'}]} />
+        <Tabs id="astro-navigation-tabs" mode="navigation" ariaLabel="Section navigation" items={[{id: 'home', label: 'Home', href: '#main'}, {id: 'other', label: 'Other', href: '/transition'}]} />
+        <Accordion id="astro-accordion" type="multiple" items={[{id: 'one', label: 'First section', content: 'First panel'}, {id: 'two', label: 'Second section', content: 'Second panel'}, {id: 'disabled', label: 'Disabled section', disabled: true}]} />
+      </section>
+
+      <section class="lab-section" data-lab="values">
+        <h2>Numeric values</h2>
+        <NumberInput id="astro-number" name="quantity" label="Quantity" value={2} min={0} max={5} step={1} clampOnBlur />
+        <Slider id="astro-slider" name="price" label="Price range" value={[20, 80]} min={0} max={100} step={5} minStepsBetweenThumbs={1} />
+        <Slider id="astro-slider-rtl" name="rtlValue" label="RTL value" value={50} direction="rtl" />
+        <Part part="editor-surface" as="section" state="ready" orientation="vertical" selected active data-testid="astro-part">Custom part</Part>
+      </section>
+    </div>
+    <button type="submit">Submit Astro form</button>
+    <button type="reset">Reset Astro form</button>
+  </form>
+  <output id="astro-form-output" class="status" aria-live="polite"></output>
+
+  <script>
+    const installFixture = () => {
+      const form = document.querySelector<HTMLFormElement>('#astro-form')
+      const output = document.querySelector<HTMLOutputElement>('#astro-form-output')
+      if (!form || !output || form.dataset.fixtureMounted === 'true') return
+      form.dataset.fixtureMounted = 'true'
+      const abort = new AbortController()
+      form.addEventListener('submit', (event) => {
+        event.preventDefault()
+        const entries = [...new FormData(form).entries()].map(([key, value]) => `${key}=${String(value)}`)
+        output.value = entries.join('&')
+      }, {signal: abort.signal})
+      document.addEventListener('astro:before-swap', () => abort.abort(), {once: true, signal: abort.signal})
+    }
+    installFixture()
+    document.addEventListener('astro:page-load', installFixture)
+  </script>
+</Layout>

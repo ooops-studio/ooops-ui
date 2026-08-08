@@ -1,0 +1,22 @@
+---
+import {ClientRouter} from 'astro:transitions';
+import '@ooopsstudio/ui-astro/base.css';
+import '@ooopsstudio/scene-astro/base.css';
+import '../styles.css';
+
+type Props = {title: string};
+const {title} = Astro.props;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>{title}</title>
+    <ClientRouter />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <main id="main"><slot /></main>
+  </body>
+</html>

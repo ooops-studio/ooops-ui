@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "features": [
+    {"id": "FM-CHECKBOX-TRANSITIONS", "component": "Checkbox", "branches": ["indeterminate", "checked", "disabled", "reactive-disabled"], "adapters": ["astro", "svelte"]},
+    {"id": "FM-MULTISELECT-BOUNDS", "component": "MultiSelect", "branches": ["maximum", "select-all", "clear", "keyboard-chip-removal"], "adapters": ["astro", "svelte"]},
+    {"id": "FM-MENU-BRANCHES", "component": "DropdownMenu", "branches": ["typeahead", "checkbox-item", "radio-item", "rtl-submenu"], "adapters": ["astro", "svelte"]},
+    {"id": "FM-TOOLTIP-POINTER", "component": "Tooltip", "branches": ["open-delay", "close-delay", "coarse-pointer", "focus-fallback"], "adapters": ["astro", "svelte"]},
+    {"id": "FM-LAYER-COLLISION", "component": "Popover", "branches": ["flip", "shift", "top-edge", "bottom-edge"], "adapters": ["astro", "svelte"]},
+    {"id": "FM-DIALOG-NESTED", "component": "Dialog/Modal", "branches": ["focus-cycle", "nested-modal", "topmost-escape", "focus-restore"], "adapters": ["astro", "svelte"]},
+    {"id": "FM-TABS-MODES", "component": "Tabs", "branches": ["manual-focus", "manual-activation", "navigation-links", "aria-current"], "adapters": ["astro", "svelte"]},
+    {"id": "FM-SLIDER-KEYBOARD", "component": "Slider", "branches": ["home", "end", "page", "dual-collision", "rtl"], "adapters": ["astro", "svelte"]},
+    {"id": "FM-NUMBER-INTERMEDIATE", "component": "NumberInput", "branches": ["invalid-intermediate", "empty", "clamp-on-blur"], "adapters": ["astro", "svelte"]},
+    {"id": "FM-TEXTAREA-GEOMETRY", "component": "Textarea", "branches": ["grow", "max-rows", "overflow"], "adapters": ["astro", "svelte"]},
+    {"id": "FM-ASYNC-UNMOUNT", "component": "Combobox", "branches": ["abort-signal", "navigation-unmount", "pending-cleanup"], "adapters": ["primitives", "svelte"]}
+  ]
+}

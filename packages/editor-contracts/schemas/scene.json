@@ -1,0 +1,167 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.ooops.studio/editor/scene-v2.json",
+  "title": "Ooops Studio interactive scene manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "id",
+    "label",
+    "category",
+    "owner",
+    "insertable",
+    "internals",
+    "adapters",
+    "backend",
+    "controls",
+    "assets",
+    "inputs",
+    "quality",
+    "fallbacks"
+  ],
+  "properties": {
+    "schemaVersion": {"const": 2},
+    "id": {"$ref": "#/$defs/id"},
+    "label": {"$ref": "#/$defs/nonEmptyString"},
+    "category": {"$ref": "#/$defs/nonEmptyString"},
+    "owner": {"$ref": "#/$defs/packageSpecifier"},
+    "insertable": {"type": "boolean"},
+    "internals": {"const": "locked"},
+    "adapters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["astro", "runtime"],
+      "properties": {
+        "astro": {"$ref": "#/$defs/packageSpecifier"},
+        "runtime": {"$ref": "#/$defs/packageSpecifier"}
+      }
+    },
+    "backend": {"enum": ["auto", "webgpu", "webgl2", "canvas2d"]},
+    "controls": {
+      "type": "array",
+      "maxItems": 128,
+      "items": {"$ref": "#/$defs/control"}
+    },
+    "assets": {
+      "type": "array",
+      "maxItems": 128,
+      "items": {"$ref": "#/$defs/asset"}
+    },
+    "inputs": {
+      "type": "array",
+      "maxItems": 16,
+      "uniqueItems": true,
+      "items": {
+        "enum": ["pointer", "velocity", "time", "scroll", "viewport", "audio-element"]
+      }
+    },
+    "quality": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["default", "allowed"],
+      "properties": {
+        "default": {"enum": ["low", "auto", "high"]},
+        "allowed": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 3,
+          "uniqueItems": true,
+          "items": {"enum": ["low", "auto", "high"]}
+        }
+      }
+    },
+    "fallbacks": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["poster", "description", "reducedMotion", "contextLoss"],
+      "properties": {
+        "poster": {"$ref": "#/$defs/localImagePath"},
+        "description": {"$ref": "#/$defs/nonEmptyString"},
+        "reducedMotion": {"enum": ["poster", "static"]},
+        "contextLoss": {"enum": ["poster", "hidden"]}
+      }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9]*(?:[._-][A-Za-z0-9]+)*$",
+      "maxLength": 2048
+    },
+    "nonEmptyString": {"type": "string", "minLength": 1, "maxLength": 2048},
+    "packageSpecifier": {
+      "type": "string",
+      "pattern": "^(?:@[a-z0-9][a-z0-9._-]*/[a-z0-9][a-z0-9._-]*|[a-z0-9][a-z0-9._-]*)(?:/[A-Za-z0-9._/-]+)?$"
+    },
+    "localPath": {
+      "type": "string",
+      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9_@.\\[\\]/-]+$"
+    },
+    "localImagePath": {
+      "allOf": [
+        {"$ref": "#/$defs/localPath"},
+        {"pattern": "\\.(?:png|jpe?g|webp|avif)$"}
+      ]
+    },
+    "valueSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind"],
+      "properties": {
+        "kind": {"enum": ["boolean", "number", "string", "enum", "array", "object"]},
+        "values": {"type": "array", "maxItems": 128, "items": {"type": "string"}},
+        "min": {"type": "number"},
+        "max": {"type": "number"},
+        "step": {"type": "number"},
+        "pattern": {"type": "string"},
+        "item": {"$ref": "#/$defs/valueSchema"},
+        "fields": {"type": "array", "maxItems": 64, "items": {"$ref": "#/$defs/valueField"}}
+      }
+    },
+    "valueField": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "label", "schema"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "label": {"$ref": "#/$defs/nonEmptyString"},
+        "required": {"type": "boolean"},
+        "schema": {"$ref": "#/$defs/valueSchema"}
+      }
+    },
+    "control": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "label", "schema", "editable"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "label": {"$ref": "#/$defs/nonEmptyString"},
+        "schema": {"$ref": "#/$defs/valueSchema"},
+        "required": {"type": "boolean"},
+        "default": {},
+        "editable": {"const": true},
+        "control": {"enum": ["boolean", "color", "enum", "length", "number", "select", "shadow", "text"]},
+        "description": {"type": "string", "maxLength": 2048}
+      }
+    },
+    "asset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "label", "kind", "source", "required"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "label": {"$ref": "#/$defs/nonEmptyString"},
+        "kind": {"enum": ["image", "video", "model", "environment"]},
+        "source": {"$ref": "#/$defs/localPath"},
+        "required": {"type": "boolean"}
+      },
+      "allOf": [
+        {"if": {"properties": {"kind": {"const": "image"}}}, "then": {"properties": {"source": {"pattern": "\\.(?:png|jpe?g|webp|avif)$"}}}},
+        {"if": {"properties": {"kind": {"const": "video"}}}, "then": {"properties": {"source": {"pattern": "\\.(?:mp4|webm)$"}}}},
+        {"if": {"properties": {"kind": {"const": "model"}}}, "then": {"properties": {"source": {"pattern": "\\.(?:glb|gltf)$"}}}},
+        {"if": {"properties": {"kind": {"const": "environment"}}}, "then": {"properties": {"source": {"pattern": "\\.(?:hdr|ktx2)$"}}}}
+      ]
+    }
+  }
+}

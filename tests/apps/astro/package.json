@@ -1,0 +1,21 @@
+{
+  "name": "@ooopsstudio/ui-e2e-astro",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.14.0"
+  },
+  "scripts": {
+    "typecheck": "astro check",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "@ooopsstudio/scene-astro": "workspace:*",
+    "@ooopsstudio/scene-core": "workspace:*",
+    "@ooopsstudio/ui-astro": "workspace:*",
+    "@ooopsstudio/ui-primitives": "workspace:*",
+    "astro": "^7.1.6"
+  }
+}

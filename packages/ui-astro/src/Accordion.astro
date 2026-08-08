@@ -1,0 +1,8 @@
+---
+import {serializeUiConfig} from './index';
+export type AccordionItem = {id: string; label: string; content?: string; disabled?: boolean};
+type Props = {id: string; items: AccordionItem[]; openIds?: string[]; defaultOpenIds?: string[]; type?: 'single' | 'multiple'; collapsible?: boolean; headingLevel?: 2 | 3 | 4 | 5 | 6; class?: string};
+const {id, items, openIds = [], defaultOpenIds = openIds, type = 'single', collapsible = true, headingLevel = 3, class: className = ''} = Astro.props; const Heading = `h${headingLevel}`; const config = serializeUiConfig({openIds, defaultOpenIds, type, collapsible});
+---
+<div class:list={['ooops-accordion', className]} id={id} data-ooops-accordion-root data-accordion-root data-part="root" data-type={type}>{items.map((item) => <section data-part="item" data-state={openIds.includes(item.id) ? 'open' : 'closed'}><Heading data-part="heading"><button type="button" id={`${id}-${item.id}-trigger`} aria-controls={`${id}-${item.id}-panel`} aria-expanded={openIds.includes(item.id)} disabled={item.disabled} data-accordion-trigger data-value={item.id} data-part="trigger">{item.label}<span aria-hidden="true" data-part="indicator"></span></button></Heading><div id={`${id}-${item.id}-panel`} role="region" aria-labelledby={`${id}-${item.id}-trigger`} data-accordion-panel data-value={item.id} data-part="panel" hidden={!openIds.includes(item.id)}>{item.content}</div></section>)}<slot /><script is:inline type="application/json" data-ooops-ui-config set:html={config} /></div>
+<script>import {installAccordion} from '@ooopsstudio/ui-astro/runtime/navigation'; installAccordion();</script>

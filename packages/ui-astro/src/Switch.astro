@@ -1,0 +1,11 @@
+---
+import {serializeUiConfig} from './index';
+type Props = {id: string; name?: string; label: string; description?: string; checked?: boolean; defaultChecked?: boolean; disabled?: boolean; class?: string};
+const {id, name = id, label, description, checked = false, defaultChecked = checked, disabled = false, class: className = ''} = Astro.props;
+const config = serializeUiConfig({checked, defaultChecked, switch: true});
+---
+<label class:list={['ooops-switch', className]} data-ooops-switch-root data-part="root" data-state={checked ? 'on' : 'off'}>
+  <input {id} {name} type="checkbox" {checked} {disabled} role="switch" data-part="control" /><span aria-hidden="true" data-part="track"><span data-part="thumb"></span></span><span data-part="label">{label}</span>{description ? <span data-part="description">{description}</span> : null}
+  <script is:inline type="application/json" data-ooops-ui-config set:html={config} />
+</label>
+<script>import {installSwitch} from '@ooopsstudio/ui-astro/runtime/forms'; installSwitch();</script>

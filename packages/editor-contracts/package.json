@@ -1,0 +1,52 @@
+{
+  "name": "@ooopsstudio/editor-contracts",
+  "description": "Portable, JSON-safe contracts for Ooops Studio visual editor metadata.",
+  "version": "0.2.0",
+  "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
+  "sideEffects": false,
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ooops-studio/ooops-ui.git",
+    "directory": "packages/editor-contracts"
+  },
+  "homepage": "https://github.com/ooops-studio/ooops-ui/tree/main/packages/editor-contracts#readme",
+  "bugs": {
+    "url": "https://github.com/ooops-studio/ooops-ui/issues"
+  },
+  "engines": {
+    "node": ">=22.14.0"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./schemas/component.json": "./schemas/component.json",
+    "./schemas/accessibility.json": "./schemas/accessibility.json",
+    "./schemas/template.json": "./schemas/template.json",
+    "./schemas/design-tokens.json": "./schemas/design-tokens.json",
+    "./schemas/scene.json": "./schemas/scene.json",
+    "./schemas/extension.json": "./schemas/extension.json"
+  },
+  "files": [
+    "dist",
+    "schemas",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "build": "tsup",
+    "depcruise": "depcruise --no-config src",
+    "size": "size-limit --config .size-limit.json",
+    "publint": "publint",
+    "attw": "attw --pack --ignore-rules no-resolution --ignore-rules cjs-resolves-to-esm",
+    "pack:dry": "pnpm build && npm pack --dry-run"
+  }
+}

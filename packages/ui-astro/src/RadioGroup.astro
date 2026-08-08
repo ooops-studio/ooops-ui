@@ -1,0 +1,12 @@
+---
+import type {ChoiceOption} from '@ooopsstudio/ui-primitives'; import {serializeUiConfig} from './index';
+type Props = {id: string; name?: string; label?: string; value?: string; defaultValue?: string; options: ChoiceOption[]; orientation?: 'horizontal' | 'vertical'; disabled?: boolean; class?: string};
+const {id, name = id, label, value = '', defaultValue = value, options, orientation = 'vertical', disabled = false, class: className = ''} = Astro.props;
+const config = serializeUiConfig({value, defaultValue, options, type: 'radio'});
+---
+<fieldset class:list={['ooops-radio-group', className]} id={id} data-ooops-radio-group-root data-part="root" data-orientation={orientation} disabled={disabled}>
+  {label ? <legend data-part="label">{label}</legend> : null}
+  {options.map((option) => <label data-part="option" data-selected={String(option.value === value)} data-disabled={String(Boolean(option.disabled))}><input type="radio" {name} value={option.value} checked={option.value === value} disabled={disabled || option.disabled} data-part="control" /><span aria-hidden="true" data-part="indicator"></span><span data-part="option-copy"><span data-part="option-label">{option.label}</span>{option.description ? <small data-part="description">{option.description}</small> : null}</span></label>)}
+  <script is:inline type="application/json" data-ooops-ui-config set:html={config} />
+</fieldset>
+<script>import {installRadioGroup} from '@ooopsstudio/ui-astro/runtime/forms'; installRadioGroup();</script>

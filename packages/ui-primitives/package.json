@@ -1,0 +1,52 @@
+{
+  "name": "@ooopsstudio/ui-primitives",
+  "description": "Framework-agnostic accessible UI interaction controllers for Ooops Studio.",
+  "version": "0.1.0",
+  "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
+  "sideEffects": false,
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ooops-studio/ooops-ui.git"
+  },
+  "homepage": "https://github.com/ooops-studio/ooops-ui",
+  "bugs": {
+    "url": "https://github.com/ooops-studio/ooops-ui/issues"
+  },
+  "engines": {
+    "node": ">=22.14.0"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./editor": {
+      "types": "./dist/editor.d.ts",
+      "import": "./dist/editor.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "dependencies": {
+    "@ooopsstudio/accessibility": "^0.1.0",
+    "@ooopsstudio/editor-contracts": "workspace:^"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "build": "tsup",
+    "depcruise": "depcruise --no-config src",
+    "size": "size-limit --config .size-limit.json",
+    "publint": "publint",
+    "attw": "attw --pack --ignore-rules no-resolution --ignore-rules cjs-resolves-to-esm",
+    "pack:dry": "pnpm build && npm pack --dry-run"
+  }
+}

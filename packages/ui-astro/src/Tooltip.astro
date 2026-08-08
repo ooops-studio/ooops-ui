@@ -1,0 +1,8 @@
+---
+import {serializeUiConfig} from './index';
+type Props = {id: string; label: string; openDelayMs?: number; closeDelayMs?: number; touch?: 'disabled' | 'longpress'; portal?: boolean; class?: string};
+const {id, label, openDelayMs = 500, closeDelayMs = 80, touch = 'disabled', portal = true, class: className = ''} = Astro.props; const config = serializeUiConfig({id, openDelayMs, closeDelayMs, touch, portal});
+---
+<span class:list={['ooops-tooltip', className]} data-ooops-tooltip-root data-part="root"><span aria-describedby={`${id}-tooltip`} data-part="trigger"><slot /></span><script is:inline type="application/json" data-ooops-ui-config set:html={config} /></span>
+<span id={`${id}-tooltip`} role="tooltip" data-ooops-tooltip-content={id} data-part="content" hidden>{label}<span aria-hidden="true" data-part="arrow"></span></span>
+<script>import {installTooltip} from '@ooopsstudio/ui-astro/runtime/overlays'; installTooltip();</script>

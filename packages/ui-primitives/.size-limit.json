@@ -1,0 +1,10 @@
+[
+  {"name": "input-controller", "path": "dist/index.js", "import": "{ createInputController }", "limit": "2 KB"},
+  {"name": "field-validation", "path": "dist/index.js", "import": "{ createFieldController }", "limit": "4 KB"},
+  {"name": "layer-runtime", "path": "dist/index.js", "import": "{ createLayerController }", "limit": "5 KB"},
+  {"name": "combobox-controller", "path": "dist/index.js", "import": "{ createComboboxController }", "limit": "8 KB"},
+  {"name": "multi-select-controller", "path": "dist/index.js", "import": "{ createMultiSelectController }", "limit": "7 KB"},
+  {"name": "menu-controller", "path": "dist/index.js", "import": "{ createMenuController }", "limit": "7 KB"},
+  {"name": "navigation-controllers", "path": "dist/index.js", "import": "{ createTabsController, createAccordionController }", "limit": "6 KB"},
+  {"name": "editor-manifests", "path": "dist/editor.js", "limit": "16 KB"}
+]
