@@ -43,6 +43,9 @@ jobs:
           cache: pnpm
           registry-url: https://registry.npmjs.org
 
+      - name: Setup trusted-publishing npm CLI
+        run: npm install --global npm@11.19.0
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 

@@ -1,4 +1,7 @@
+import {execFileSync} from 'node:child_process'
 import process from 'node:process'
+
+const MINIMUM_TRUSTED_PUBLISHING_NPM_VERSION = '11.5.1'
 
 const args = parseArgs(process.argv.slice(2))
 const isDryRun = args['dry-run'] === true
@@ -8,6 +11,9 @@ const hasTrustedPublishingSignals = Boolean(
 	process.env.GITHUB_ACTIONS === 'true'
 	&& process.env.NPM_CONFIG_PROVENANCE === 'true'
 )
+const npmVersion = readNpmVersion()
+const hasTrustedPublishingCli = hasTrustedPublishingSignals
+	&& isVersionAtLeast(npmVersion, MINIMUM_TRUSTED_PUBLISHING_NPM_VERSION)
 const hasGitHubPackagesToken = Boolean(
 	process.env.GITHUB_PACKAGES_TOKEN || process.env.GITHUB_TOKEN
 )
@@ -15,8 +21,8 @@ const hasGitHubPackagesToken = Boolean(
 const checks = {
 	npm: [
 		{
-			ok: hasNpmToken || hasTrustedPublishingSignals,
-			message: 'npm publishing needs either NPM_TOKEN or npm trusted publishing with GitHub OIDC/provenance enabled.'
+			ok: hasNpmToken || hasTrustedPublishingCli,
+			message: `npm publishing needs either NPM_TOKEN or npm trusted publishing with GitHub OIDC/provenance enabled and npm >=${MINIMUM_TRUSTED_PUBLISHING_NPM_VERSION}.`
 		}
 	],
 	github: [
@@ -27,8 +33,8 @@ const checks = {
 	],
 	both: [
 		{
-			ok: hasNpmToken || hasTrustedPublishingSignals,
-			message: 'npm publishing needs either NPM_TOKEN or npm trusted publishing with GitHub OIDC/provenance enabled.'
+			ok: hasNpmToken || hasTrustedPublishingCli,
+			message: `npm publishing needs either NPM_TOKEN or npm trusted publishing with GitHub OIDC/provenance enabled and npm >=${MINIMUM_TRUSTED_PUBLISHING_NPM_VERSION}.`
 		},
 		{
 			ok: hasGitHubPackagesToken,
@@ -41,6 +47,8 @@ console.log(`Release preflight${isDryRun ? ' dry-run' : ''}:`)
 console.log(`- registry strategy: ${registry}`)
 console.log(`- NPM_TOKEN present: ${hasNpmToken ? 'yes' : 'no'}`)
 console.log(`- trusted publishing signals present: ${hasTrustedPublishingSignals ? 'yes' : 'no'}`)
+console.log(`- npm CLI version: ${npmVersion}`)
+console.log(`- trusted publishing npm CLI compatible: ${hasTrustedPublishingCli ? 'yes' : 'no'}`)
 console.log(`- GitHub Packages token present: ${hasGitHubPackagesToken ? 'yes' : 'no'}`)
 
 if (isDryRun) {
@@ -99,4 +107,39 @@ function validateRegistry(value) {
 	}
 
 	return value
+}
+
+function readNpmVersion() {
+	try {
+		return execFileSync('npm', ['--version'], {encoding: 'utf8'}).trim()
+	} catch {
+		return 'unavailable'
+	}
+}
+
+function isVersionAtLeast(version, minimum) {
+	const currentParts = parseVersion(version)
+	const minimumParts = parseVersion(minimum)
+
+	if (!currentParts || !minimumParts) {
+		return false
+	}
+
+	for (let index = 0; index < minimumParts.length; index += 1) {
+		if (currentParts[index] > minimumParts[index]) {
+			return true
+		}
+
+		if (currentParts[index] < minimumParts[index]) {
+			return false
+		}
+	}
+
+	return true
+}
+
+function parseVersion(version) {
+	const match = /^(\d+)\.(\d+)\.(\d+)/u.exec(version)
+
+	return match ? match.slice(1).map(Number) : null
 }
