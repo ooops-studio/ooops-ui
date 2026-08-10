@@ -1,5 +1,5 @@
 <script lang="ts">
-	import {createSelectController, type SelectOption, type SelectState} from '@ooopsstudio/ui-primitives'
+	import {createSelectController, resolveUiMessages, type SelectOption, type SelectState, type UiMessages} from '@ooopsstudio/ui-primitives'
 	import {onDestroy, onMount, type Snippet} from 'svelte'
 
 	import {portal} from './portal'
@@ -17,6 +17,7 @@
 		disabled?: boolean
 		allowEmpty?: boolean
 		portal?: boolean
+		messages?: Partial<UiMessages>
 		class?: string
 		trigger?: Snippet<[SelectOption | null]>
 		option?: Snippet<[SelectOption, {selected: boolean; active: boolean}]>
@@ -32,16 +33,19 @@
 		error,
 		value = $bindable(''),
 		options,
-		placeholder = 'Select an option',
+		placeholder,
 		required = false,
 		disabled = false,
 		allowEmpty = true,
 		portal: usePortal = true,
+		messages,
 		class: className = '',
 		trigger,
 		option,
 		onChange
 	}: Props = $props()
+	const uiMessages = $derived(resolveUiMessages(messages))
+	const resolvedPlaceholder = $derived(placeholder ?? uiMessages.selectOption)
 
 	let root: HTMLElement | null = $state(null)
 	let triggerElement: HTMLButtonElement | null = $state(null)
@@ -85,6 +89,8 @@
 	})
 
 	$effect(() => controller?.setOptions(options))
+	$effect(() => controller?.setDisabled(disabled))
+	$effect(() => controller?.setAllowEmpty(allowEmpty))
 	$effect(() => {
 		if (controller && controller.getState().value !== value) controller.setValue(value)
 	})
@@ -112,12 +118,12 @@
 		{#if trigger}
 			{@render trigger(selectedOption)}
 		{:else}
-			<span data-part="value">{selectedOption?.label ?? placeholder}</span>
+			<span data-part="value">{selectedOption?.label ?? resolvedPlaceholder}</span>
 		{/if}
 		<span data-part="indicator" aria-hidden="true"></span>
 	</button>
 	<select bind:this={nativeSelect} bind:value {name} {required} {disabled} tabindex="-1" aria-hidden="true" data-part="native-select">
-		{#if allowEmpty}<option value="">{placeholder}</option>{/if}
+		{#if allowEmpty}<option value="">{resolvedPlaceholder}</option>{/if}
 		{#each options as entry}<option value={entry.value} disabled={entry.disabled}>{entry.label}</option>{/each}
 	</select>
 	{#if error}<span id={errorId} data-part="error">{error}</span>{/if}

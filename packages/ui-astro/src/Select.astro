@@ -1,5 +1,5 @@
 ---
-import type {SelectOption} from '@ooopsstudio/ui-primitives';
+import {resolveUiMessages, type SelectOption, type UiMessages} from '@ooopsstudio/ui-primitives';
 import {serializeUiConfig} from './index';
 
 type Props = {
@@ -15,13 +15,15 @@ type Props = {
   disabled?: boolean;
   allowEmpty?: boolean;
   portal?: boolean;
+  messages?: Partial<UiMessages>;
   class?: string;
 };
 
 const {
-  id, name = id, label, description, error, value = '', placeholder = 'Select an option', options,
-  required = false, disabled = false, allowEmpty = true, portal = true, class: className = ''
+  id, name = id, label, description, error, value = '', placeholder, options,
+  required = false, disabled = false, allowEmpty = true, portal = true, messages, class: className = ''
 } = Astro.props;
+const uiMessages = resolveUiMessages(messages); const resolvedPlaceholder = placeholder ?? uiMessages.selectOption;
 const labelId = label ? `${id}-label` : undefined;
 const descriptionId = description ? `${id}-description` : undefined;
 const errorId = error ? `${id}-error` : undefined;
@@ -30,19 +32,19 @@ const selected = options.find((option) => option.value === value) ?? null;
 const config = serializeUiConfig({id, value, defaultValue: value, disabled, allowEmpty, portal, options});
 ---
 
-<div class:list={['ooops-select', className]} data-ooops-select-root={id} data-part="root" data-placeholder={placeholder}>
+<div class:list={['ooops-select', className]} data-ooops-select-root={id} data-part="root" data-placeholder={resolvedPlaceholder}>
   {label ? <label id={labelId} for={`${id}-trigger`} data-part="label">{label}</label> : null}
   {description ? <span id={descriptionId} data-part="description">{description}</span> : null}
   <button id={`${id}-trigger`} type="button" role="combobox" aria-haspopup="listbox" aria-controls={listboxId} aria-expanded="false" aria-labelledby={labelId} aria-describedby={[descriptionId, errorId].filter(Boolean).join(' ') || undefined} aria-invalid={error ? 'true' : undefined} disabled={disabled} data-part="trigger">
     <span data-part="value">
       {selected?.icon ? <span data-part="value-icon" aria-hidden="true">{selected.icon}</span> : null}
       {selected?.iconUrl ? <img data-part="value-image" src={selected.iconUrl} alt="" loading="lazy" /> : null}
-      {selected?.label ?? placeholder}
+      {selected?.label ?? resolvedPlaceholder}
     </span>
     <span data-part="indicator" aria-hidden="true"></span>
   </button>
   <select name={name} value={value} required={required} disabled={disabled} tabindex="-1" aria-hidden="true" data-part="native-select">
-    {allowEmpty ? <option value="">{placeholder}</option> : null}
+    {allowEmpty ? <option value="">{resolvedPlaceholder}</option> : null}
     {options.map((option) => <option value={option.value} disabled={option.disabled}>{option.label}</option>)}
   </select>
   {error ? <span id={errorId} data-part="error">{error}</span> : null}

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import {createDialogController, type DialogCloseReason, type DialogState} from '@ooopsstudio/ui-primitives'
+	import {createDialogController, resolveUiMessages, type DialogCloseReason, type DialogState, type UiMessages} from '@ooopsstudio/ui-primitives'
 	import {onMount, type Snippet} from 'svelte'
 
 	type Props = {
@@ -13,6 +13,7 @@
 		busy?: boolean
 		closeOnBackdrop?: boolean
 		closeOnEscape?: boolean
+		messages?: Partial<UiMessages>
 		class?: string
 		trigger?: Snippet
 		children?: Snippet
@@ -23,10 +24,11 @@
 	const generatedId = $props.id()
 	let {
 		id = generatedId, open = $bindable(false), title, description,
-		confirmLabel = 'Confirm', cancelLabel = 'Cancel', tone = 'primary', busy = false,
-		closeOnBackdrop = true, closeOnEscape = true, class: className = '', trigger, children,
+		confirmLabel, cancelLabel, tone = 'primary', busy = false,
+		closeOnBackdrop = true, closeOnEscape = true, messages, class: className = '', trigger, children,
 		onConfirm, onClose
 	}: Props = $props()
+	const uiMessages = $derived(resolveUiMessages(messages))
 	let root: HTMLElement | null = $state(null)
 	let dialog: HTMLDialogElement | null = $state(null)
 	let triggerButton: HTMLButtonElement | null = $state(null)
@@ -60,8 +62,8 @@
 			<header data-part="header"><h2 id={`${id}-title`}>{title}</h2>{#if description}<p id={`${id}-description`}>{description}</p>{/if}</header>
 			{#if children}<div data-part="body">{@render children()}</div>{/if}
 			<footer data-part="footer">
-				<button bind:this={cancelButton} type="button" onclick={() => controller?.close('cancel')} disabled={state.busy} data-part="cancel">{cancelLabel}</button>
-				<button type="button" onclick={() => void controller?.confirm()} disabled={state.busy} data-part="confirm">{confirmLabel}</button>
+				<button bind:this={cancelButton} type="button" onclick={() => controller?.close('cancel')} disabled={state.busy} data-part="cancel">{cancelLabel ?? uiMessages.cancel}</button>
+				<button type="button" onclick={() => void controller?.confirm()} disabled={state.busy} data-part="confirm">{confirmLabel ?? uiMessages.confirm}</button>
 			</footer>
 		</div>
 	</dialog>

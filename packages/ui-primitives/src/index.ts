@@ -14,6 +14,8 @@ export type {
 	DialogState
 } from './dialog'
 export {UI_EVENTS, type UiEventName} from './events'
+export {DEFAULT_UI_MESSAGES, formatUiMessage, resolveUiMessages} from './messages'
+export type {UiMessages} from './messages'
 export {createPopoverController} from './popover'
 export type {
 	PopoverAlign,

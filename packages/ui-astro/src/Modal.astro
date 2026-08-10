@@ -1,14 +1,15 @@
 ---
-import {serializeUiConfig} from './index';
-type Props = {id: string; title?: string; description?: string; triggerLabel?: string; ariaLabel?: string; size?: 'sm' | 'md' | 'lg' | 'xl'; open?: boolean; closeLabel?: string; closeOnBackdrop?: boolean; closeOnEscape?: boolean; showCloseButton?: boolean; class?: string};
-const {id, title, description, triggerLabel, ariaLabel = 'Dialog', size = 'md', open = false, closeLabel = 'Close dialog', closeOnBackdrop = true, closeOnEscape = true, showCloseButton = true, class: className = ''} = Astro.props;
+import {resolveUiMessages, type UiMessages} from '@ooopsstudio/ui-primitives'; import {serializeUiConfig} from './index';
+type Props = {id: string; title?: string; description?: string; triggerLabel?: string; ariaLabel?: string; size?: 'sm' | 'md' | 'lg' | 'xl'; open?: boolean; closeLabel?: string; closeOnBackdrop?: boolean; closeOnEscape?: boolean; showCloseButton?: boolean; messages?: Partial<UiMessages>; class?: string};
+const {id, title, description, triggerLabel, ariaLabel, size = 'md', open = false, closeLabel, closeOnBackdrop = true, closeOnEscape = true, showCloseButton = true, messages, class: className = ''} = Astro.props;
+const uiMessages = resolveUiMessages(messages);
 const config = serializeUiConfig({id, open, closeOnBackdrop, closeOnEscape, type: 'modal'});
 ---
 {triggerLabel ? <button type="button" data-ooops-modal-open={id} data-part="trigger">{triggerLabel}</button> : null}
 <span class:list={['ooops-modal-root', className]} data-ooops-modal-root={id} data-part="root" data-size={size}>
-  <dialog aria-label={!title ? ariaLabel : undefined} aria-labelledby={title ? `${id}-title` : undefined} aria-describedby={description ? `${id}-description` : undefined} data-part="dialog">
+  <dialog aria-label={!title ? ariaLabel ?? uiMessages.dialog : undefined} aria-labelledby={title ? `${id}-title` : undefined} aria-describedby={description ? `${id}-description` : undefined} data-part="dialog">
     <article data-part="surface">
-      {showCloseButton ? <button type="button" data-modal-close data-initial-focus aria-label={closeLabel} data-part="close">×</button> : null}
+      {showCloseButton ? <button type="button" data-modal-close data-initial-focus aria-label={closeLabel ?? uiMessages.closeDialog} data-part="close">×</button> : null}
       {title || description ? <header data-part="header">{title ? <h2 id={`${id}-title`}>{title}</h2> : null}{description ? <p id={`${id}-description`}>{description}</p> : null}</header> : null}
       <div data-part="body"><slot /></div>
       <slot name="footer" />

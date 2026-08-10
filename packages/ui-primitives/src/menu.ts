@@ -207,6 +207,7 @@ export const createMenuController = (options: MenuControllerOptions) => {
 		setActiveIndex(options.getItems().indexOf(item), false)
 		if (event.type === 'pointerup') select(item)
 	}
+	const onFocusIn = () => cancelScheduledFocus()
 	return {
 		getState: store.getState,
 		subscribe: store.subscribe as (subscriber: Subscriber<MenuState>) => () => void,
@@ -219,6 +220,7 @@ export const createMenuController = (options: MenuControllerOptions) => {
 			trigger.addEventListener('click', onTrigger)
 			trigger.addEventListener('keydown', onKey)
 			menu.addEventListener('keydown', onKey)
+			menu.addEventListener('focusin', onFocusIn)
 			menu.addEventListener('pointermove', onPointer)
 			menu.addEventListener('pointerup', onPointer)
 			for (const item of options.getItems()) {
@@ -251,6 +253,7 @@ export const createMenuController = (options: MenuControllerOptions) => {
 			trigger?.removeEventListener('click', onTrigger)
 			trigger?.removeEventListener('keydown', onKey)
 			menu?.removeEventListener('keydown', onKey)
+			menu?.removeEventListener('focusin', onFocusIn)
 			menu?.removeEventListener('pointermove', onPointer)
 			menu?.removeEventListener('pointerup', onPointer)
 			window.clearTimeout(typeaheadTimer)
@@ -278,6 +281,8 @@ export const createTooltipController = (options: TooltipControllerOptions) => {
 	let openTimer: number | undefined
 	let closeTimer: number | undefined
 	let longPressTimer: number | undefined
+	let descriptionTarget: HTMLElement | null = null
+	let previousDescribedBy: string | null = null
 	const store = createControllerStore({open: false, mounted: false})
 	const layer = createLayerController({
 		getAnchor: options.getTrigger,
@@ -328,6 +333,19 @@ export const createTooltipController = (options: TooltipControllerOptions) => {
 			const trigger = options.getTrigger()
 			const tooltip = options.getTooltip()
 			if (!trigger || !tooltip) return
+			descriptionTarget = trigger.matches(
+				'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"]), [contenteditable="true"]'
+			)
+				? trigger
+				: trigger.querySelector<HTMLElement>(
+					'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"]), [contenteditable="true"]'
+				) ?? trigger
+			if (tooltip.id) {
+				previousDescribedBy = descriptionTarget.getAttribute('aria-describedby')
+				const ids = new Set((previousDescribedBy ?? '').split(/\s+/).filter(Boolean))
+				ids.add(tooltip.id)
+				descriptionTarget.setAttribute('aria-describedby', [...ids].join(' '))
+			}
 			layer.mount()
 			trigger.addEventListener('pointerenter', onPointerEnter)
 			trigger.addEventListener('pointerleave', close)
@@ -349,6 +367,12 @@ export const createTooltipController = (options: TooltipControllerOptions) => {
 			trigger?.removeEventListener('pointerdown', onPointerDown)
 			trigger?.removeEventListener('pointerup', onPointerUp)
 			trigger?.removeEventListener('pointercancel', onPointerUp)
+			if (descriptionTarget) {
+				if (previousDescribedBy === null) descriptionTarget.removeAttribute('aria-describedby')
+				else descriptionTarget.setAttribute('aria-describedby', previousDescribedBy)
+			}
+			descriptionTarget = null
+			previousDescribedBy = null
 			window.clearTimeout(openTimer)
 			window.clearTimeout(closeTimer)
 			window.clearTimeout(longPressTimer)

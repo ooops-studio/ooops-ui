@@ -124,6 +124,8 @@ export type SelectController<Value extends string = string> = {
 	toggle: () => void
 	setValue: (value: Value | '', options?: {emit?: boolean}) => void
 	setOptions: (options: ReadonlyArray<SelectOption<Value>>) => void
+	setDisabled: (disabled: boolean) => void
+	setAllowEmpty: (allowEmpty: boolean) => void
 	selectIndex: (index: number) => void
 	setActiveIndex: (index: number) => void
 	updatePosition: () => void
@@ -133,6 +135,8 @@ export const createSelectController = <Value extends string = string>(
 	config: SelectControllerOptions<Value>
 ): SelectController<Value> => {
 	let options = snapshotSelectOptions(config.options)
+	let disabled = config.disabled ?? false
+	let allowEmpty = config.allowEmpty ?? true
 	let mounted = false
 	let typeahead = ''
 	let typeaheadTimer: number | undefined
@@ -159,7 +163,7 @@ export const createSelectController = <Value extends string = string>(
 		const listbox = config.getListbox()
 		const nativeSelect = config.getNativeSelect?.()
 		trigger?.setAttribute('aria-expanded', String(state.open))
-		trigger?.toggleAttribute('disabled', config.disabled === true)
+		trigger?.toggleAttribute('disabled', disabled)
 		trigger?.setAttribute('data-state', state.open ? 'open' : 'closed')
 		const activeOption = optionElements()[state.activeIndex]
 		if (state.open && activeOption?.id)
@@ -230,7 +234,7 @@ export const createSelectController = <Value extends string = string>(
 	}
 
 	const open = () => {
-		if (config.disabled || store.getState().open) return
+		if (disabled || store.getState().open) return
 		const firstEnabled = enabledIndices(options)[0] ?? -1
 		const activeIndex =
 			selectedIndex() >= 0 && !options[selectedIndex()]?.disabled ? selectedIndex() : firstEnabled
@@ -250,7 +254,7 @@ export const createSelectController = <Value extends string = string>(
 	const setValue = (value: Value | '', setOptions: {emit?: boolean} = {}) => {
 		if (value !== '' && !options.some((option) => option.value === value && !option.disabled))
 			return
-		if (value === '' && config.allowEmpty === false) return
+		if (value === '' && !allowEmpty) return
 		store.setState({value})
 		if (setOptions.emit) {
 			const nativeSelect = config.getNativeSelect?.()
@@ -295,7 +299,7 @@ export const createSelectController = <Value extends string = string>(
 	}
 
 	const handleTriggerKeydown = (event: KeyboardEvent) => {
-		if (config.disabled) return
+		if (disabled) return
 		if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
 			event.preventDefault()
 			if (!store.getState().open) open()
@@ -415,6 +419,18 @@ export const createSelectController = <Value extends string = string>(
 				store.setState({value: ''})
 			}
 			syncDom()
+		},
+		setDisabled(nextDisabled) {
+			disabled = nextDisabled
+			if (disabled) finishClose()
+			syncDom()
+		},
+		setAllowEmpty(nextAllowEmpty) {
+			allowEmpty = nextAllowEmpty
+			if (!allowEmpty && store.getState().value === '') {
+				const first = options.find((option) => !option.disabled)
+				if (first) setValue(first.value)
+			}
 		},
 		selectIndex,
 		setActiveIndex,

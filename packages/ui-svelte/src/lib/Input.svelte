@@ -1,10 +1,11 @@
 <script lang="ts">
-	import {createInputController} from '@ooopsstudio/ui-primitives'
+	import {createInputController, resolveUiMessages, type UiMessages} from '@ooopsstudio/ui-primitives'
 	import {onMount, type Snippet} from 'svelte'
 
-	type Props = {id?: string; name?: string; type?: string; label?: string; description?: string; hint?: string; error?: string; value?: string; placeholder?: string; required?: boolean; disabled?: boolean; clearable?: boolean; revealable?: boolean; class?: string; prefix?: Snippet; suffix?: Snippet; onChange?: (value: string) => void}
+	type Props = {id?: string; name?: string; type?: 'text' | 'email' | 'url' | 'tel' | 'password' | 'search' | 'number' | 'date' | 'datetime-local' | 'time' | 'color'; label?: string; description?: string; hint?: string; error?: string; value?: string; placeholder?: string; required?: boolean; disabled?: boolean; readonly?: boolean; clearable?: boolean; revealable?: boolean; autocomplete?: string; min?: string | number; max?: string | number; step?: string | number; messages?: Partial<UiMessages>; class?: string; prefix?: Snippet; suffix?: Snippet; onChange?: (value: string) => void}
 	const generatedId = $props.id()
-	let {id = generatedId, name, type = 'text', label, description, hint, error, value = $bindable(''), placeholder, required = false, disabled = false, clearable = false, revealable = false, class: className = '', prefix, suffix, onChange}: Props = $props()
+	let {id = generatedId, name, type = 'text', label, description, hint, error, value = $bindable(''), placeholder, required = false, disabled = false, readonly = false, clearable = false, revealable = false, autocomplete, min, max, step, messages, class: className = '', prefix, suffix, onChange}: Props = $props()
+	const uiMessages = $derived(resolveUiMessages(messages))
 	let input: HTMLInputElement | null = $state(null)
 	let revealed = $state(false)
 	let controller: ReturnType<typeof createInputController> | null = null
@@ -22,9 +23,9 @@
 	{#if description}<p id={`${id}-description`} data-part="description">{description}</p>{/if}
 	<div data-part="input-shell">
 		{#if prefix}<span data-part="prefix">{@render prefix()}</span>{/if}
-		<input bind:this={input} {id} {name} type={type === 'password' && revealed ? 'text' : type} {placeholder} {required} {disabled} aria-describedby={describedBy} aria-invalid={error ? 'true' : undefined} data-part="control" />
-		{#if clearable}<button type="button" data-part="clear" aria-label="Clear" disabled={disabled || !value} onclick={() => controller?.setValue('', true)}>×</button>{/if}
-		{#if revealable && type === 'password'}<button type="button" data-part="reveal" aria-label={revealed ? 'Hide password' : 'Show password'} aria-pressed={revealed} onclick={() => { revealed = !revealed; input?.focus() }}>◉</button>{/if}
+		<input bind:this={input} {id} {name} type={type === 'password' && revealed ? 'text' : type} {placeholder} {required} {disabled} {readonly} {autocomplete} {min} {max} {step} aria-describedby={describedBy} aria-invalid={error ? 'true' : undefined} data-part="control" />
+		{#if clearable}<button type="button" data-part="clear" aria-label={uiMessages.clear} disabled={disabled || !value} onclick={() => controller?.setValue('', true)}>×</button>{/if}
+		{#if revealable && type === 'password'}<button type="button" data-part="reveal" aria-label={revealed ? uiMessages.hidePassword : uiMessages.showPassword} aria-pressed={revealed} onclick={() => { revealed = !revealed; input?.focus() }}>◉</button>{/if}
 		{#if suffix}<span data-part="suffix">{@render suffix()}</span>{/if}
 	</div>
 	{#if hint && !error}<p id={`${id}-hint`} data-part="hint">{hint}</p>{/if}

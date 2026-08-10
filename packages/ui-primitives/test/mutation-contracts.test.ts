@@ -6,6 +6,8 @@ import {
 	createCheckboxController,
 	createMultiSelectController,
 	createNumberInputController,
+	createRadioGroupController,
+	createSegmentedControlController,
 	createSliderController
 } from '../src/index'
 
@@ -178,6 +180,8 @@ describe('mutation-gated multi-select behavior', () => {
 		})
 
 		controller.mount()
+		controller.setValues(['a'])
+		expect(onChange).not.toHaveBeenCalled()
 		controller.setValues(['a', 'a', 'disabled', 'b', 'c'], true)
 		expect(controller.getState().values).toEqual(['a', 'b'])
 		expect(Object.isFrozen(controller.getState().values)).toBe(true)
@@ -185,19 +189,78 @@ describe('mutation-gated multi-select behavior', () => {
 
 		controller.toggleValue('a')
 		expect(controller.getState().values).toEqual(['b'])
+		expect(onChange).toHaveBeenLastCalledWith(['b'])
 		controller.toggleValue('c')
 		expect(controller.getState().values).toEqual(['b', 'c'])
 		controller.toggleValue('disabled')
 		expect(controller.getState().values).toEqual(['b', 'c'])
+		expect(onChange).toHaveBeenCalledTimes(3)
 
+		onChange.mockClear()
 		controller.selectAll()
 		expect(controller.getState().values).toEqual(['a', 'b'])
+		expect(onChange).toHaveBeenCalledOnce()
+		expect(onChange).toHaveBeenLastCalledWith(['a', 'b'])
+		input.value = 'query'
+		input.dispatchEvent(new Event('input', {bubbles: true}))
+		input.dispatchEvent(new KeyboardEvent('keydown', {key: 'Backspace', bubbles: true}))
+		expect(controller.getState().values).toEqual(['a', 'b'])
 		input.value = ''
+		input.dispatchEvent(new Event('input', {bubbles: true}))
+		input.dispatchEvent(new KeyboardEvent('keydown', {key: 'Delete', bubbles: true}))
+		expect(controller.getState().values).toEqual(['a', 'b'])
 		input.dispatchEvent(new KeyboardEvent('keydown', {key: 'Backspace', bubbles: true}))
 		expect(controller.getState().values).toEqual(['a'])
+		expect(onChange).toHaveBeenLastCalledWith(['a'])
 		controller.clear()
 		expect(controller.getState().values).toEqual([])
+		expect(onChange).toHaveBeenLastCalledWith([])
 		controller.destroy()
+	})
+})
+
+describe('mutation-gated dynamic choice behavior', () => {
+	it('delegates events to radio and segmented options added after mount', () => {
+		document.body.innerHTML = `
+			<div id="radios"><input type="radio" value="a"><input type="radio" value="b"></div>
+			<div id="segments"><button value="a"></button><button value="b"></button></div>
+		`
+		const radios = document.querySelector<HTMLElement>('#radios')!
+		const segments = document.querySelector<HTMLElement>('#segments')!
+		const radio = createRadioGroupController({
+			options: [{value: 'a', label: 'A'}, {value: 'b', label: 'B'}],
+			value: 'a',
+			getRoot: () => radios,
+			getInputs: () => [...radios.querySelectorAll<HTMLInputElement>('input')]
+		})
+		const segmented = createSegmentedControlController({
+			options: [{value: 'a', label: 'A'}, {value: 'b', label: 'B'}],
+			value: 'a',
+			getRoot: () => segments,
+			getInputs: () => [...segments.querySelectorAll<HTMLButtonElement>('button')]
+		})
+		radio.mount()
+		segmented.mount()
+		const radioC = document.createElement('input')
+		radioC.type = 'radio'
+		radioC.value = 'c'
+		radios.append(radioC)
+		const segmentC = document.createElement('button')
+		segmentC.value = 'c'
+		segments.append(segmentC)
+		const nextOptions = [
+			{value: 'a', label: 'A'},
+			{value: 'b', label: 'B'},
+			{value: 'c', label: 'C'}
+		]
+		radio.setOptions(nextOptions)
+		segmented.setOptions(nextOptions)
+		radioC.dispatchEvent(new Event('change', {bubbles: true}))
+		segmentC.click()
+		expect(radio.getState().value).toBe('c')
+		expect(segmented.getState().value).toBe('c')
+		radio.destroy()
+		segmented.destroy()
 	})
 })
 
@@ -237,6 +300,22 @@ describe('mutation-gated number and slider behavior', () => {
 		input.value = ''
 		input.dispatchEvent(new Event('input', {bubbles: true}))
 		expect(controller.getState()).toMatchObject({value: null, text: '', valid: true})
+		controller.destroy()
+	})
+
+	it('steps unbounded inputs from zero instead of a maximum-safe-integer origin', () => {
+		document.body.innerHTML = '<div><button id="increment"></button><input value="1"></div>'
+		const input = document.querySelector<HTMLInputElement>('input')!
+		const increment = document.querySelector<HTMLElement>('#increment')!
+		const controller = createNumberInputController({
+			value: 1,
+			getInput: () => input,
+			getIncrement: () => increment
+		})
+		controller.mount()
+		increment.click()
+		expect(controller.getState().value).toBe(2)
+		expect(input.value).toBe('2')
 		controller.destroy()
 	})
 
@@ -289,5 +368,27 @@ describe('mutation-gated number and slider behavior', () => {
 		singleThumb.dispatchEvent(new KeyboardEvent('keydown', {key: 'ArrowDown', bubbles: true}))
 		expect(single.getState().value).toBe(50)
 		single.destroy()
+	})
+
+	it('refreshes thumbs introduced by a number-to-range shape change', () => {
+		document.body.innerHTML = '<div id="dynamic"><button data-thumb="0"></button></div>'
+		const root = document.querySelector<HTMLElement>('#dynamic')!
+		const controller = createSliderController({
+			value: 40,
+			step: 5,
+			getRoot: () => root,
+			getThumbs: () => [...root.querySelectorAll<HTMLElement>('[data-thumb]')]
+		})
+		controller.mount()
+		controller.setValue([30, 70])
+		const second = document.createElement('button')
+		second.dataset.thumb = '1'
+		root.append(second)
+		controller.refresh()
+		expect(second.getAttribute('aria-valuenow')).toBe('70')
+		expect(second.style.getPropertyValue('--ooops-ui-slider-percent')).toBe('70%')
+		second.dispatchEvent(new KeyboardEvent('keydown', {key: 'ArrowRight', bubbles: true}))
+		expect(controller.getState().value).toEqual([30, 75])
+		controller.destroy()
 	})
 })

@@ -60,6 +60,8 @@ try {
 		}
 		await run(process.execPath, [typescriptCli, '-p', 'tsconfig.json', '--noEmit'], {cwd: consumerDir})
 	}
+
+	await verifyPackedFrameworkConsumers(consumerDir, packages)
 } finally {
 	await rm(tempRoot, {recursive: true, force: true})
 }
@@ -107,6 +109,7 @@ async function writeConsumerFixture(consumerDir, artifacts, packageInfos) {
 		}
 	}
 	const nodeTypesVersion = rootManifest.devDependencies?.['@types/node']
+	const hasSvelteAdapter = packageInfos.some((entry) => entry.name === '@ooopsstudio/ui-svelte')
 	const overrides = Object.fromEntries(
 		artifacts.map((artifact) => [artifact.name, `file:${artifact.path}`])
 	)
@@ -116,6 +119,10 @@ async function writeConsumerFixture(consumerDir, artifacts, packageInfos) {
 		type: 'module',
 		dependencies: {
 			...(typeof nodeTypesVersion === 'string' ? {'@types/node': nodeTypesVersion} : {}),
+			...(hasSvelteAdapter ? {
+				'@sveltejs/vite-plugin-svelte': rootManifest.devDependencies['@sveltejs/vite-plugin-svelte'],
+				vite: rootManifest.devDependencies.vite
+			} : {}),
 			...peerDependencies,
 			...Object.fromEntries(artifacts.map((artifact) => [artifact.name, `file:${artifact.path}`]))
 		}
@@ -136,6 +143,67 @@ async function writeConsumerFixture(consumerDir, artifacts, packageInfos) {
 		},
 		include: ['consumer.ts']
 	}, null, 2) + '\n')
+}
+
+async function verifyPackedFrameworkConsumers(consumerDir, packageInfos) {
+	const names = new Set(packageInfos.map((entry) => entry.name))
+	if (names.has('@ooopsstudio/ui-astro')) await verifyPackedAstroConsumer(consumerDir)
+	if (names.has('@ooopsstudio/ui-svelte')) await verifyPackedSvelteConsumer(consumerDir)
+}
+
+async function verifyPackedAstroConsumer(consumerDir) {
+	const appDir = path.join(consumerDir, 'astro-consumer')
+	await run('mkdir', ['-p', path.join(appDir, 'src/pages')], {cwd: consumerDir})
+	await writeFile(path.join(appDir, 'package.json'), JSON.stringify({
+		name: 'packed-astro-consumer',
+		private: true,
+		type: 'module'
+	}, null, 2) + '\n')
+	await writeFile(path.join(appDir, 'astro.config.mjs'), "import {defineConfig} from 'astro/config'\nexport default defineConfig({output: 'static'})\n")
+	await writeFile(path.join(appDir, 'src/pages/index.astro'), `---
+import Checkbox from '@ooopsstudio/ui-astro/Checkbox.astro'
+import Select from '@ooopsstudio/ui-astro/Select.astro'
+import Slider from '@ooopsstudio/ui-astro/Slider.astro'
+---
+<Checkbox id="packed-checkbox" label="Packed checkbox" />
+<Select id="packed-select" label="Packed select" options={[{value: 'a', label: 'Alpha'}]} />
+<Slider id="packed-slider" label="Packed slider" value={20} />
+`)
+	await run('pnpm', ['exec', 'astro', 'build'], {cwd: appDir})
+	const html = await readFile(path.join(appDir, 'dist/index.html'), 'utf8')
+	assert(html.includes('Packed checkbox'), 'Packed Astro consumer did not render Checkbox.')
+	assert(html.includes('data-ooops-slider-root'), 'Packed Astro consumer did not render Slider.')
+}
+
+async function verifyPackedSvelteConsumer(consumerDir) {
+	const appDir = path.join(consumerDir, 'svelte-consumer')
+	await run('mkdir', ['-p', path.join(appDir, 'src')], {cwd: consumerDir})
+	await writeFile(path.join(appDir, 'package.json'), JSON.stringify({
+		name: 'packed-svelte-consumer',
+		private: true,
+		type: 'module'
+	}, null, 2) + '\n')
+	await writeFile(path.join(appDir, 'index.html'), '<div id="app"></div><script type="module" src="/src/main.js"></script>\n')
+	await writeFile(path.join(appDir, 'vite.config.mjs'), `
+import {defineConfig} from 'vite'
+import {svelte} from '@sveltejs/vite-plugin-svelte'
+export default defineConfig({plugins: [svelte()]})
+`)
+	await writeFile(path.join(appDir, 'src/main.js'), `
+import {mount} from 'svelte'
+import App from './App.svelte'
+mount(App, {target: document.querySelector('#app')})
+`)
+	await writeFile(path.join(appDir, 'src/App.svelte'), `<script>
+	import {Checkbox, Select, Slider} from '@ooopsstudio/ui-svelte'
+</script>
+<Checkbox id="packed-checkbox" label="Packed checkbox" />
+<Select id="packed-select" label="Packed select" options={[{value: 'a', label: 'Alpha'}]} />
+<Slider id="packed-slider" label="Packed slider" value={20} />
+`)
+	await run('pnpm', ['exec', 'vite', 'build'], {cwd: appDir})
+	const files = await readdir(path.join(appDir, 'dist/assets'))
+	assert(files.some((entry) => entry.endsWith('.js')), 'Packed Svelte consumer emitted no JavaScript.')
 }
 
 function testedPeerVersion(packageInfo, name, fallbackRange) {

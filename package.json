@@ -17,6 +17,7 @@
 		"typecheck": "pnpm build && pnpm -r --filter './packages/*' run typecheck && pnpm -r --filter './tests/apps/*' run typecheck",
 		"lint": "eslint --cache --cache-strategy content --cache-location .cache/eslint --no-error-on-unmatched-pattern .dependency-cruiser.cjs commitlint.config.mjs eslint.config.js playwright.config.ts vitest.config.ts \"scripts/**/*.{js,mjs,cjs,ts,tsx}\" \"examples/**/*.{js,mjs,cjs,ts,tsx}\" \"packages/*/*.{js,mjs,cjs,ts,tsx}\" \"packages/*/{src,test}/**/*.{js,mjs,cjs,ts,tsx}\" \"tests/**/*.{js,mjs,cjs,ts,tsx}\"",
 		"test": "pnpm -r --filter './packages/*' --if-present run test",
+		"test:coverage": "pnpm --filter @ooopsstudio/ui-primitives test:coverage",
 		"test:browser": "pnpm test:e2e",
 		"test:e2e:prepare": "node scripts/generate-scene-test-fixture.mjs && pnpm build && pnpm --filter @ooopsstudio/ui-e2e-astro build && pnpm --filter @ooopsstudio/ui-e2e-sveltekit build",
 		"test:e2e:run:primitives": "playwright test --project=primitives-chromium && playwright test --project=primitives-firefox && playwright test --project=primitives-webkit",
@@ -63,7 +64,7 @@
 		"release:preflight": "node ./scripts/release-preflight.mjs",
 		"publish:packages": "node ./scripts/publish-packages.mjs",
 		"changeset": "changeset",
-		"validate": "pnpm guard:template && pnpm check:agents && pnpm check:manifests && pnpm check:optional-modules && pnpm check:licenses && pnpm check:feature-coverage && pnpm check:at-protocol && pnpm lint && pnpm typecheck && pnpm build && pnpm test && pnpm size && pnpm depcruise && pnpm publint && pnpm attw && pnpm check:packed-artifacts && pnpm readiness:strict && pnpm smoke:package-tools",
+		"validate": "pnpm guard:template && pnpm check:agents && pnpm check:manifests && pnpm check:optional-modules && pnpm check:licenses && pnpm check:feature-coverage && pnpm check:at-protocol && pnpm lint && pnpm typecheck && pnpm build && pnpm test && pnpm test:coverage && pnpm size && pnpm depcruise && pnpm publint && pnpm attw && pnpm check:packed-artifacts && pnpm readiness:strict && pnpm smoke:package-tools",
 		"validate:release": "pnpm validate && pnpm test:e2e && pnpm test:e2e:visual && pnpm test:e2e:stress"
 	},
 	"devDependencies": {

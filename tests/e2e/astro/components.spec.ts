@@ -18,7 +18,7 @@ test('Field, Input and Textarea expose labels, slots and editing behavior', asyn
 	await page.locator('[data-ooops-input-root]').filter({has: page.locator('#astro-name')}).getByRole('button', {name: 'Clear'}).click()
 	await expect(page.locator('#astro-name')).toHaveValue('')
 	await page.locator('#astro-password').fill('secret')
-	await page.locator('[data-ooops-input-root]').filter({has: page.locator('#astro-password')}).getByRole('button', {name: 'Show or hide password'}).click()
+	await page.locator('[data-ooops-input-root]').filter({has: page.locator('#astro-password')}).getByRole('button', {name: 'Show password'}).click()
 	await expect(page.locator('#astro-password')).toHaveAttribute('type', 'text')
 	await page.locator('#astro-bio').fill('Longer biography')
 	await expect(page.locator('[data-ooops-textarea-root] [data-part="counter"]')).toHaveText('16/120')
@@ -27,7 +27,9 @@ test('Field, Input and Textarea expose labels, slots and editing behavior', asyn
 })
 
 test('@critical form controls serialize and reset native values', async({page}) => {
-	await page.locator('#astro-field-control').fill('standalone')
+	await expect(page.locator('#astro-field-control [data-part="label"]')).toHaveAttribute('for', 'astro-field-control-control')
+	await expect(page.locator('#astro-switch')).toHaveAttribute('aria-describedby', 'astro-switch-description')
+	await page.locator('#astro-field-control-control').fill('standalone')
 	await page.locator('#astro-terms').check()
 	await page.getByLabel('Pro').check()
 	await page.locator('#astro-switch').check()
@@ -42,6 +44,30 @@ test('@critical form controls serialize and reset native values', async({page}) 
 	await page.getByRole('button', {name: 'Reset Astro form'}).click()
 	await expect(page.locator('#astro-terms')).not.toBeChecked()
 	await expect(page.getByLabel('Basic')).toBeChecked()
+})
+
+test('localized defaults render without replacing component behavior', async({page}) => {
+	const localized = page
+		.locator('[data-ooops-number-root]')
+		.filter({has: page.locator('#astro-localized-number')})
+	await expect(localized.getByRole('button', {name: 'Μείωση'})).toBeVisible()
+	await localized.getByRole('button', {name: 'Αύξηση'}).click()
+	await expect(page.locator('#astro-localized-number')).toHaveValue('2')
+})
+
+test('@critical disabled Slider ignores pointer input and Checkbox errors are described', async({page}) => {
+	const slider = page.locator('#astro-disabled-slider')
+	const thumb = slider.locator('[role="slider"]')
+	await expect(thumb).toHaveAttribute('aria-valuenow', '20')
+	const box = await slider.boundingBox()
+	expect(box).not.toBeNull()
+	await page.mouse.click(box!.x + box!.width * 0.8, box!.y + box!.height / 2)
+	await expect(thumb).toHaveAttribute('aria-valuenow', '20')
+	await expect(slider.locator('input[type="hidden"]')).toHaveValue('20')
+	await expect(page.locator('#astro-error-check')).toHaveAttribute(
+		'aria-describedby',
+		'astro-error-check-description astro-error-check-error'
+	)
 })
 
 test('@critical Select, Combobox and MultiSelect support keyboard-only selection', async({page}) => {
@@ -95,6 +121,7 @@ test('@critical layers handle nested Escape and restore focus', async({page}) =>
 })
 
 test('Tooltip and Popover expose dismissal and focus behavior', async({page}) => {
+	await expect(page.locator('#astro-tooltip-trigger')).toHaveAttribute('aria-describedby', 'astro-tooltip-tooltip')
 	await page.locator('#astro-tooltip-trigger').focus()
 	await expect(page.getByRole('tooltip')).toBeVisible()
 	await page.keyboard.press('Escape')

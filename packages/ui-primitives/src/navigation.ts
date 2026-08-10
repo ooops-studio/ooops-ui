@@ -16,6 +16,10 @@ export type TabsControllerOptions = {
 }
 
 export const createTabsController = (options: TabsControllerOptions) => {
+	let mode = options.mode ?? 'panels'
+	let activation = options.activation ?? 'automatic'
+	let orientation = options.orientation ?? 'horizontal'
+	let loop = options.loop ?? true
 	const initial = options.activeId || options.defaultActiveId || ''
 	const store = createControllerStore<TabsState>({
 		activeId: initial,
@@ -34,7 +38,7 @@ export const createTabsController = (options: TabsControllerOptions) => {
 		options.getTabs().forEach((tab) => {
 			const active = idOf(tab) === state.activeId
 			tab.tabIndex = idOf(tab) === state.focusedId ? 0 : -1
-			if ((options.mode ?? 'panels') === 'panels') tab.setAttribute('aria-selected', String(active))
+			if (mode === 'panels') tab.setAttribute('aria-selected', String(active))
 			else if (active) tab.setAttribute('aria-current', 'page')
 			else tab.removeAttribute('aria-current')
 			tab.dataset.active = String(active)
@@ -57,8 +61,8 @@ export const createTabsController = (options: TabsControllerOptions) => {
 		sync()
 		tab.focus()
 		if (
-			(options.activation ?? 'automatic') === 'automatic' &&
-			(options.mode ?? 'panels') === 'panels'
+			activation === 'automatic' &&
+			mode === 'panels'
 		)
 			setActive(id, true)
 	}
@@ -68,19 +72,19 @@ export const createTabsController = (options: TabsControllerOptions) => {
 		const nextPosition = position + direction
 		const next =
 			tabs[nextPosition] ??
-			(options.loop === false ? current : direction === 1 ? tabs[0] : tabs.at(-1))
+			(!loop ? current : direction === 1 ? tabs[0] : tabs.at(-1))
 		if (next) focus(next)
 	}
 	const onClick = (event: MouseEvent) => {
 		const tab = (event.target as Element | null)?.closest<HTMLElement>('[data-tab]')
 		if (!tab || tab.getAttribute('aria-disabled') === 'true') return
-		if ((options.mode ?? 'panels') === 'panels') event.preventDefault()
+		if (mode === 'panels') event.preventDefault()
 		setActive(idOf(tab), true)
 	}
 	const onKey = (event: KeyboardEvent) => {
 		const tab = (event.target as Element | null)?.closest<HTMLElement>('[data-tab]')
 		if (!tab) return
-		const horizontal = (options.orientation ?? 'horizontal') === 'horizontal'
+		const horizontal = orientation === 'horizontal'
 		if (event.key === (horizontal ? 'ArrowRight' : 'ArrowDown')) {
 			event.preventDefault()
 			move(tab, 1)
@@ -93,7 +97,7 @@ export const createTabsController = (options: TabsControllerOptions) => {
 			if (next) focus(next)
 		} else if (
 			(event.key === 'Enter' || event.key === ' ') &&
-			(options.activation ?? 'automatic') === 'manual'
+			activation === 'manual'
 		) {
 			event.preventDefault()
 			setActive(idOf(tab), true)
@@ -112,6 +116,23 @@ export const createTabsController = (options: TabsControllerOptions) => {
 			sync()
 		},
 		setActive,
+		configure(next: Pick<TabsControllerOptions, 'mode' | 'activation' | 'orientation' | 'loop'>) {
+			mode = next.mode ?? 'panels'
+			activation = next.activation ?? 'automatic'
+			orientation = next.orientation ?? 'horizontal'
+			loop = next.loop ?? true
+			sync()
+		},
+		refresh() {
+			const current = store.getState().activeId
+			if (!enabled().some((tab) => idOf(tab) === current)) {
+				const fallback = enabled()[0]
+				const next = fallback ? idOf(fallback) : ''
+				store.setState({activeId: next, focusedId: next})
+				if (next !== current) options.onChange?.(next)
+			}
+			sync()
+		},
 		destroy() {
 			const root = options.getTabs()[0]?.parentElement
 			root?.removeEventListener('click', onClick)

@@ -1,12 +1,12 @@
 ---
-import type {SelectOption} from '@ooopsstudio/ui-primitives'; import {serializeUiConfig} from './index';
-type Props = {id: string; name?: string; label?: string; values?: string[]; defaultValues?: string[]; options: SelectOption[]; placeholder?: string; maxSelected?: number; disabled?: boolean; showSelectAll?: boolean; showClear?: boolean; class?: string};
-const {id, name = id, label, values = [], defaultValues = values, options, placeholder = 'Search options', maxSelected, disabled = false, showSelectAll = true, showClear = true, class: className = ''} = Astro.props;
-const listboxId = `${id}-listbox`; const config = serializeUiConfig({id, name, values, defaultValues, options, maxSelected, disabled});
+import {resolveUiMessages, type SelectOption, type UiMessages} from '@ooopsstudio/ui-primitives'; import {serializeUiConfig} from './index';
+type Props = {id: string; name?: string; label?: string; values?: string[]; defaultValues?: string[]; options: SelectOption[]; placeholder?: string; maxSelected?: number; disabled?: boolean; showSelectAll?: boolean; showClear?: boolean; messages?: Partial<UiMessages>; class?: string};
+const {id, name = id, label, values = [], defaultValues = values, options, placeholder, maxSelected, disabled = false, showSelectAll = true, showClear = true, messages, class: className = ''} = Astro.props;
+const uiMessages = resolveUiMessages(messages); const listboxId = `${id}-listbox`; const config = serializeUiConfig({id, name, values, defaultValues, options, maxSelected, disabled, messages: {removeItem: uiMessages.removeItem}});
 ---
 <div class:list={['ooops-multi-select', className]} data-ooops-multi-select-root data-part="root">
-  {label ? <label id={`${id}-label`} for={id} data-part="label">{label}</label> : null}<div data-part="control"><span data-part="chips"></span><input {id} type="text" {placeholder} {disabled} role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls={listboxId} data-part="input" /><span aria-hidden="true" data-part="indicator"></span></div>
+  {label ? <label id={`${id}-label`} for={id} data-part="label">{label}</label> : null}<div data-part="control"><span data-part="chips"></span><input {id} type="text" placeholder={placeholder ?? uiMessages.searchOptions} {disabled} role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls={listboxId} data-part="input" /><span aria-hidden="true" data-part="indicator"></span></div>
   <script is:inline type="application/json" data-ooops-ui-config set:html={config} />
 </div>
-<div id={listboxId} role="listbox" aria-labelledby={label ? `${id}-label` : undefined} aria-multiselectable="true" data-ooops-multi-select-listbox={id} data-part="listbox" hidden><div data-part="actions">{showSelectAll ? <button type="button" data-part="select-all">Select all</button> : null}{showClear ? <button type="button" data-part="clear">Clear</button> : null}</div><div data-part="options"></div></div>
+<div id={listboxId} role="listbox" aria-labelledby={label ? `${id}-label` : undefined} aria-multiselectable="true" data-ooops-multi-select-listbox={id} data-part="listbox" hidden><div data-part="actions">{showSelectAll ? <button type="button" data-part="select-all">{uiMessages.selectAll}</button> : null}{showClear ? <button type="button" data-part="clear">{uiMessages.clear}</button> : null}</div><div data-part="options"></div></div>
 <script>import {installMultiSelect} from '@ooopsstudio/ui-astro/runtime/selections'; installMultiSelect();</script>

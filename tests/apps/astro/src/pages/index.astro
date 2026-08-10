@@ -47,7 +47,7 @@ const choices = [
       <section class="lab-section" data-lab="text-fields">
         <h2>Text fields</h2>
         <Field id="astro-field-control" label="Standalone field" description="Field description" hint="Field hint" required>
-          <input id="astro-field-control" name="standalone" required />
+          <input id="astro-field-control-control" name="standalone" required />
         </Field>
         <Input id="astro-name" name="name" label="Name" description="Public name" hint="Required" required clearable value="Ada">
           <span slot="prefix" data-testid="astro-prefix">@</span>
@@ -63,6 +63,7 @@ const choices = [
         <Checkbox id="astro-terms" name="terms" label="Accept terms" description="Required agreement" required />
         <Checkbox id="astro-mixed" name="mixed" label="Mixed selection" indeterminate />
         <Checkbox id="astro-disabled-check" name="disabledCheck" label="Disabled choice" disabled />
+		<Checkbox id="astro-error-check" name="errorCheck" label="Invalid choice" description="Choose carefully" error="Selection required" />
         <RadioGroup id="astro-plan" name="plan" label="Plan" options={choices} value="basic" />
         <Switch id="astro-switch" name="notifications" label="Notifications" description="Receive updates" />
         <SegmentedControl id="astro-view" name="view" label="View" value="grid" options={[{value: 'grid', label: 'Grid'}, {value: 'list', label: 'List'}]} />
@@ -122,7 +123,9 @@ const choices = [
       <section class="lab-section" data-lab="values">
         <h2>Numeric values</h2>
         <NumberInput id="astro-number" name="quantity" label="Quantity" value={2} min={0} max={5} step={1} clampOnBlur />
-        <Slider id="astro-slider" name="price" label="Price range" value={[20, 80]} min={0} max={100} step={5} minStepsBetweenThumbs={1} />
+        <NumberInput id="astro-localized-number" label="Ποσότητα" value={1} messages={{decrease: 'Μείωση', increase: 'Αύξηση'}} />
+      <Slider id="astro-slider" name="price" label="Price range" value={[20, 80]} min={0} max={100} step={5} minStepsBetweenThumbs={1} />
+	  <Slider id="astro-disabled-slider" name="disabledPrice" label="Disabled price" value={20} disabled />
         <Slider id="astro-slider-rtl" name="rtlValue" label="RTL value" value={50} direction="rtl" />
         <Part part="editor-surface" as="section" state="ready" orientation="vertical" selected active data-testid="astro-part">Custom part</Part>
       </section>

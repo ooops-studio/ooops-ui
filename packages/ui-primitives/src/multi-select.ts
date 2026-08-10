@@ -34,6 +34,10 @@ export const createMultiSelectController = <Value extends string = string, Metad
 	options: MultiSelectControllerOptions<Value, Metadata>
 ) => {
 	let source = snapshotSelectOptions(options.options)
+	let disabled = options.disabled ?? false
+	let maxSelected = options.maxSelected ?? Number.MAX_SAFE_INTEGER
+	if (!Number.isInteger(maxSelected) || maxSelected < 0)
+		throw new RangeError('MultiSelect maxSelected must be a non-negative integer.')
 	const initial = unique(options.values ?? options.defaultValues ?? [])
 	const store = createControllerStore<MultiSelectState<Value, Metadata>>({
 		open: false,
@@ -90,7 +94,7 @@ export const createMultiSelectController = <Value extends string = string, Metad
 	const setValues = (values: ReadonlyArray<Value>, shouldEmit = false) => {
 		const allowed = unique(
 			values.filter((value) => source.some((entry) => entry.value === value && !entry.disabled))
-		).slice(0, options.maxSelected ?? Number.MAX_SAFE_INTEGER)
+		).slice(0, maxSelected)
 		store.setState({values: Object.freeze(allowed)})
 		sync()
 		if (shouldEmit) emit(allowed)
@@ -107,7 +111,7 @@ export const createMultiSelectController = <Value extends string = string, Metad
 		)
 	}
 	const open = () => {
-		if (!options.disabled && !store.getState().open) {
+		if (!disabled && !store.getState().open) {
 			store.setState({open: true})
 			layer.open()
 			filter()
@@ -213,10 +217,29 @@ export const createMultiSelectController = <Value extends string = string, Metad
 			setValues([], true)
 		},
 		setOptions(entries: ReadonlyArray<SelectOption<Value, Metadata>>) {
-			source = entries.map((entry) => Object.freeze({...entry}))
-			setValues(store.getState().values)
+			source = snapshotSelectOptions(entries)
+			const current = store.getState().values
+			const valid = current.filter((value) =>
+				source.some((entry) => entry.value === value && !entry.disabled)
+			).slice(0, maxSelected)
+			setValues(current, valid.length !== current.length)
 			filter()
 			sync()
+		},
+		setDisabled(nextDisabled: boolean) {
+			disabled = nextDisabled
+			if (disabled) close()
+			options.getInput()?.toggleAttribute('disabled', disabled)
+		},
+		setMaxSelected(nextMaxSelected?: number) {
+			if (
+				nextMaxSelected !== undefined &&
+				(!Number.isInteger(nextMaxSelected) || nextMaxSelected < 0)
+			)
+				throw new RangeError('MultiSelect maxSelected must be a non-negative integer.')
+			maxSelected = nextMaxSelected ?? Number.MAX_SAFE_INTEGER
+			const current = store.getState().values
+			setValues(current, current.length > maxSelected)
 		},
 		destroy() {
 			const input = options.getInput()

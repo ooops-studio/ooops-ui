@@ -1,11 +1,12 @@
 ---
-import type {SliderValue} from '@ooopsstudio/ui-primitives'; import {serializeUiConfig} from './index';
-type Props = {id: string; name?: string; label?: string; value?: SliderValue; defaultValue?: SliderValue; min?: number; max?: number; step?: number; orientation?: 'horizontal' | 'vertical'; direction?: 'ltr' | 'rtl'; minStepsBetweenThumbs?: number; disabled?: boolean; class?: string};
-const {id, name = id, label, value = 0, defaultValue = value, min = 0, max = 100, step = 1, orientation = 'horizontal', direction = 'ltr', minStepsBetweenThumbs = 0, disabled = false, class: className = ''} = Astro.props;
-const values = typeof value === 'number' ? [value] : value; const config = serializeUiConfig({value, defaultValue, min, max, step, orientation, direction, minStepsBetweenThumbs});
+import {resolveUiMessages, type SliderValue, type UiMessages} from '@ooopsstudio/ui-primitives'; import {serializeUiConfig} from './index';
+type Props = {id: string; name?: string; label?: string; value?: SliderValue; defaultValue?: SliderValue; min?: number; max?: number; step?: number; orientation?: 'horizontal' | 'vertical'; direction?: 'ltr' | 'rtl'; minStepsBetweenThumbs?: number; disabled?: boolean; messages?: Partial<UiMessages>; class?: string};
+const {id, name = id, label, value = 0, defaultValue = value, min = 0, max = 100, step = 1, orientation = 'horizontal', direction = 'ltr', minStepsBetweenThumbs = 0, disabled = false, messages, class: className = ''} = Astro.props;
+const uiMessages = resolveUiMessages(messages);
+const values = typeof value === 'number' ? [value] : value; const config = serializeUiConfig({value, defaultValue, min, max, step, orientation, direction, minStepsBetweenThumbs, disabled});
 ---
 <div class:list={['ooops-slider', className]} id={id} data-ooops-slider-root data-part="root" data-orientation={orientation} dir={direction}>
-  {label ? <span data-part="label">{label}</span> : null}<div data-part="track"><span data-part="range"></span>{values.map((_, index) => <button type="button" disabled={disabled} aria-label={`${label ?? 'Value'} ${index + 1}`} data-part="thumb" data-thumb={index}></button>)}</div>
+  {label ? <span data-part="label">{label}</span> : null}<div data-part="track"><span data-part="range"></span>{values.map((_, index) => <button type="button" disabled={disabled} aria-label={`${label ?? uiMessages.value} ${index + 1}`} data-part="thumb" data-thumb={index}></button>)}</div>
   {values.map((entry, index) => <input type="hidden" name={values.length > 1 ? `${name}[]` : name} value={entry} data-part="input" data-thumb={index} />)}
   <script is:inline type="application/json" data-ooops-ui-config set:html={config} />
 </div>

@@ -1,11 +1,12 @@
 <script lang="ts">
-	import {createMenuController, type MenuState} from '@ooopsstudio/ui-primitives'
+	import {createMenuController, resolveUiMessages, type MenuState, type UiMessages} from '@ooopsstudio/ui-primitives'
 	import {onMount, type Snippet} from 'svelte'
 	import {portal} from './portal'
 	import type {DropdownMenuItem} from './types.js'
-	type Props = {id?: string; triggerLabel?: string; ariaLabel?: string; items: DropdownMenuItem[]; open?: boolean; loop?: boolean; portal?: boolean; class?: string; trigger?: Snippet; item?: Snippet<[DropdownMenuItem]>; onSelect?: (item: DropdownMenuItem) => void}
+	type Props = {id?: string; triggerLabel?: string; ariaLabel?: string; items: DropdownMenuItem[]; open?: boolean; loop?: boolean; portal?: boolean; messages?: Partial<UiMessages>; class?: string; trigger?: Snippet; item?: Snippet<[DropdownMenuItem]>; onSelect?: (item: DropdownMenuItem) => void}
 	const generatedId = $props.id()
-	let {id = generatedId, triggerLabel = 'Menu', ariaLabel = 'Menu', items, open = $bindable(false), loop = true, portal: usePortal = true, class: className = '', trigger, item, onSelect}: Props = $props()
+	let {id = generatedId, triggerLabel, ariaLabel, items, open = $bindable(false), loop = true, portal: usePortal = true, messages, class: className = '', trigger, item, onSelect}: Props = $props()
+	const uiMessages = $derived(resolveUiMessages(messages))
 	let triggerElement: HTMLButtonElement | null = $state(null), menu: HTMLElement | null = $state(null), state: MenuState = $state({open, activeIndex: -1, mounted: false}), controller: ReturnType<typeof createMenuController> | null = null
 	const findItem = (element: HTMLElement) => { const id = element.dataset.id; const direct = items.find((entry) => entry.id === id); return direct ?? items.flatMap((entry) => entry.children ?? []).find((entry) => entry.id === id) }
 	onMount(() => { controller = createMenuController({open, loop, portal: usePortal, getTrigger: () => triggerElement, getMenu: () => menu, getItems: () => Array.from(menu?.querySelectorAll<HTMLElement>('[role^="menuitem"]') ?? []), getSubmenu: (entry) => entry.nextElementSibling as HTMLElement | null, onOpenChange: (next) => { open = next }, onSelect: (element) => { const selected = findItem(element); if (selected) onSelect?.(selected) }}); const unsubscribe = controller.subscribe((next) => { state = next }); controller.mount(); return () => { unsubscribe(); controller?.destroy(); controller = null } })
@@ -13,9 +14,9 @@
 </script>
 
 <span class={`ooops-menu ${className}`.trim()} data-part="root" data-state={state.open ? 'open' : 'closed'}>
-	<button bind:this={triggerElement} type="button" aria-haspopup="menu" aria-controls={`${id}-menu`} aria-expanded={state.open} data-part="trigger">{#if trigger}{@render trigger()}{:else}{triggerLabel}{/if}</button>
+	<button bind:this={triggerElement} type="button" aria-haspopup="menu" aria-controls={`${id}-menu`} aria-expanded={state.open} data-part="trigger">{#if trigger}{@render trigger()}{:else}{triggerLabel ?? uiMessages.menu}{/if}</button>
 </span>
-<div use:portal={usePortal} bind:this={menu} id={`${id}-menu`} role="menu" aria-label={ariaLabel} hidden={!state.open} data-part="content">
+<div use:portal={usePortal} bind:this={menu} id={`${id}-menu`} role="menu" aria-label={ariaLabel ?? uiMessages.menu} hidden={!state.open} data-part="content">
 	{#each items as entry (entry.id)}
 		{#if entry.type === 'separator'}<hr data-part="separator" />
 		{:else if entry.type === 'label'}<div data-part="label">{entry.label}</div>

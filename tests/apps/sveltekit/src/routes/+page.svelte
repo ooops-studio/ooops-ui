@@ -20,8 +20,10 @@
     Tabs,
     Textarea,
     Tooltip,
+    type ChoiceOption,
     type ComboboxLoadOptions,
-    type SelectOption
+    type SelectOption,
+    type SliderValue
   } from '@ooopsstudio/ui-svelte'
   import {onDestroy, onMount} from 'svelte'
 
@@ -52,6 +54,8 @@
   let plan = $state('basic')
   let notifications = $state(false)
   let view = $state('grid')
+	let dynamicChoices = $state<ChoiceOption[]>([...choices])
+	let dynamicViews = $state<ChoiceOption[]>([{value: 'grid', label: 'Grid'}, {value: 'list', label: 'List'}])
   let selectValue = $state('')
   let comboValue = $state('')
   let asyncComboValue = $state('')
@@ -66,9 +70,18 @@
   let openAccordion = $state<string[]>([])
   let quantity = $state<number | null>(2)
   let price = $state<[number, number]>([20, 80])
+	let shapeValue = $state<SliderValue>(40)
   let externalError = $state('')
   let dynamicOptions = $state<SelectOption[]>(countries)
   let formOutput = $state('')
+	let reactiveDisabled = $state(true)
+	let removableOptions = $state<SelectOption[]>([{value: 'a', label: 'Alpha'}, {value: 'b', label: 'Beta'}])
+	let removableChoice = $state('b')
+	let removableCombo = $state('b')
+	let removableMulti = $state<string[]>(['a', 'b'])
+	let removableTabs = $state([{id: 'first', label: 'First', content: 'First'}, {id: 'second', label: 'Second', content: 'Second'}])
+	let removableActiveTab = $state('second')
+	let reactiveSlider = $state<SliderValue>(20)
 
   const loadOptions: ComboboxLoadOptions = async(query, {signal}) => {
     const delay = query.toLowerCase().includes('navigate') ? 1_000 : query.toLowerCase().includes('slow') ? 120 : 20
@@ -147,9 +160,24 @@
   <h2>External state</h2>
   <button type="button" id="set-external-values" onclick={() => { name = 'Grace'; selectValue = 'it'; plan = 'pro'; notifications = true; activeTab = 'details'; price = [30, 70] }}>Set external values</button>
   <button type="button" id="toggle-disabled" onclick={() => { dynamicOptions = [...countries, {value: 'fr', label: 'France'}] }}>Add option</button>
+	<button type="button" id="add-choice-options" onclick={() => { dynamicChoices = [...choices, {value: 'team', label: 'Team'}]; dynamicViews = [...dynamicViews, {value: 'table', label: 'Table'}] }}>Add choice options</button>
+	<button type="button" id="toggle-slider-shape" onclick={() => { shapeValue = typeof shapeValue === 'number' ? [30, 70] : 40 }}>Toggle slider shape</button>
   <button type="button" id="set-error" onclick={() => { externalError = 'Server rejected value' }}>Set server error</button>
   <button type="button" id="toggle-checkbox-state" onclick={() => { mixed = !mixed; disabledCheck = !disabledCheck }}>Toggle checkbox state</button>
+	<button type="button" id="enable-reactive-controls" onclick={() => { reactiveDisabled = false }}>Enable reactive controls</button>
+	<button type="button" id="remove-selected-options" onclick={() => { removableOptions = [{value: 'a', label: 'Alpha'}]; removableTabs = [{id: 'first', label: 'First', content: 'First'}] }}>Remove selected options</button>
   <output id="binding-output" class="status">{name}|{selectValue}|{plan}|{notifications}|{activeTab}|{price.join(',')}</output>
+	<output id="dynamic-binding-output" class="status">{removableChoice}|{removableCombo}|{removableMulti.join(',')}|{removableActiveTab}</output>
+	<div data-testid="reactive-controller-fixtures">
+		<Select id="svelte-reactive-select" label="Reactive select" options={countries} disabled={reactiveDisabled} />
+		<Combobox id="svelte-reactive-combo" label="Reactive combo" options={countries} disabled={reactiveDisabled} />
+		<MultiSelect id="svelte-reactive-multi" label="Reactive multi" options={tagOptions} disabled={reactiveDisabled} />
+		<Slider id="svelte-reactive-slider" label="Reactive slider" disabled={reactiveDisabled} bind:value={reactiveSlider} />
+		<RadioGroup id="svelte-removable-choice" name="removableChoice" label="Removable choice" options={removableOptions} bind:value={removableChoice} />
+		<Combobox id="svelte-removable-combo" label="Removable combo" options={removableOptions} bind:value={removableCombo} />
+		<MultiSelect id="svelte-removable-multi" label="Removable multi" options={removableOptions} bind:values={removableMulti} />
+		<Tabs id="svelte-removable-tabs" items={removableTabs} bind:activeId={removableActiveTab} />
+	</div>
 </div>
 
 <form id="svelte-form" onsubmit={submitForm}>
@@ -167,9 +195,10 @@
       <Checkbox id="svelte-terms" name="terms" label="Accept terms" description="Required agreement" required bind:checked={terms} />
       <Checkbox id="svelte-mixed" name="mixed" label="Mixed selection" indeterminate={mixed} />
       <Checkbox id="svelte-disabled-check" name="disabledCheck" label="Disabled choice" disabled={disabledCheck} />
-      <RadioGroup id="svelte-plan" name="plan" label="Plan" options={choices} bind:value={plan} />
+	  <Checkbox id="svelte-error-check" name="errorCheck" label="Invalid choice" description="Choose carefully" error="Selection required" />
+      <RadioGroup id="svelte-plan" name="plan" label="Plan" options={dynamicChoices} bind:value={plan} />
       <Switch id="svelte-switch" name="notifications" label="Notifications" description="Receive updates" bind:checked={notifications} />
-      <SegmentedControl id="svelte-view" name="view" label="View" options={[{value: 'grid', label: 'Grid'}, {value: 'list', label: 'List'}]} bind:value={view} />
+      <SegmentedControl id="svelte-view" name="view" label="View" options={dynamicViews} bind:value={view} />
     </section>
 
     <section class="lab-section" data-lab="selections">
@@ -210,8 +239,10 @@
     <section class="lab-section" data-lab="values">
       <h2>Numeric values</h2>
       <NumberInput id="svelte-number" name="quantity" label="Quantity" min={0} max={5} step={1} clampOnBlur bind:value={quantity} />
+      <NumberInput id="svelte-localized-number" label="Ποσότητα" value={1} messages={{decrease: 'Μείωση', increase: 'Αύξηση'}} />
       <Slider id="svelte-slider" name="price" label="Price range" min={0} max={100} step={5} minStepsBetweenThumbs={1} bind:value={price} {thumb} />
       <Slider id="svelte-slider-rtl" name="rtlValue" label="RTL value" value={50} direction="rtl" />
+      <Slider id="svelte-slider-shape" name="shapeValue" label="Shape value" bind:value={shapeValue} />
       <Part part="editor-surface" as="section" state="ready" orientation="vertical" selected active data-testid="svelte-part" children={partChild} />
     </section>
   </div>

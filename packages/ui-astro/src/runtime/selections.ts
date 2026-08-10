@@ -1,6 +1,7 @@
 import {
 	createComboboxController,
 	createMultiSelectController,
+	formatUiMessage,
 	type SelectOption
 } from '@ooopsstudio/ui-primitives'
 
@@ -93,6 +94,7 @@ type MultiConfig = {
 	maxSelected?: number
 	disabled?: boolean
 	name?: string
+	messages?: {removeItem: string}
 }
 const mountMultiSelect = (root: HTMLElement) => {
 	const config = readUiConfig<MultiConfig>(root)
@@ -114,7 +116,8 @@ const mountMultiSelect = (root: HTMLElement) => {
 					remove.type = 'button'
 					remove.dataset.part = 'chip-remove'
 					remove.dataset.removeValue = value
-					remove.ariaLabel = `Remove ${value}`
+					const label = config.options.find((entry) => entry.value === value)?.label ?? value
+					remove.ariaLabel = formatUiMessage(config.messages?.removeItem ?? 'Remove {label}', {label})
 					remove.textContent = '×'
 					chip.appendChild(remove)
 					return chip

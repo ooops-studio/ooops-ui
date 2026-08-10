@@ -7,7 +7,7 @@
 	let root: HTMLElement | null = $state(null)
 	let buttons: HTMLButtonElement[] = $state([])
 	let controller: ReturnType<typeof createSegmentedControlController> | null = null
-	onMount(() => { controller = createSegmentedControlController({options, value, defaultValue: value, disabled, getRoot: () => root, getInputs: () => buttons, onChange: (next) => { value = next; onChange?.(next) }}); controller.mount(); return () => { controller?.destroy(); controller = null } })
+	onMount(() => { controller = createSegmentedControlController({options, value, defaultValue: value, disabled, getRoot: () => root, getInputs: () => buttons.filter(Boolean), onChange: (next) => { value = next; onChange?.(next) }}); controller.mount(); return () => { controller?.destroy(); controller = null } })
 	$effect(() => controller?.setOptions(options))
 	$effect(() => { if (controller && controller.getState().value !== value) controller.setValue(value) })
 </script>

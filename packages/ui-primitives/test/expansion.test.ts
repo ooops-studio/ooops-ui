@@ -206,7 +206,7 @@ describe('layers and collection controls', () => {
 	it('opens tooltips when a nested interactive child receives focus', () => {
 		vi.useFakeTimers()
 		document.body.innerHTML =
-			'<span id="trigger"><button id="child">Help</button></span><span id="tooltip" hidden></span>'
+			'<span id="trigger"><button id="child" aria-describedby="existing">Help</button></span><span id="tooltip" role="tooltip" hidden></span>'
 		const trigger = document.querySelector<HTMLElement>('#trigger')!
 		const tooltip = document.querySelector<HTMLElement>('#tooltip')!
 		const controller = createTooltipController({
@@ -216,13 +216,17 @@ describe('layers and collection controls', () => {
 			getTooltip: () => tooltip
 		})
 		controller.mount()
-		document.querySelector<HTMLButtonElement>('#child')!.dispatchEvent(
+		const child = document.querySelector<HTMLButtonElement>('#child')!
+		expect(child.getAttribute('aria-describedby')).toBe('existing tooltip')
+		expect(trigger.getAttribute('aria-describedby')).toBeNull()
+		child.dispatchEvent(
 			new FocusEvent('focusin', {bubbles: true})
 		)
 		vi.runAllTimers()
 		expect(controller.getState().open).toBe(true)
 		expect(tooltip.hidden).toBe(false)
 		controller.destroy()
+		expect(child.getAttribute('aria-describedby')).toBe('existing')
 		vi.useRealTimers()
 	})
 

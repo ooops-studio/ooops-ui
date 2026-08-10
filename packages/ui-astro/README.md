@@ -17,6 +17,8 @@ const options = [{value: 'gr', label: 'Greece'}];
 
 Components: Field, Input, Textarea, Checkbox, RadioGroup, Switch, Select, Combobox, MultiSelect, DropdownMenu, Tooltip, Tabs, Accordion, Slider, NumberInput, SegmentedControl, Dialog, Modal and Popover.
 
+All built-in copy and accessible default labels can be overridden through the serializable `messages` prop. `Field` uses `${id}-control` as its default control ID; pass `controlId` when the slotted form control uses another ID.
+
 Each component imports only its installer. Installers are idempotent, remove listeners on Astro view transitions and mount again on `astro:page-load`. `Part.astro` is the low-level compound-markup escape hatch for custom Root, Trigger, Content, Item, Group, Label and Indicator structures while retaining standard `data-part`/state attributes.
 
 `base.css` contains only structural accessibility/layer rules. Project themes should target `data-part`, `data-state`, `data-orientation`, `data-disabled`, `data-invalid`, `data-selected`, `data-active`, `data-placement` and the runtime geometry variables.

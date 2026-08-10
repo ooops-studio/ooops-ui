@@ -5,7 +5,7 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  '@ooopsstudio/accessibility': ^0.1.0
+  '@ooopsstudio/accessibility': ^0.2.0
   '@ooopsstudio/editor-contracts': file:packages/editor-contracts
   '@sveltejs/kit>cookie': 0.7.2
   esbuild: 0.28.1
@@ -175,8 +175,8 @@ importers:
   packages/ui-primitives:
     dependencies:
       '@ooopsstudio/accessibility':
-        specifier: ^0.1.0
-        version: 0.1.0
+        specifier: ^0.2.0
+        version: 0.2.0
       '@ooopsstudio/editor-contracts':
         specifier: file:../editor-contracts
         version: link:../editor-contracts
@@ -1431,8 +1431,8 @@ packages:
     resolution: {integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==}
     engines: {node: '>= 8'}
 
-  '@ooopsstudio/accessibility@0.1.0':
-    resolution: {integrity: sha512-j5o06dhu2MdOK7i0TutHbypyNFwgVTim+oNTP16cgRKv9BgBblfqIfnDRJUNYYfZzjE733Ds7UK8+OWjJEw1FA==}
+  '@ooopsstudio/accessibility@0.2.0':
+    resolution: {integrity: sha512-ys6DbEUbATHdh0HTmFg36sBA1wz8P7iAFywAVAreo0T5wBR/a8ynrhOfg+9h/2NIwpkPJOKAN+A21uPfbbfxqg==}
     engines: {node: '>=22.14.0'}
 
   '@ooopsstudio/editor-contracts@file:packages/editor-contracts':
@@ -6633,7 +6633,7 @@ snapshots:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.20.1
 
-  '@ooopsstudio/accessibility@0.1.0':
+  '@ooopsstudio/accessibility@0.2.0':
     dependencies:
       '@ooopsstudio/editor-contracts': file:packages/editor-contracts
 

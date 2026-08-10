@@ -8,7 +8,7 @@
 	let inputs: HTMLInputElement[] = $state([])
 	let controller: ReturnType<typeof createRadioGroupController> | null = null
 	onMount(() => {
-		controller = createRadioGroupController({options, value, defaultValue: value, disabled, getRoot: () => root, getInputs: () => inputs, onChange: (next) => { value = next; onChange?.(next) }})
+		controller = createRadioGroupController({options, value, defaultValue: value, disabled, getRoot: () => root, getInputs: () => inputs.filter(Boolean), onChange: (next) => { value = next; onChange?.(next) }})
 		controller.mount(); return () => { controller?.destroy(); controller = null }
 	})
 	$effect(() => controller?.setOptions(options))

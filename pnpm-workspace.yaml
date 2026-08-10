@@ -7,10 +7,10 @@ allowBuilds:
   unrs-resolver: true
 
 minimumReleaseAgeExclude:
-  - '@ooopsstudio/accessibility@0.1.0'
+  - '@ooopsstudio/accessibility@0.2.0'
 
 overrides:
-  '@ooopsstudio/accessibility': ^0.1.0
+  '@ooopsstudio/accessibility': ^0.2.0
   '@ooopsstudio/editor-contracts': file:packages/editor-contracts
   '@sveltejs/kit>cookie': 0.7.2
   esbuild: 0.28.1

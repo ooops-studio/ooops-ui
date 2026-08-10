@@ -54,6 +54,8 @@ export const createComboboxController = <Value extends string = string, Metadata
 	options: ComboboxControllerOptions<Value, Metadata>
 ) => {
 	let source = snapshotSelectOptions(options.options ?? [])
+	let disabled = options.disabled ?? false
+	let allowCustomValue = options.allowCustomValue ?? false
 	let debounceTimer: number | undefined
 	let loadRun = 0
 	let loadAbort: AbortController | null = null
@@ -129,7 +131,7 @@ export const createComboboxController = <Value extends string = string, Metadata
 		else debounceTimer = window.setTimeout(() => void applyQuery(query), options.debounceMs ?? 150)
 	}
 	const open = () => {
-		if (options.disabled || store.getState().open) return
+		if (disabled || store.getState().open) return
 		store.setState({open: true})
 		layer.open()
 		sync()
@@ -148,7 +150,7 @@ export const createComboboxController = <Value extends string = string, Metadata
 	const setValue = (value: Value | string | '', emit = false) => {
 		const option =
 			[...source, ...store.getState().options].find((entry) => entry.value === value) ?? null
-		if (value && !option && !options.allowCustomValue) return
+		if (value && !option && !allowCustomValue) return
 		store.setState({value: value as Value | '', query: option?.label ?? value})
 		const input = options.getInput()
 		if (input) input.value = option?.label ?? value
@@ -158,7 +160,7 @@ export const createComboboxController = <Value extends string = string, Metadata
 	const commit = (index = store.getState().activeIndex) => {
 		const option = store.getState().options[index]
 		if (option && !option.disabled) setValue(option.value, true)
-		else if (options.allowCustomValue && store.getState().query.trim())
+		else if (allowCustomValue && store.getState().query.trim())
 			setValue(store.getState().query.trim(), true)
 		else return
 		close()
@@ -223,8 +225,32 @@ export const createComboboxController = <Value extends string = string, Metadata
 		setQuery,
 		setValue,
 		setOptions(entries: ReadonlyArray<SelectOption<Value, Metadata>>) {
-			source = entries.map((entry) => Object.freeze({...entry}))
+			source = snapshotSelectOptions(entries)
+			const current = store.getState().value
+			if (current && !allowCustomValue && !source.some((entry) => entry.value === current)) {
+				store.setState({value: '', query: ''})
+				const input = options.getInput()
+				if (input) input.value = ''
+				sync()
+				options.onChange?.({value: '', option: null, custom: false})
+			}
 			void applyQuery(store.getState().query)
+		},
+		setDisabled(nextDisabled: boolean) {
+			disabled = nextDisabled
+			if (disabled) close()
+			options.getInput()?.toggleAttribute('disabled', disabled)
+		},
+		setAllowCustomValue(nextAllowCustomValue: boolean) {
+			allowCustomValue = nextAllowCustomValue
+			const current = store.getState().value
+			if (current && !allowCustomValue && !source.some((entry) => entry.value === current)) {
+				store.setState({value: '', query: ''})
+				const input = options.getInput()
+				if (input) input.value = ''
+				sync()
+				options.onChange?.({value: '', option: null, custom: false})
+			}
 		},
 		destroy() {
 			loadAbort?.abort()

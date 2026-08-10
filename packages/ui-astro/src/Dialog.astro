@@ -1,7 +1,8 @@
 ---
-import {serializeUiConfig} from './index';
-type Props = {id: string; title: string; description?: string; triggerLabel?: string; confirmLabel?: string; cancelLabel?: string; tone?: 'primary' | 'danger'; open?: boolean; busy?: boolean; closeOnBackdrop?: boolean; closeOnEscape?: boolean; class?: string};
-const {id, title, description, triggerLabel, confirmLabel = 'Confirm', cancelLabel = 'Cancel', tone = 'primary', open = false, busy = false, closeOnBackdrop = true, closeOnEscape = true, class: className = ''} = Astro.props;
+import {resolveUiMessages, type UiMessages} from '@ooopsstudio/ui-primitives'; import {serializeUiConfig} from './index';
+type Props = {id: string; title: string; description?: string; triggerLabel?: string; confirmLabel?: string; cancelLabel?: string; tone?: 'primary' | 'danger'; open?: boolean; busy?: boolean; closeOnBackdrop?: boolean; closeOnEscape?: boolean; messages?: Partial<UiMessages>; class?: string};
+const {id, title, description, triggerLabel, confirmLabel, cancelLabel, tone = 'primary', open = false, busy = false, closeOnBackdrop = true, closeOnEscape = true, messages, class: className = ''} = Astro.props;
+const uiMessages = resolveUiMessages(messages);
 const config = serializeUiConfig({id, open, busy, closeOnBackdrop, closeOnEscape, type: 'dialog'});
 ---
 {triggerLabel ? <button type="button" data-ooops-dialog-open={id} data-part="trigger">{triggerLabel}</button> : null}
@@ -11,8 +12,8 @@ const config = serializeUiConfig({id, open, busy, closeOnBackdrop, closeOnEscape
       <header data-part="header"><h2 id={`${id}-title`}>{title}</h2>{description ? <p id={`${id}-description`}>{description}</p> : null}</header>
       <div data-part="body"><slot /></div>
       <footer data-part="footer">
-        <button type="button" data-dialog-cancel data-initial-focus disabled={busy} data-part="cancel">{cancelLabel}</button>
-        <button type="button" data-dialog-confirm disabled={busy} data-part="confirm">{confirmLabel}</button>
+        <button type="button" data-dialog-cancel data-initial-focus disabled={busy} data-part="cancel">{cancelLabel ?? uiMessages.cancel}</button>
+        <button type="button" data-dialog-confirm disabled={busy} data-part="confirm">{confirmLabel ?? uiMessages.confirm}</button>
       </footer>
     </div>
   </dialog>

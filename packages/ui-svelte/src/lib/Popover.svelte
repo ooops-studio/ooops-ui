@@ -1,5 +1,5 @@
 <script lang="ts">
-	import {createPopoverController, type PopoverAlign, type PopoverPlacement, type PopoverState} from '@ooopsstudio/ui-primitives'
+	import {createPopoverController, resolveUiMessages, type PopoverAlign, type PopoverPlacement, type PopoverState, type UiMessages} from '@ooopsstudio/ui-primitives'
 	import {onMount, type Snippet} from 'svelte'
 
 	import {portal} from './portal'
@@ -12,10 +12,12 @@
 		role?: 'dialog' | 'region' | 'menu' | 'listbox'
 		ariaLabel?: string
 		closeOnOutside?: boolean
+		closeOnOutsideFocus?: boolean
 		closeOnEscape?: boolean
 		focusOnOpen?: boolean
 		trapFocus?: boolean
 		portal?: boolean
+		messages?: Partial<UiMessages>
 		class?: string
 		triggerLabel?: string
 		trigger?: Snippet<[boolean]>
@@ -26,9 +28,10 @@
 	const generatedId = $props.id()
 	let {
 		id = generatedId, open = $bindable(false), placement = 'bottom', align = 'start', role = 'dialog',
-		ariaLabel = 'Popover', closeOnOutside = true, closeOnEscape = true, focusOnOpen = false,
-		trapFocus = false, portal: usePortal = true, class: className = '', triggerLabel = 'Open', trigger, children, onClose
+		ariaLabel, closeOnOutside = true, closeOnOutsideFocus = false, closeOnEscape = true, focusOnOpen = false,
+		trapFocus = false, portal: usePortal = true, messages, class: className = '', triggerLabel, trigger, children, onClose
 	}: Props = $props()
+	const uiMessages = $derived(resolveUiMessages(messages))
 	let root: HTMLElement | null = $state(null)
 	let anchor: HTMLButtonElement | null = $state(null)
 	let panel: HTMLElement | null = $state(null)
@@ -37,7 +40,7 @@
 
 	onMount(() => {
 		controller = createPopoverController({
-			open, placement, align, closeOnOutsidePointer: closeOnOutside, closeOnEscape, focusOnOpen, trapFocus,
+			open, placement, align, closeOnOutsidePointer: closeOnOutside, closeOnOutsideFocus, closeOnEscape, focusOnOpen, trapFocus,
 			getRoot: () => root, getAnchor: () => anchor, getPanel: () => panel,
 			onOpenChange: (next) => { open = next }, onClose
 		})
@@ -54,9 +57,9 @@
 
 <span bind:this={root} class={`ooops-popover-root ${className}`.trim()} data-part="root">
 	<button bind:this={anchor} type="button" aria-haspopup={role} aria-controls={`${id}-panel`} aria-expanded={state.open} onclick={() => controller?.toggle()} data-part="trigger">
-		{#if trigger}{@render trigger(state.open)}{:else}{triggerLabel}{/if}
+		{#if trigger}{@render trigger(state.open)}{:else}{triggerLabel ?? uiMessages.open}{/if}
 	</button>
 </span>
-<div use:portal={usePortal} bind:this={panel} id={`${id}-panel`} {role} aria-label={ariaLabel} data-part="panel" hidden={!state.open}>
+<div use:portal={usePortal} bind:this={panel} id={`${id}-panel`} {role} aria-label={ariaLabel ?? uiMessages.popover} data-part="panel" hidden={!state.open}>
 	{#if children}{@render children()}{/if}
 </div>

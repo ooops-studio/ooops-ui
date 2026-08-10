@@ -239,10 +239,24 @@ const createChoiceController = <Value extends string>(options: ChoiceControllerO
 		setValue(values[next]!.value, true)
 		options.getInputs()[next]?.focus()
 	}
-	const onChange = (event: Event) =>
-		setValue((event.currentTarget as HTMLInputElement).value as Value, true)
+	const eventControl = (event: Event) => {
+		const control = (event.target as Element | null)?.closest<HTMLInputElement | HTMLButtonElement>(
+			'input, button'
+		)
+		return control && options.getInputs().includes(control) ? control : null
+	}
+	const onChange = (event: Event) => {
+		const control = eventControl(event)
+		if (control instanceof HTMLInputElement) setValue(control.value as Value, true)
+	}
+	const onClick = (event: Event) => {
+		const control = eventControl(event)
+		if (control instanceof HTMLButtonElement) setValue(control.value as Value, true)
+	}
 	const onKey = (event: KeyboardEvent) => {
-		const index = options.getInputs().indexOf(event.currentTarget as HTMLInputElement)
+		const control = eventControl(event)
+		if (!control) return
+		const index = options.getInputs().indexOf(control)
 		if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
 			event.preventDefault()
 			move(index, 1)
@@ -264,25 +278,27 @@ const createChoiceController = <Value extends string>(options: ChoiceControllerO
 		subscribe: store.subscribe,
 		mount() {
 			if (store.getState().mounted) return
-			for (const input of options.getInputs()) {
-				if (input instanceof HTMLInputElement) input.addEventListener('change', onChange)
-				else input.addEventListener('click', onChange)
-				input.addEventListener('keydown', onKey as EventListener)
-			}
+			const root = options.getRoot()
+			if (!root) return
+			root.addEventListener('change', onChange)
+			root.addEventListener('click', onClick)
+			root.addEventListener('keydown', onKey)
 			store.setState({mounted: true})
 			setValue(initial)
 		},
 		setValue,
 		setOptions(next: ReadonlyArray<ChoiceOption<Value>>) {
 			values = snapshotSelectOptions(next)
-			setValue(store.getState().value)
+			const current = store.getState().value
+			if (current && !values.some((entry) => entry.value === current && !entry.disabled))
+				setValue('', true)
+			else setValue(current)
 		},
 		destroy() {
-			for (const input of options.getInputs()) {
-				if (input instanceof HTMLInputElement) input.removeEventListener('change', onChange)
-				else input.removeEventListener('click', onChange)
-				input.removeEventListener('keydown', onKey as EventListener)
-			}
+			const root = options.getRoot()
+			root?.removeEventListener('change', onChange)
+			root?.removeEventListener('click', onClick)
+			root?.removeEventListener('keydown', onKey)
 			store.setState({mounted: false})
 			store.clear()
 		}

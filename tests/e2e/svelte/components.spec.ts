@@ -40,6 +40,8 @@ test('Field, Input and Textarea preserve bindings, snippets and error state', as
 })
 
 test('@critical form controls bind, serialize and reset', async({page}) => {
+	await expect(page.locator('#svelte-field-control [data-part="label"]')).toHaveAttribute('for', 'svelte-field-control-control')
+	await expect(page.locator('#svelte-switch')).toHaveAttribute('aria-describedby', 'svelte-switch-description')
 	await page.locator('#svelte-field-control-control').fill('standalone')
 	const terms = page.locator('#svelte-terms')
 	await terms.focus()
@@ -60,6 +62,74 @@ test('@critical form controls bind, serialize and reset', async({page}) => {
 	await expect(output).toContainText('view=list')
 	await page.getByRole('button', {name: 'Reset Svelte form'}).click()
 	await expect(terms).not.toBeChecked()
+})
+
+test('localized defaults render without replacing component behavior', async({page}) => {
+	const localized = page
+		.locator('[data-part="root"]')
+		.filter({has: page.locator('#svelte-localized-number')})
+	await expect(localized.getByRole('button', {name: 'Μείωση'})).toBeVisible()
+	await localized.getByRole('button', {name: 'Αύξηση'}).click()
+	await expect(page.locator('#svelte-localized-number')).toHaveValue('2')
+})
+
+test('@critical reactive choice options and slider shape changes remain interactive', async({page}) => {
+	await page.getByRole('button', {name: 'Add choice options'}).click()
+	await page.getByRole('radio', {name: 'Team'}).click()
+	await expect(page.getByRole('radio', {name: 'Team'})).toBeChecked()
+	await page.getByRole('radio', {name: 'Table'}).click()
+	await expect(page.getByRole('radio', {name: 'Table'})).toHaveAttribute('aria-checked', 'true')
+
+	await expect(page.locator('#svelte-slider-shape [role="slider"]')).toHaveCount(1)
+	await page.getByRole('button', {name: 'Toggle slider shape'}).click()
+	const thumbs = page.locator('#svelte-slider-shape [role="slider"]')
+	await expect(thumbs).toHaveCount(2)
+	await expect(thumbs.nth(1)).toHaveAttribute('aria-valuenow', '70')
+	await thumbs.nth(1).focus()
+	await thumbs.nth(1).press('ArrowRight')
+	await expect(thumbs.nth(1)).toHaveAttribute('aria-valuenow', '71')
+})
+
+test('@critical reactive controller configuration and option removal stay synchronized', async({page}) => {
+	const reactiveSelect = page.locator('#svelte-reactive-select-trigger')
+	const reactiveCombo = page.locator('#svelte-reactive-combo-input')
+	const reactiveMulti = page.locator('#svelte-reactive-multi-input')
+	const reactiveSlider = page.locator('#svelte-reactive-slider [role="slider"]')
+	await expect(reactiveSelect).toBeDisabled()
+	await expect(reactiveCombo).toBeDisabled()
+	await expect(reactiveMulti).toBeDisabled()
+	await expect(reactiveSlider).toHaveAttribute('aria-disabled', 'true')
+	await reactiveSlider.press('ArrowRight')
+	await expect(reactiveSlider).toHaveAttribute('aria-valuenow', '20')
+
+	await page.getByRole('button', {name: 'Enable reactive controls'}).click()
+	await expect(reactiveSelect).toBeEnabled()
+	await reactiveSelect.click()
+	await expect(page.locator('#svelte-reactive-select-listbox')).toBeVisible()
+	await reactiveSelect.press('Escape')
+	await reactiveCombo.focus()
+	await expect(page.locator('#svelte-reactive-combo-listbox')).toBeVisible()
+	await reactiveCombo.press('Escape')
+	await reactiveMulti.focus()
+	await expect(page.locator('#svelte-reactive-multi-listbox')).toBeVisible()
+	await reactiveMulti.press('Escape')
+	await reactiveSlider.focus()
+	await reactiveSlider.press('ArrowRight')
+	await expect(reactiveSlider).toHaveAttribute('aria-valuenow', '21')
+
+	await expect(page.locator('#dynamic-binding-output')).toHaveText('b|b|a,b|second')
+	await page.getByRole('button', {name: 'Remove selected options'}).click()
+	await expect(page.locator('#dynamic-binding-output')).toHaveText('||a|first')
+	await expect(page.locator('#svelte-removable-tabs').getByRole('tab', {name: 'First'})).toHaveAttribute('aria-selected', 'true')
+})
+
+test('Checkbox errors and range-slider thumbs have complete accessible descriptions and names', async({page}) => {
+	await expect(page.locator('#svelte-error-check')).toHaveAttribute(
+		'aria-describedby',
+		'svelte-error-check-description svelte-error-check-error'
+	)
+	await expect(page.locator('#svelte-slider [role="slider"]').nth(0)).toHaveAttribute('aria-label', 'Price range 1')
+	await expect(page.locator('#svelte-slider [role="slider"]').nth(1)).toHaveAttribute('aria-label', 'Price range 2')
 })
 
 test('@critical Select, Combobox and MultiSelect support keyboard and reactive options', async({page}) => {
@@ -132,6 +202,7 @@ test('@critical nested menu, Dialog and Modal handle Escape and focus restoratio
 })
 
 test('Tooltip and Popover expose reactive trigger state and dismissal', async({page}) => {
+	await expect(page.locator('#svelte-tooltip-trigger')).toHaveAttribute('aria-describedby', 'svelte-tooltip')
 	await page.locator('#svelte-tooltip-trigger').focus()
 	await expect(page.getByRole('tooltip')).toBeVisible()
 	await page.keyboard.press('Escape')

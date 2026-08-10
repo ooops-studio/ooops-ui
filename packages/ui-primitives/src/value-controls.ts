@@ -5,6 +5,13 @@ const clamp = (value: number, min: number, max: number) => Math.min(max, Math.ma
 const snap = (value: number, min: number, step: number) =>
 	Number((min + Math.round((value - min) / step) * step).toFixed(decimals(step)))
 
+const assertNumberRange = (min: number, max: number, step: number, name: string) => {
+	if (Number.isNaN(min) || Number.isNaN(max) || min > max)
+		throw new RangeError(`${name} requires min to be less than or equal to max.`)
+	if (!Number.isFinite(step) || step <= 0)
+		throw new RangeError(`${name} requires step to be a finite number greater than zero.`)
+}
+
 export type NumberInputState = {
 	value: number | null
 	text: string
@@ -26,9 +33,14 @@ export type NumberInputControllerOptions = {
 
 export const createNumberInputController = (options: NumberInputControllerOptions) => {
 	const initial = options.value ?? options.defaultValue ?? null
-	const min = options.min ?? -Number.MAX_SAFE_INTEGER
-	const max = options.max ?? Number.MAX_SAFE_INTEGER
-	const step = options.step ?? 1
+	let min = options.min ?? Number.NEGATIVE_INFINITY
+	let max = options.max ?? Number.POSITIVE_INFINITY
+	let hasMin = options.min !== undefined
+	let hasMax = options.max !== undefined
+	let snapOrigin = options.min ?? 0
+	let step = options.step ?? 1
+	let clampOnBlur = options.clampOnBlur ?? false
+	assertNumberRange(min, max, step, 'NumberInput')
 	const store = createControllerStore<NumberInputState>({
 		value: initial,
 		text: initial === null ? '' : String(initial),
@@ -48,7 +60,10 @@ export const createNumberInputController = (options: NumberInputControllerOption
 	const stepBy = (direction: 1 | -1, multiplier = 1) => {
 		const current =
 			store.getState().value ?? (direction === 1 ? Math.max(0, min) : Math.min(0, max))
-		setValue(clamp(snap(current + direction * step * multiplier, min, step), min, max), true)
+		setValue(
+			clamp(snap(current + direction * step * multiplier, snapOrigin, step), min, max),
+			true
+		)
 	}
 	const onInput = (event: Event) => {
 		const input = event.currentTarget as HTMLInputElement
@@ -60,18 +75,18 @@ export const createNumberInputController = (options: NumberInputControllerOption
 		options.onChange?.(Number.isFinite(value) ? value : null)
 	}
 	const onBlur = () => {
-		if (!options.clampOnBlur) return
+		if (!clampOnBlur) return
 		const value = store.getState().value
-		if (value !== null) setValue(clamp(snap(value, min, step), min, max), true)
+		if (value !== null) setValue(clamp(snap(value, snapOrigin, step), min, max), true)
 	}
 	const onKey = (event: KeyboardEvent) => {
 		if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
 			event.preventDefault()
 			stepBy(event.key === 'ArrowUp' ? 1 : -1, event.shiftKey ? 10 : 1)
-		} else if (event.key === 'Home' && Number.isFinite(min)) {
+		} else if (event.key === 'Home' && hasMin) {
 			event.preventDefault()
 			setValue(min, true)
-		} else if (event.key === 'End' && Number.isFinite(max)) {
+		} else if (event.key === 'End' && hasMax) {
 			event.preventDefault()
 			setValue(max, true)
 		}
@@ -95,6 +110,20 @@ export const createNumberInputController = (options: NumberInputControllerOption
 		},
 		setValue,
 		stepBy,
+		configure(next: Pick<NumberInputControllerOptions, 'min' | 'max' | 'step' | 'clampOnBlur'>) {
+			const nextMin = next.min ?? Number.NEGATIVE_INFINITY
+			const nextMax = next.max ?? Number.POSITIVE_INFINITY
+			const nextStep = next.step ?? 1
+			assertNumberRange(nextMin, nextMax, nextStep, 'NumberInput')
+			min = nextMin
+			max = nextMax
+			hasMin = next.min !== undefined
+			hasMax = next.max !== undefined
+			snapOrigin = next.min ?? 0
+			step = nextStep
+			clampOnBlur = next.clampOnBlur ?? false
+			setValue(store.getState().value)
+		},
 		reset: () => setValue(options.defaultValue ?? initial),
 		destroy() {
 			const input = options.getInput()
@@ -120,6 +149,7 @@ export type SliderControllerOptions = {
 	orientation?: 'horizontal' | 'vertical'
 	direction?: 'ltr' | 'rtl'
 	minStepsBetweenThumbs?: number
+	disabled?: boolean
 	getRoot: () => HTMLElement | null | undefined
 	getThumbs: () => ReadonlyArray<HTMLElement>
 	getInputs?: () => ReadonlyArray<HTMLInputElement>
@@ -127,10 +157,25 @@ export type SliderControllerOptions = {
 }
 
 export const createSliderController = (options: SliderControllerOptions) => {
-	const min = options.min ?? 0
-	const max = options.max ?? 100
-	const step = options.step ?? 1
-	const initial = options.value ?? options.defaultValue ?? min
+	let config = {
+		min: options.min ?? 0,
+		max: options.max ?? 100,
+		step: options.step ?? 1,
+		orientation: options.orientation ?? 'horizontal' as const,
+		direction: options.direction ?? 'ltr' as const,
+		minStepsBetweenThumbs: options.minStepsBetweenThumbs ?? 0,
+		disabled: options.disabled ?? false
+	}
+	const validateConfig = (next: typeof config) => {
+		assertNumberRange(next.min, next.max, next.step, 'Slider')
+		if (next.min === next.max) throw new RangeError('Slider requires min to be less than max.')
+		if (!Number.isFinite(next.minStepsBetweenThumbs) || next.minStepsBetweenThumbs < 0)
+			throw new RangeError('Slider requires minStepsBetweenThumbs to be zero or greater.')
+		if (next.minStepsBetweenThumbs * next.step > next.max - next.min)
+			throw new RangeError('Slider minimum thumb gap cannot exceed its value range.')
+	}
+	validateConfig(config)
+	const initial = options.value ?? options.defaultValue ?? config.min
 	const store = createControllerStore<SliderState>({
 		value: initial,
 		activeThumb: 0,
@@ -141,18 +186,21 @@ export const createSliderController = (options: SliderControllerOptions) => {
 		return typeof value === 'number' ? [value] : [...value]
 	}
 	const normalize = (value: SliderValue): SliderValue => {
+		const {min, max, step, minStepsBetweenThumbs} = config
 		if (typeof value === 'number') return clamp(snap(value, min, step), min, max)
-		const gap = (options.minStepsBetweenThumbs ?? 0) * step
+		const gap = minStepsBetweenThumbs * step
 		const low = clamp(snap(value[0], min, step), min, max - gap)
 		const high = clamp(snap(value[1], min, step), low + gap, max)
 		return Object.freeze([low, high] as const)
 	}
 	const sync = () => {
+		const {min, max, orientation, disabled} = config
 		const current = values()
 		const root = options.getRoot()
 		const thumbs = options.getThumbs()
 		const inputs = options.getInputs?.() ?? []
-		root?.setAttribute('data-orientation', options.orientation ?? 'horizontal')
+		root?.setAttribute('data-orientation', orientation)
+		root?.setAttribute('data-disabled', String(disabled))
 		current.forEach((value, index) => {
 			const thumb = thumbs[index]
 			if (thumb) {
@@ -176,9 +224,10 @@ export const createSliderController = (options: SliderControllerOptions) => {
 		if (emit) options.onChange?.(next)
 	}
 	const updateThumb = (index: number, next: number) => {
+		const {step, minStepsBetweenThumbs} = config
 		const current = values()
 		if (current.length === 2) {
-			const gap = (options.minStepsBetweenThumbs ?? 0) * step
+			const gap = minStepsBetweenThumbs * step
 			current[index] =
 				index === 0
 					? Math.min(next, current[1]! - gap)
@@ -187,9 +236,13 @@ export const createSliderController = (options: SliderControllerOptions) => {
 		setValue(current.length === 1 ? current[0]! : ([current[0]!, current[1]!] as const), true)
 	}
 	const onKey = (event: KeyboardEvent) => {
-		const index = Number((event.currentTarget as HTMLElement).dataset.thumb) || 0
-		const horizontal = (options.orientation ?? 'horizontal') === 'horizontal'
-		const rtl = (options.direction ?? 'ltr') === 'rtl'
+		if (config.disabled) return
+		const thumb = (event.target as Element | null)?.closest<HTMLElement>('[data-thumb]')
+		if (!thumb || !options.getThumbs().includes(thumb)) return
+		const index = Number(thumb.dataset.thumb) || 0
+		const {min, max, step, orientation, direction} = config
+		const horizontal = orientation === 'horizontal'
+		const rtl = direction === 'rtl'
 		const positive =
 			event.key === 'ArrowUp' || (horizontal && event.key === (rtl ? 'ArrowLeft' : 'ArrowRight'))
 		const negative =
@@ -206,15 +259,16 @@ export const createSliderController = (options: SliderControllerOptions) => {
 		}
 	}
 	const onPointer = (event: PointerEvent) => {
-		if (event.button !== 0) return
+		if (config.disabled || event.button !== 0) return
+		const {min, max, orientation, direction} = config
 		const root = options.getRoot()
 		if (!root) return
 		const rect = root.getBoundingClientRect()
-		const vertical = (options.orientation ?? 'horizontal') === 'vertical'
+		const vertical = orientation === 'vertical'
 		const ratio = vertical
 			? 1 - clamp((event.clientY - rect.top) / Math.max(rect.height, 1), 0, 1)
 			: clamp((event.clientX - rect.left) / Math.max(rect.width, 1), 0, 1)
-		const directedRatio = !vertical && (options.direction ?? 'ltr') === 'rtl' ? 1 - ratio : ratio
+		const directedRatio = !vertical && direction === 'rtl' ? 1 - ratio : ratio
 		const next = min + directedRatio * (max - min)
 		const current = values()
 		const index =
@@ -228,18 +282,28 @@ export const createSliderController = (options: SliderControllerOptions) => {
 		subscribe: store.subscribe as (subscriber: Subscriber<SliderState>) => () => void,
 		mount() {
 			if (store.getState().mounted) return
-			for (const thumb of options.getThumbs()) thumb.addEventListener('keydown', onKey)
-			options.getRoot()?.addEventListener('pointerdown', onPointer)
+			const root = options.getRoot()
+			if (!root) return
+			root.addEventListener('keydown', onKey)
+			root.addEventListener('pointerdown', onPointer)
 			store.setState({mounted: true})
 			setValue(initial)
 		},
 		setValue,
+		refresh: sync,
+		configure(next: Partial<typeof config>) {
+			const merged = {...config, ...next}
+			validateConfig(merged)
+			config = merged
+			setValue(store.getState().value)
+		},
 		setActiveThumb(activeThumb: 0 | 1) {
 			store.setState({activeThumb})
 		},
 		destroy() {
-			for (const thumb of options.getThumbs()) thumb.removeEventListener('keydown', onKey)
-			options.getRoot()?.removeEventListener('pointerdown', onPointer)
+			const root = options.getRoot()
+			root?.removeEventListener('keydown', onKey)
+			root?.removeEventListener('pointerdown', onPointer)
 			store.setState({mounted: false})
 			store.clear()
 		}

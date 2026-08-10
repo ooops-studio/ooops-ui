@@ -17,9 +17,9 @@
 </script>
 
 <label class={`ooops-checkbox ${className}`.trim()} data-part="root" data-state={indeterminate ? 'indeterminate' : checked ? 'checked' : 'unchecked'} data-disabled={disabled ? 'true' : 'false'} data-invalid={error ? 'true' : 'false'}>
-	<input bind:this={input} type="checkbox" {id} {name} {value} {required} {disabled} aria-describedby={description ? `${id}-description` : undefined} aria-invalid={error ? 'true' : undefined} data-part="control" />
+	<input bind:this={input} type="checkbox" {id} {name} {value} {required} {disabled} aria-describedby={[description && `${id}-description`, error && `${id}-error`].filter(Boolean).join(' ') || undefined} aria-invalid={error ? 'true' : undefined} data-part="control" />
 	<span aria-hidden="true" data-part="indicator">{#if indicator}{@render indicator(checked, indeterminate)}{/if}</span>
 	{#if label}<span data-part="label">{label}</span>{/if}
 	{#if description}<span id={`${id}-description`} data-part="description">{description}</span>{/if}
-	{#if error}<span data-part="error" aria-live="polite">{error}</span>{/if}
+	{#if error}<span id={`${id}-error`} data-part="error" aria-live="polite">{error}</span>{/if}
 </label>

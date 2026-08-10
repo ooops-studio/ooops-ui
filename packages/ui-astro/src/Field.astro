@@ -1,9 +1,9 @@
 ---
-type Props = {id: string; label?: string; description?: string; hint?: string; error?: string; required?: boolean; disabled?: boolean; pending?: boolean; class?: string};
-const {id, label, description, hint, error, required = false, disabled = false, pending = false, class: className = ''} = Astro.props;
+type Props = {id: string; controlId?: string; label?: string; description?: string; hint?: string; error?: string; required?: boolean; disabled?: boolean; pending?: boolean; class?: string};
+const {id, controlId = `${id}-control`, label, description, hint, error, required = false, disabled = false, pending = false, class: className = ''} = Astro.props;
 ---
-<div class:list={['ooops-field', className]} data-part="root" data-disabled={String(disabled)} data-invalid={String(Boolean(error))} data-pending={String(pending)}>
-  {label ? <label for={id} data-part="label">{label}{required ? <span aria-hidden="true" data-part="required">*</span> : null}</label> : null}
+<div id={id} class:list={['ooops-field', className]} data-control-id={controlId} data-part="root" data-disabled={String(disabled)} data-invalid={String(Boolean(error))} data-pending={String(pending)}>
+  {label ? <label for={controlId} data-part="label">{label}{required ? <span aria-hidden="true" data-part="required">*</span> : null}</label> : null}
   {description ? <span id={`${id}-description`} data-part="description">{description}</span> : null}
   <div data-part="control"><slot /></div>
   {error ? <span id={`${id}-error`} data-part="error" aria-live="polite">{error}</span> : hint ? <span id={`${id}-hint`} data-part="hint">{hint}</span> : null}

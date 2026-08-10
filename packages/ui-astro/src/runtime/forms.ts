@@ -19,6 +19,7 @@ type TextConfig = {
 	autoResize?: boolean
 	minRows?: number
 	maxRows?: number
+	messages?: {showPassword: string; hidePassword: string}
 }
 
 const mountInput = (root: HTMLElement) => {
@@ -30,6 +31,12 @@ const mountInput = (root: HTMLElement) => {
 	const reveal = () => {
 		input.type = input.type === 'password' ? 'text' : 'password'
 		root.dataset.revealed = String(input.type === 'text')
+		const button = root.querySelector<HTMLElement>('[data-part="reveal"]')
+		if (button && config.messages) {
+			const label = input.type === 'text' ? config.messages.hidePassword : config.messages.showPassword
+			button.setAttribute('aria-label', label)
+			button.textContent = label
+		}
 		input.focus()
 	}
 	root.querySelector('[data-part="clear"]')?.addEventListener('click', clear)
@@ -145,6 +152,7 @@ type SliderConfig = {
 	orientation?: 'horizontal' | 'vertical'
 	direction?: 'ltr' | 'rtl'
 	minStepsBetweenThumbs?: number
+	disabled?: boolean
 }
 const mountSlider = (root: HTMLElement) => {
 	const config = readUiConfig<SliderConfig>(root)
