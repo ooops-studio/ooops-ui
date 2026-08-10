@@ -1,7 +1,7 @@
 {
   "name": "@ooopsstudio/ui-primitives",
   "description": "Framework-agnostic accessible UI interaction controllers for Ooops Studio.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "publishConfig": {
     "access": "public"
