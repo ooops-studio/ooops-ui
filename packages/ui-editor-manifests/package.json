@@ -3,23 +3,42 @@
   "version": "0.1.0",
   "description": "Optional visual-editor manifests for Ooops UI and interactive-scene adapters.",
   "type": "module",
-  "publishConfig": {"access": "public"},
+  "publishConfig": {
+    "access": "public"
+  },
   "sideEffects": false,
   "license": "MIT",
-  "engines": {"node": ">=22.14.0"},
+  "engines": {
+    "node": ">=22.14.0"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ooops-studio/ooops-ui.git",
     "directory": "packages/ui-editor-manifests"
   },
   "homepage": "https://github.com/ooops-studio/ooops-ui/tree/main/packages/ui-editor-manifests#readme",
-  "bugs": {"url": "https://github.com/ooops-studio/ooops-ui/issues"},
-  "exports": {
-    ".": {"types": "./dist/index.d.ts", "import": "./dist/index.js"},
-    "./components": {"types": "./dist/components.d.ts", "import": "./dist/components.js"},
-    "./scene": {"types": "./dist/scene.d.ts", "import": "./dist/scene.js"}
+  "bugs": {
+    "url": "https://github.com/ooops-studio/ooops-ui/issues"
   },
-  "files": ["dist", "README.md", "CHANGELOG.md"],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./components": {
+      "types": "./dist/components.d.ts",
+      "import": "./dist/components.js"
+    },
+    "./scene": {
+      "types": "./dist/scene.d.ts",
+      "import": "./dist/scene.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md"
+  ],
   "dependencies": {
     "@ooopsstudio/editor-contracts": "^0.3.0"
   },
