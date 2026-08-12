@@ -9,25 +9,10 @@ import {
 } from '../src/index'
 
 const manifest = {
-	schemaVersion: 2,
 	id: 'test-scene',
-	label: 'Test scene',
-	category: 'test',
-	owner: '@ooopsstudio/scene-core',
-	insertable: true,
-	internals: 'locked',
-	adapters: {
-		astro: '@ooopsstudio/scene-astro/InteractiveScene.astro',
-		runtime: '@ooopsstudio/scene-core'
-	},
 	backend: 'canvas2d',
-	controls: [],
-	assets: [],
-	inputs: ['pointer', 'time', 'viewport'],
 	quality: {default: 'auto', allowed: ['low', 'auto', 'high']},
 	fallbacks: {
-		poster: 'public/poster.webp',
-		description: 'A test scene.',
 		reducedMotion: 'poster',
 		contextLoss: 'poster'
 	}
@@ -110,8 +95,8 @@ describe('@ooopsstudio/scene-core', () => {
 		expect(Object.isFrozen(definition)).toBe(true)
 		expect(Object.isFrozen(definition.manifest)).toBe(true)
 		expect(definition.create()).not.toBe(definition.create())
-		expect(() => defineInteractiveScene({...definition, manifest: {...manifest, internals: 'open'} as never}))
-			.toThrow(/Invalid interactive scene manifest/)
+		expect(() => defineInteractiveScene({...definition, manifest: {...manifest, backend: 'unsafe'} as never}))
+			.toThrow(/Unsupported interactive scene backend/)
 	})
 
 	it('mounts, resizes with DPR caps, schedules frames and disposes once', async() => {

@@ -9,9 +9,16 @@
 	let input: HTMLInputElement | null = $state(null)
 	let revealed = $state(false)
 	let controller: ReturnType<typeof createInputController> | null = null
+	let lastEmittedValue = value
+	const commitValue = (next: string) => {
+		value = next
+		if (next === lastEmittedValue) return
+		lastEmittedValue = next
+		onChange?.(next)
+	}
 	const describedBy = $derived([description ? `${id}-description` : '', error ? `${id}-error` : hint ? `${id}-hint` : ''].filter(Boolean).join(' ') || undefined)
 	onMount(() => {
-		controller = createInputController({value, defaultValue: value, getElement: () => input, onValueChange: (next) => { value = next; onChange?.(next) }})
+		controller = createInputController({value, defaultValue: value, getElement: () => input, onValueChange: commitValue})
 		controller.mount()
 		return () => { controller?.destroy(); controller = null }
 	})
@@ -23,7 +30,7 @@
 	{#if description}<p id={`${id}-description`} data-part="description">{description}</p>{/if}
 	<div data-part="input-shell">
 		{#if prefix}<span data-part="prefix">{@render prefix()}</span>{/if}
-		<input bind:this={input} {id} {name} type={type === 'password' && revealed ? 'text' : type} {placeholder} {required} {disabled} {readonly} {autocomplete} {min} {max} {step} aria-describedby={describedBy} aria-invalid={error ? 'true' : undefined} data-part="control" />
+		<input bind:this={input} bind:value {id} {name} type={type === 'password' && revealed ? 'text' : type} {placeholder} {required} {disabled} {readonly} {autocomplete} {min} {max} {step} aria-describedby={describedBy} aria-invalid={error ? 'true' : undefined} data-part="control" oninput={(event) => commitValue(event.currentTarget.value)} />
 		{#if clearable}<button type="button" data-part="clear" aria-label={uiMessages.clear} disabled={disabled || !value} onclick={() => controller?.setValue('', true)}>×</button>{/if}
 		{#if revealable && type === 'password'}<button type="button" data-part="reveal" aria-label={revealed ? uiMessages.hidePassword : uiMessages.showPassword} aria-pressed={revealed} onclick={() => { revealed = !revealed; input?.focus() }}>◉</button>{/if}
 		{#if suffix}<span data-part="suffix">{@render suffix()}</span>{/if}

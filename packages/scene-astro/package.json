@@ -18,13 +18,11 @@
   "exports": {
     ".": {"types": "./dist/index.d.ts", "import": "./dist/index.js"},
     "./runtime": {"types": "./dist/runtime.d.ts", "import": "./dist/runtime.js"},
-    "./editor": {"types": "./dist/editor.d.ts", "import": "./dist/editor.js"},
     "./InteractiveScene.astro": {"default": "./dist/InteractiveScene.astro"},
     "./base.css": "./dist/base.css"
   },
   "files": ["dist", "README.md", "CHANGELOG.md"],
   "dependencies": {
-    "@ooopsstudio/editor-contracts": "workspace:^",
     "@ooopsstudio/scene-core": "workspace:^"
   },
   "peerDependencies": {"astro": ">=7 <8"},

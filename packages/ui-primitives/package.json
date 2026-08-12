@@ -23,10 +23,6 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
-    },
-    "./editor": {
-      "types": "./dist/editor.d.ts",
-      "import": "./dist/editor.js"
     }
   },
   "files": [
@@ -35,8 +31,7 @@
     "CHANGELOG.md"
   ],
   "dependencies": {
-    "@ooopsstudio/accessibility": "^0.2.0",
-    "@ooopsstudio/editor-contracts": "workspace:^"
+    "@ooopsstudio/accessibility": "^0.2.0"
   },
   "scripts": {
     "typecheck": "tsc -p tsconfig.json --noEmit",

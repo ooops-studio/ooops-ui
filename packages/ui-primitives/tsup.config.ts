@@ -2,7 +2,7 @@
 import {defineConfig} from 'tsup'
 
 export default defineConfig({
-	entry: {'index': 'src/index.ts', 'editor': 'src/editor.ts'},
+	entry: {'index': 'src/index.ts'},
 	format: ['esm'],
 	platform: 'neutral',
 	target: 'node22',

@@ -1,5 +1,5 @@
-import {render} from '@testing-library/svelte'
-import {describe, expect, it} from 'vitest'
+import {fireEvent, render} from '@testing-library/svelte'
+import {describe, expect, it, vi} from 'vitest'
 
 import Accordion from './Accordion.svelte'
 import Checkbox from './Checkbox.svelte'
@@ -51,6 +51,30 @@ describe('Svelte UI adapters', () => {
 		expect(radio.container.querySelector('[role="radiogroup"]')).not.toBeNull()
 		expect(segmented.container.querySelector('input[type="hidden"]')).not.toBeNull()
 		expect(number.container.querySelector('input[type="number"]')).not.toBeNull()
+	})
+
+	it('keeps input and textarea values reactive after native edits', async() => {
+		const onInputChange = vi.fn()
+		const input = render(Input, {
+			props: {id: 'title', label: 'Title', value: 'Initial', onChange: onInputChange}
+		})
+		const inputControl = input.container.querySelector<HTMLInputElement>('input')
+		expect(inputControl?.value).toBe('Initial')
+		await fireEvent.input(inputControl!, {target: {value: 'Updated'}})
+		expect(inputControl?.value).toBe('Updated')
+		expect(onInputChange).toHaveBeenLastCalledWith('Updated')
+		expect(onInputChange).toHaveBeenCalledTimes(1)
+
+		const onTextareaChange = vi.fn()
+		const textarea = render(Textarea, {
+			props: {id: 'summary', label: 'Summary', value: 'Before', onChange: onTextareaChange}
+		})
+		const textareaControl = textarea.container.querySelector<HTMLTextAreaElement>('textarea')
+		expect(textareaControl?.value).toBe('Before')
+		await fireEvent.input(textareaControl!, {target: {value: 'After'}})
+		expect(textareaControl?.value).toBe('After')
+		expect(onTextareaChange).toHaveBeenLastCalledWith('After')
+		expect(onTextareaChange).toHaveBeenCalledTimes(1)
 	})
 
 	it('renders collection, navigation and overlay semantics', () => {

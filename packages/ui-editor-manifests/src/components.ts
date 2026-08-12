@@ -297,7 +297,7 @@ const definitions = [
 	['textarea', 'Textarea', 'forms', ['root', 'label', 'description', 'hint', 'error', 'control', 'counter'], ['default', 'disabled', 'focus', 'invalid'], [], ['change'], true],
 	['checkbox', 'Checkbox', 'choices', ['root', 'control', 'indicator', 'label', 'description', 'error'], ['unchecked', 'checked', 'indeterminate', 'disabled', 'focus', 'invalid'], [], ['checkbox-change'], false],
 	['radio-group', 'Radio group', 'choices', ['root', 'label', 'option', 'control', 'indicator', 'option-label', 'description'], ['default', 'selected', 'disabled', 'focus', 'invalid'], ['horizontal', 'vertical'], ['radio-change'], true],
-	['switch', 'Switch', 'choices', ['root', 'control', 'switch-label', 'track', 'thumb', 'label', 'description'], ['off', 'on', 'disabled', 'focus', 'invalid'], [], ['switch-change'], false],
+	['switch', 'Switch', 'choices', ['root', 'control', 'thumb', 'label', 'description'], ['off', 'on', 'disabled', 'focus', 'invalid'], [], ['switch-change'], false],
 	['combobox', 'Combobox', 'collections', ['root', 'label', 'description', 'control', 'input', 'clear', 'indicator', 'native-input', 'listbox', 'option', 'error'], ['closed', 'open', 'disabled', 'focus', 'invalid', 'selected', 'active'], [], ['combobox-change'], true],
 	['multi-select', 'Multi-select', 'collections', ['root', 'label', 'control', 'chips', 'chip', 'chip-remove', 'input', 'listbox', 'option', 'select-all', 'clear'], ['closed', 'open', 'disabled', 'focus', 'invalid', 'max-selected'], [], ['multi-select-change'], true],
 	['dropdown-menu', 'Dropdown menu', 'layers', ['root', 'trigger', 'content', 'label', 'item', 'indicator', 'separator', 'submenu-trigger', 'submenu-content'], ['closed', 'open', 'active', 'checked', 'disabled'], [], ['menu-select'], true],
@@ -323,7 +323,6 @@ const makeManifest = (definition: (typeof definitions)[number]): EditorComponent
 		label,
 		category,
 		owner: '@ooopsstudio/ui-primitives',
-		insertable: id !== 'part',
 		adapters: {
 			astro: `@ooopsstudio/ui-astro/${adapterName(id)}.astro`,
 			svelte: `@ooopsstudio/ui-svelte/${adapterName(id)}.svelte`,

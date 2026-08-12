@@ -33,7 +33,6 @@ export const interactiveSceneComponentManifest = Object.freeze({
 	label: 'Interactive scene',
 	category: 'media',
 	owner: '@ooopsstudio/scene-astro',
-	insertable: true,
 	adapters: {
 		astro: '@ooopsstudio/scene-astro/InteractiveScene.astro',
 		controller: '@ooopsstudio/scene-astro/runtime'

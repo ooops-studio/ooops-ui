@@ -3,7 +3,7 @@ import {join, resolve} from 'node:path'
 
 import {describe, expect, it} from 'vitest'
 
-import {uiComponentManifests} from '../src/editor'
+import {uiComponentManifests} from '../src/index'
 
 const root = resolve(import.meta.dirname, '../../..')
 const readJson = (path: string) => JSON.parse(
@@ -75,7 +75,7 @@ describe('component manifest v2 adapter parity', () => {
 			['modal', 'dialog'],
 			['popover', 'panel']
 		] as const) {
-			const positioning = uiComponentManifests[component].parts.find(
+			const positioning = uiComponentManifests[component]!.parts.find(
 				(entry) => entry.id === part
 			)?.positioning
 			expect(positioning?.editable, `${component}:${part}`).toBe(false)

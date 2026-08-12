@@ -40,6 +40,14 @@ module.exports = {
 			from: {path: '^packages/ui-(?:svelte|astro)/src/'},
 			to: {path: '^packages/ui-primitives/src/(?!index\\.ts$)'}
 		},
+		{name: 'core-ui-does-not-depend-on-editor-contracts', severity: 'error',
+			from: {path: '^packages/(?:ui-primitives|ui-svelte|ui-astro|scene-core|scene-three|scene-astro)/src/'},
+			to: {path: 'editor-contracts'}
+		},
+		{name: 'editor-manifests-do-not-import-ui-runtime', severity: 'error',
+			from: {path: '^packages/ui-editor-manifests/src/'},
+			to: {path: '^packages/(?:ui-primitives|ui-svelte|ui-astro|scene-core|scene-three|scene-astro)/src/'}
+		},
 
 		// Scene ownership is renderer-neutral core -> Three runtime / Astro adapter.
 		// The Astro adapter must not pull Three.js into projects that use another renderer.

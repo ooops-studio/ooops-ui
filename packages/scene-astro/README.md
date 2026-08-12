@@ -25,8 +25,9 @@ import InteractiveScene from '@ooopsstudio/scene-astro/InteractiveScene.astro'
 ```
 
 Meaningful scenes require a description and pause control. Decorative scenes are hidden from the
-accessibility tree. Scene implementations remain locked to the developer; manifests expose only
-explicit controls to visual-editor tooling.
+accessibility tree. Scene implementations remain locked to the developer. Install
+`@ooopsstudio/ui-editor-manifests` when explicit scene controls need to be exposed to visual-editor
+tooling; this runtime adapter remains editor-independent.
 
 ## License
 

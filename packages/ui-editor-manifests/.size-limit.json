@@ -1,0 +1,4 @@
+[
+  {"name": "ui-editor-component-manifests", "path": "dist/components.js", "limit": "16 KB"},
+  {"name": "ui-editor-scene-manifest", "path": "dist/scene.js", "limit": "3 KB"}
+]

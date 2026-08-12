@@ -1,7 +1,6 @@
 // @vitest-environment jsdom
 import {beforeEach, describe, expect, it, vi} from 'vitest'
 
-import {uiComponentManifests, validateUiComponentManifest} from '../src/editor'
 import {
 	createAccordionController,
 	createCheckboxController,
@@ -318,7 +317,7 @@ describe('layers and collection controls', () => {
 	})
 })
 
-describe('navigation, range and manifests', () => {
+describe('navigation and range', () => {
 	it('updates tabs and accordion ARIA state', () => {
 		document.body.innerHTML =
 			'<div id="tabs"><button data-tab data-value="a"></button><button data-tab data-value="b"></button></div><div id="panels"><div data-value="a"></div><div data-value="b"></div></div><div data-accordion-root><button data-accordion-trigger data-value="x"></button><div data-value="x"></div></div>'
@@ -369,19 +368,5 @@ describe('navigation, range and manifests', () => {
 			new PointerEvent('pointerdown', {clientX: 30, clientY: 5, button: 0, bubbles: true})
 		)
 		expect(controller.getState().value).toEqual([30, 80])
-	})
-
-	it('exposes JSON-safe, validated editor manifests with props', () => {
-		expect(Object.keys(uiComponentManifests)).toHaveLength(20)
-		for (const entry of Object.values(uiComponentManifests)) {
-			expect(validateUiComponentManifest(JSON.parse(JSON.stringify(entry)))).toBe(true)
-			expect(entry.schemaVersion).toBe(2)
-			expect(entry.props.length).toBeGreaterThan(0)
-			expect(entry.parts.length).toBeGreaterThan(0)
-			expect(Object.keys(entry.adapters).length).toBeGreaterThan(0)
-		}
-		expect(uiComponentManifests.part?.insertable).toBe(false)
-		expect(JSON.stringify(uiComponentManifests)).not.toContain('cssVariable')
-		expect(JSON.stringify(uiComponentManifests)).not.toContain('editableTokens')
 	})
 })

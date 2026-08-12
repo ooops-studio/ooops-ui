@@ -8,10 +8,11 @@ allowBuilds:
 
 minimumReleaseAgeExclude:
   - '@ooopsstudio/accessibility@0.2.0'
+  - '@ooopsstudio/editor-contracts@0.3.0'
 
 overrides:
   '@ooopsstudio/accessibility': ^0.2.0
-  '@ooopsstudio/editor-contracts': file:packages/editor-contracts
+  '@ooopsstudio/editor-contracts': file:../ooops-editor/packages/contracts
   '@sveltejs/kit>cookie': 0.7.2
   esbuild: 0.28.1
   fast-uri: 3.1.5

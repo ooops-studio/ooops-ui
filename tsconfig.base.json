@@ -6,12 +6,12 @@
     "moduleResolution": "Bundler",
 		"baseUrl": ".",
 		"paths": {
-			"@ooopsstudio/editor-contracts": ["packages/editor-contracts/src/index.ts"],
+			"@ooopsstudio/editor-contracts": ["../ooops-editor/packages/contracts/dist/index.d.ts"],
+			"@ooopsstudio/ui-editor-manifests": ["packages/ui-editor-manifests/src/index.ts"],
 			"@ooopsstudio/scene-core": ["packages/scene-core/src/index.ts"],
 			"@ooopsstudio/scene-three": ["packages/scene-three/src/index.ts"],
 			"@ooopsstudio/scene-astro": ["packages/scene-astro/src/index.ts"],
 			"@ooopsstudio/scene-astro/runtime": ["packages/scene-astro/src/runtime.ts"],
-			"@ooopsstudio/scene-astro/editor": ["packages/scene-astro/src/editor.ts"],
 			"@ooopsstudio/ui-primitives": ["packages/ui-primitives/src/index.ts"],
 			"@ooopsstudio/ui-svelte": ["packages/ui-svelte/src/lib/index.ts"],
 			"@ooopsstudio/ui-astro": ["packages/ui-astro/src/index.ts"]

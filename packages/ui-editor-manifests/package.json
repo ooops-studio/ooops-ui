@@ -1,8 +1,7 @@
 {
-  "name": "@ooopsstudio/scene-core",
+  "name": "@ooopsstudio/ui-editor-manifests",
   "version": "0.1.0",
-  "private": true,
-  "description": "Renderer-neutral lifecycle and coordination for interactive scenes.",
+  "description": "Optional visual-editor manifests for Ooops UI and interactive-scene adapters.",
   "type": "module",
   "publishConfig": {"access": "public"},
   "sideEffects": false,
@@ -11,14 +10,25 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ooops-studio/ooops-ui.git",
-    "directory": "packages/scene-core"
+    "directory": "packages/ui-editor-manifests"
   },
-  "homepage": "https://github.com/ooops-studio/ooops-ui/tree/main/packages/scene-core#readme",
+  "homepage": "https://github.com/ooops-studio/ooops-ui/tree/main/packages/ui-editor-manifests#readme",
   "bugs": {"url": "https://github.com/ooops-studio/ooops-ui/issues"},
   "exports": {
-    ".": {"types": "./dist/index.d.ts", "import": "./dist/index.js"}
+    ".": {"types": "./dist/index.d.ts", "import": "./dist/index.js"},
+    "./components": {"types": "./dist/components.d.ts", "import": "./dist/components.js"},
+    "./scene": {"types": "./dist/scene.d.ts", "import": "./dist/scene.js"}
   },
   "files": ["dist", "README.md", "CHANGELOG.md"],
+  "dependencies": {
+    "@ooopsstudio/editor-contracts": "^0.3.0"
+  },
+  "devDependencies": {
+    "@ooopsstudio/scene-astro": "workspace:^",
+    "@ooopsstudio/ui-astro": "workspace:^",
+    "@ooopsstudio/ui-primitives": "workspace:^",
+    "@ooopsstudio/ui-svelte": "workspace:^"
+  },
   "scripts": {
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint .",

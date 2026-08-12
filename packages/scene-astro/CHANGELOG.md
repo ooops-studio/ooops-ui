@@ -3,3 +3,4 @@
 ## 0.1.0
 
 - Initial Astro 7 scene component, registry, lifecycle and editor metadata.
+- Editor metadata moved to `@ooopsstudio/ui-editor-manifests`; the Astro adapter is editor-independent.

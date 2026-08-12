@@ -2,32 +2,10 @@ import {defineInteractiveScene} from '@ooopsstudio/scene-core'
 
 export const fixtureScene = defineInteractiveScene<{color?: string}>({
 	manifest: {
-		schemaVersion: 2,
 		id: 'fixture-scene',
-		label: 'Fixture scene',
-		category: 'test',
-		owner: '@ooopsstudio/scene-core',
-		insertable: true,
-		internals: 'locked',
-		adapters: {
-			astro: '@ooopsstudio/scene-astro/InteractiveScene.astro',
-			runtime: '@ooopsstudio/scene-core'
-		},
 		backend: 'canvas2d',
-		controls: [{
-			id: 'color',
-			label: 'Color',
-			schema: {kind: 'string'},
-			default: '#16a085',
-			editable: true,
-			control: 'color'
-		}],
-		assets: [],
-		inputs: ['pointer', 'time', 'viewport'],
 		quality: {default: 'auto', allowed: ['low', 'auto', 'high']},
 		fallbacks: {
-			poster: 'public/fixture-scene.png',
-			description: 'A color field responds to pointer interaction.',
 			reducedMotion: 'poster',
 			contextLoss: 'poster'
 		}

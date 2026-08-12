@@ -8,6 +8,5 @@ export default defineConfig({
 	dts: {resolve: true},
 	sourcemap: true,
 	clean: true,
-	treeshake: true,
-	external: ['@ooopsstudio/editor-contracts']
+	treeshake: true
 })

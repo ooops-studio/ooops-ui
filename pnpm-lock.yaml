@@ -6,7 +6,7 @@ settings:
 
 overrides:
   '@ooopsstudio/accessibility': ^0.2.0
-  '@ooopsstudio/editor-contracts': file:packages/editor-contracts
+  '@ooopsstudio/editor-contracts': file:../ooops-editor/packages/contracts
   '@sveltejs/kit>cookie': 0.7.2
   esbuild: 0.28.1
   fast-uri: 3.1.5
@@ -128,13 +128,8 @@ importers:
         specifier: ^3.2.7
         version: 3.2.7(@types/node@22.20.1)(jiti@2.7.0)(jsdom@27.4.0)(lightningcss@1.33.0)(yaml@2.9.0)
 
-  packages/editor-contracts: {}
-
   packages/scene-astro:
     dependencies:
-      '@ooopsstudio/editor-contracts':
-        specifier: file:../editor-contracts
-        version: link:../editor-contracts
       '@ooopsstudio/scene-core':
         specifier: workspace:^
         version: link:../scene-core
@@ -143,11 +138,7 @@ importers:
         specifier: ^7.1.6
         version: 7.1.6(@emnapi/core@2.0.0-alpha.3)(@emnapi/runtime@2.0.0-alpha.3)(@types/node@22.20.1)(jiti@2.7.0)(rollup@4.62.3)(yaml@2.9.0)
 
-  packages/scene-core:
-    dependencies:
-      '@ooopsstudio/editor-contracts':
-        specifier: file:../editor-contracts
-        version: link:../editor-contracts
+  packages/scene-core: {}
 
   packages/scene-three:
     dependencies:
@@ -172,14 +163,30 @@ importers:
         specifier: ^7.1.6
         version: 7.1.6(@emnapi/core@2.0.0-alpha.3)(@emnapi/runtime@2.0.0-alpha.3)(@types/node@22.20.1)(jiti@2.7.0)(rollup@4.62.3)(yaml@2.9.0)
 
+  packages/ui-editor-manifests:
+    dependencies:
+      '@ooopsstudio/editor-contracts':
+        specifier: file:../../../ooops-editor/packages/contracts
+        version: file:../ooops-editor/packages/contracts
+    devDependencies:
+      '@ooopsstudio/scene-astro':
+        specifier: workspace:^
+        version: link:../scene-astro
+      '@ooopsstudio/ui-astro':
+        specifier: workspace:^
+        version: link:../ui-astro
+      '@ooopsstudio/ui-primitives':
+        specifier: workspace:^
+        version: link:../ui-primitives
+      '@ooopsstudio/ui-svelte':
+        specifier: workspace:^
+        version: link:../ui-svelte
+
   packages/ui-primitives:
     dependencies:
       '@ooopsstudio/accessibility':
         specifier: ^0.2.0
         version: 0.2.0
-      '@ooopsstudio/editor-contracts':
-        specifier: file:../editor-contracts
-        version: link:../editor-contracts
 
   packages/ui-svelte:
     dependencies:
@@ -1435,8 +1442,8 @@ packages:
     resolution: {integrity: sha512-ys6DbEUbATHdh0HTmFg36sBA1wz8P7iAFywAVAreo0T5wBR/a8ynrhOfg+9h/2NIwpkPJOKAN+A21uPfbbfxqg==}
     engines: {node: '>=22.14.0'}
 
-  '@ooopsstudio/editor-contracts@file:packages/editor-contracts':
-    resolution: {directory: packages/editor-contracts, type: directory}
+  '@ooopsstudio/editor-contracts@file:../ooops-editor/packages/contracts':
+    resolution: {directory: ../ooops-editor/packages/contracts, type: directory}
     engines: {node: '>=22.14.0'}
 
   '@oslojs/encoding@1.1.0':
@@ -6635,9 +6642,9 @@ snapshots:
 
   '@ooopsstudio/accessibility@0.2.0':
     dependencies:
-      '@ooopsstudio/editor-contracts': file:packages/editor-contracts
+      '@ooopsstudio/editor-contracts': file:../ooops-editor/packages/contracts
 
-  '@ooopsstudio/editor-contracts@file:packages/editor-contracts': {}
+  '@ooopsstudio/editor-contracts@file:../ooops-editor/packages/contracts': {}
 
   '@oslojs/encoding@1.1.0': {}
 

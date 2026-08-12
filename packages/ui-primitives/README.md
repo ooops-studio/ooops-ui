@@ -35,7 +35,7 @@ const field = createFieldController({
 
 ## Editor manifests
 
-Import `uiComponentManifests` from `@ooopsstudio/ui-primitives/editor`. The explicit subpath keeps editor metadata out of runtime controller bundles. Every v2 manifest uses `@ooopsstudio/editor-contracts` and describes adapters, typed props, slots, events, parts, states, variants, curated styling and controlled positioning capabilities. Root parts expose responsive positioning and semantic z-index choices; runtime-owned listboxes, menus, tooltips, dialogs, modals and popovers keep their internal layer positioning locked. It contains no project colors, fake CSS tokens or theme defaults.
+Install `@ooopsstudio/ui-editor-manifests` when these controls need to be exposed to Ooops Editor. Editor metadata is deliberately shipped by that optional adapter package, so this core controller package has no editor-contract dependency.
 
 ## Scope
 

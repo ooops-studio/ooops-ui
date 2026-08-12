@@ -13,3 +13,4 @@
 ## 0.1.0
 
 - Initial headless controller, validation, layer, form projection, and editor-manifest API.
+- Editor manifests now ship from the optional `@ooopsstudio/ui-editor-manifests` adapter.

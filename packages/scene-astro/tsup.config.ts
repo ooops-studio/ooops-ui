@@ -1,7 +1,7 @@
 import {defineConfig} from 'tsup'
 
 export default defineConfig({
-	entry: {index: 'src/index.ts', runtime: 'src/runtime.ts', editor: 'src/editor.ts'},
+	entry: {index: 'src/index.ts', runtime: 'src/runtime.ts'},
 	format: ['esm'],
 	platform: 'browser',
 	target: 'es2023',
@@ -10,5 +10,5 @@ export default defineConfig({
 	clean: true,
 	splitting: false,
 	treeshake: true,
-	external: ['astro', '@ooopsstudio/editor-contracts', '@ooopsstudio/scene-core']
+	external: ['astro', '@ooopsstudio/scene-core']
 })

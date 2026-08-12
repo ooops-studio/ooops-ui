@@ -1,8 +1,7 @@
-import {validateComponentManifest} from '@ooopsstudio/editor-contracts'
 import {defineInteractiveScene} from '@ooopsstudio/scene-core'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 
-import {interactiveSceneComponentManifest, serializeSceneConfig} from '../src/index'
+import {serializeSceneConfig} from '../src/index'
 import {
 	destroyInteractiveScenes,
 	getRegisteredInteractiveSceneIds,
@@ -15,25 +14,10 @@ import {
 let sceneCounter = 0
 
 const manifest = (id: string) => ({
-	schemaVersion: 2,
 	id,
-	label: 'Astro scene',
-	category: 'test',
-	owner: '@ooopsstudio/scene-astro',
-	insertable: true,
-	internals: 'locked',
-	adapters: {
-		astro: '@ooopsstudio/scene-astro/InteractiveScene.astro',
-		runtime: '@ooopsstudio/scene-core'
-	},
 	backend: 'canvas2d',
-	controls: [],
-	assets: [],
-	inputs: ['pointer'],
 	quality: {default: 'auto', allowed: ['low', 'auto', 'high']},
 	fallbacks: {
-		poster: 'public/poster.webp',
-		description: 'A fixture scene.',
 		reducedMotion: 'poster',
 		contextLoss: 'poster'
 	}
@@ -98,12 +82,6 @@ describe('@ooopsstudio/scene-astro', () => {
 		const hostile = Object.defineProperty({}, 'secret', {enumerable: true, get: getter})
 		expect(() => serializeSceneConfig(hostile)).toThrow(/accessor/)
 		expect(getter).not.toHaveBeenCalled()
-	})
-
-	it('ships editor metadata with locked canvas internals', () => {
-		expect(validateComponentManifest(interactiveSceneComponentManifest)).toBe(true)
-		expect(interactiveSceneComponentManifest.parts.find((part) => part.id === 'canvas'))
-			.toMatchObject({positioning: {editable: false}})
 	})
 
 	it('registers explicit definitions and rejects mismatches and conflicts', () => {

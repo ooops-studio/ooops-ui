@@ -1,9 +1,8 @@
-import type {
-	InteractiveSceneManifest,
-	InteractiveSceneQuality
-} from '@ooopsstudio/editor-contracts'
+export const SCENE_QUALITIES = Object.freeze(['low', 'auto', 'high'] as const)
+export const SCENE_REQUESTED_BACKENDS = Object.freeze(['auto', 'webgpu', 'webgl2', 'canvas2d'] as const)
 
-export type SceneQuality = InteractiveSceneQuality
+export type SceneQuality = (typeof SCENE_QUALITIES)[number]
+export type SceneRequestedBackend = (typeof SCENE_REQUESTED_BACKENDS)[number]
 export type SceneInteractionMode = 'select' | 'interact'
 export type SceneBackend = 'webgpu' | 'webgl2' | 'canvas2d' | 'unknown'
 export type ScenePauseReason =
@@ -72,8 +71,28 @@ export type InteractiveScene<Config = unknown> = {
 	dispose?: () => void | Promise<void>
 }
 
+/**
+ * Runtime-only scene configuration.
+ * Editor labels, controls, adapters and assets live in editor manifests.
+ */
+export type InteractiveSceneRuntimeManifest = Readonly<{
+	id: string
+	backend: SceneRequestedBackend
+	quality: Readonly<{
+		default: SceneQuality
+		allowed: ReadonlyArray<SceneQuality>
+	}>
+	fallbacks: Readonly<{
+		reducedMotion: 'poster' | 'static'
+		contextLoss: 'poster' | 'hidden'
+	}>
+}>
+
+/** @deprecated Use InteractiveSceneRuntimeManifest. */
+export type InteractiveSceneManifest = InteractiveSceneRuntimeManifest
+
 export type InteractiveSceneDefinition<Config = unknown> = Readonly<{
-	manifest: Readonly<InteractiveSceneManifest>
+	manifest: InteractiveSceneRuntimeManifest
 	create: () => InteractiveScene<Config>
 }>
 
@@ -115,5 +134,3 @@ export type SceneHost<Config> = {
 	getState: () => SceneRuntimeState
 	dispose: () => Promise<void>
 }
-
-export type {InteractiveSceneManifest}

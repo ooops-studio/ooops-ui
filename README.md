@@ -6,8 +6,8 @@ Accessible, design-neutral UI behavior with framework adapters. The monorepo kee
 
 | Package | Purpose |
 | --- | --- |
-| `@ooopsstudio/editor-contracts` | Strict JSON-safe v2 schemas and parsers for component, accessibility, template and design-token metadata. |
-| `@ooopsstudio/ui-primitives` | Form validation, controls, collections, navigation, layers and editor manifests, plus the canonical accessibility focus trap. |
+| `@ooopsstudio/ui-primitives` | Form validation, controls, collections, navigation, layers and the canonical accessibility focus trap. |
+| `@ooopsstudio/ui-editor-manifests` | Optional editor adapter metadata for UI components and interactive scenes. |
 | `@ooopsstudio/ui-astro` | Astro 7 markup and progressive-enhancement adapters. |
 | `@ooopsstudio/ui-svelte` | Svelte 5 components backed by the same controllers. |
 | `@ooopsstudio/scene-core` | Renderer-neutral scene lifecycle, scheduling, interaction modes and resource admission. |
@@ -58,7 +58,7 @@ That means the root contract scales without assuming that every package has one 
 - Generic dependency-cruiser baseline
 - Local CI and release workflows
 - Template guard for unreplaced publish-facing placeholders
-- Seven production packages sharing editor contracts, controller and scene lifecycle layers
+- Seven core UI/scene packages plus an optional visual-editor manifest adapter
 - Non-workspace archetype examples for more advanced package shapes
 
 ## Workspace layout
@@ -67,7 +67,7 @@ That means the root contract scales without assuming that every package has one 
 .
 ├─ packages/
 │  ├─ ui-primitives/               # framework-agnostic controllers
-│  ├─ editor-contracts/             # portable visual-editor schemas
+│  ├─ ui-editor-manifests/          # optional visual-editor metadata
 │  ├─ ui-astro/                    # Astro 7 adapters
 │  ├─ ui-svelte/                   # Svelte 5 adapters
 │  ├─ scene-core/                  # renderer-neutral scene lifecycle
