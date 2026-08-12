@@ -31,6 +31,13 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Checkout local editor contracts
+        run: |
+          git init ../ooops-editor
+          git -C ../ooops-editor remote add origin https://github.com/ooops-studio/ooops-editor.git
+          git -C ../ooops-editor fetch --depth 1 origin e88de86d5d485cbe2a40764771ac3f545fa472f2
+          git -C ../ooops-editor checkout --detach FETCH_HEAD
+
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
