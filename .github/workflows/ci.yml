@@ -30,7 +30,7 @@ jobs:
         run: |
           git init ../ooops-editor
           git -C ../ooops-editor remote add origin https://github.com/ooops-studio/ooops-editor.git
-          git -C ../ooops-editor fetch --depth 1 origin e88de86d5d485cbe2a40764771ac3f545fa472f2
+          git -C ../ooops-editor fetch --depth 1 origin 0df7db62da546e57a34f4a3dffc02e06feb4852e
           git -C ../ooops-editor checkout --detach FETCH_HEAD
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -41,6 +41,10 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: pnpm
+      - name: Install and build editor contracts
+        run: |
+          pnpm --dir ../ooops-editor install --frozen-lockfile --filter @ooopsstudio/editor-contracts
+          pnpm --dir ../ooops-editor --filter @ooopsstudio/editor-contracts build
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
       - name: Audit production dependencies
@@ -89,7 +93,7 @@ jobs:
         run: |
           git init ../ooops-editor
           git -C ../ooops-editor remote add origin https://github.com/ooops-studio/ooops-editor.git
-          git -C ../ooops-editor fetch --depth 1 origin e88de86d5d485cbe2a40764771ac3f545fa472f2
+          git -C ../ooops-editor fetch --depth 1 origin 0df7db62da546e57a34f4a3dffc02e06feb4852e
           git -C ../ooops-editor checkout --detach FETCH_HEAD
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -100,6 +104,10 @@ jobs:
         with:
           node-version: 22.14.0
           cache: pnpm
+      - name: Install and build editor contracts
+        run: |
+          pnpm --dir ../ooops-editor install --frozen-lockfile --filter @ooopsstudio/editor-contracts
+          pnpm --dir ../ooops-editor --filter @ooopsstudio/editor-contracts build
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
       - name: Install ${{ matrix.browser }}
