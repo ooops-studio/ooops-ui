@@ -36,25 +36,10 @@ import {
 } from '../src/index'
 
 const manifest = (backend: 'auto' | 'webgpu' | 'webgl2' | 'canvas2d' = 'auto') => ({
-	schemaVersion: 2,
 	id: 'three-test',
-	label: 'Three test',
-	category: 'test',
-	owner: '@ooopsstudio/scene-three',
-	insertable: true,
-	internals: 'locked',
-	adapters: {
-		astro: '@ooopsstudio/scene-astro/InteractiveScene.astro',
-		runtime: '@ooopsstudio/scene-three'
-	},
 	backend,
-	controls: [],
-	assets: [],
-	inputs: ['pointer', 'time', 'viewport'],
 	quality: {default: 'auto', allowed: ['low', 'auto', 'high']},
 	fallbacks: {
-		poster: 'public/poster.webp',
-		description: 'A test scene.',
 		reducedMotion: 'poster',
 		contextLoss: 'poster'
 	}
