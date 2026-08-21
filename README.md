@@ -11,7 +11,7 @@ Accessible, design-neutral UI behavior with framework adapters. The monorepo kee
 | `@ooopsstudio/ui-astro` | Astro 7 markup and progressive-enhancement adapters. |
 | `@ooopsstudio/ui-svelte` | Svelte 5 components backed by the same controllers. |
 | `@ooopsstudio/scene-core` | Renderer-neutral scene lifecycle, scheduling, interaction modes and resource admission. |
-| `@ooopsstudio/scene-three` | Three.js WebGPU/WebGL 2 runtime, asset loading and resource ownership. |
+| `@ooopsstudio/scene-gpu` | Small native WebGPU-first runtime with WebGL 2 fallback. |
 | `@ooopsstudio/scene-astro` | Accessible Astro scene markup, explicit registries and view-transition lifecycle. |
 
 All styling is optional. Components expose stable `data-part` and state attributes so each product can own its visual design.
@@ -71,7 +71,7 @@ That means the root contract scales without assuming that every package has one 
 │  ├─ ui-astro/                    # Astro 7 adapters
 │  ├─ ui-svelte/                   # Svelte 5 adapters
 │  ├─ scene-core/                  # renderer-neutral scene lifecycle
-│  ├─ scene-three/                 # Three.js WebGPU/WebGL 2 runtime
+│  ├─ scene-gpu/                   # Native WebGPU/WebGL 2 runtime
 │  └─ scene-astro/                 # Astro scene adapter
 ├─ tests/apps/
 │  ├─ astro/                       # private Astro 7 production fixture

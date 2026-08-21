@@ -1,0 +1,8 @@
+[
+  {
+    "name": "scene-gpu",
+    "path": "dist/index.js",
+    "limit": "4 KB",
+    "ignore": ["@ooopsstudio/scene-core"]
+  }
+]

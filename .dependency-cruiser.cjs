@@ -41,27 +41,27 @@ module.exports = {
 			to: {path: '^packages/ui-primitives/src/(?!index\\.ts$)'}
 		},
 		{name: 'core-ui-does-not-depend-on-editor-contracts', severity: 'error',
-			from: {path: '^packages/(?:ui-primitives|ui-svelte|ui-astro|scene-core|scene-three|scene-astro)/src/'},
+			from: {path: '^packages/(?:ui-primitives|ui-svelte|ui-astro|scene-core|scene-gpu|scene-astro)/src/'},
 			to: {path: 'editor-contracts'}
 		},
 		{name: 'editor-manifests-do-not-import-ui-runtime', severity: 'error',
 			from: {path: '^packages/ui-editor-manifests/src/'},
-			to: {path: '^packages/(?:ui-primitives|ui-svelte|ui-astro|scene-core|scene-three|scene-astro)/src/'}
+			to: {path: '^packages/(?:ui-primitives|ui-svelte|ui-astro|scene-core|scene-gpu|scene-astro)/src/'}
 		},
 
-		// Scene ownership is renderer-neutral core -> Three runtime / Astro adapter.
-		// The Astro adapter must not pull Three.js into projects that use another renderer.
+		// Scene ownership is renderer-neutral core -> GPU runtime / Astro adapter.
+		// The Astro adapter must not pull renderer implementation into projects.
 		{name: 'scene-core-does-not-depend-on-adapters', severity: 'error',
 			from: {path: '^packages/scene-core/src/'},
-			to: {path: '^packages/scene-(?:three|astro)/src/'}
+			to: {path: '^packages/scene-(?:gpu|astro)/src/'}
 		},
-		{name: 'scene-three-does-not-depend-on-astro', severity: 'error',
-			from: {path: '^packages/scene-three/src/'},
+		{name: 'scene-gpu-does-not-depend-on-astro', severity: 'error',
+			from: {path: '^packages/scene-gpu/src/'},
 			to: {path: '^packages/scene-astro/src/'}
 		},
-		{name: 'scene-astro-does-not-depend-on-three', severity: 'error',
+		{name: 'scene-astro-does-not-depend-on-gpu', severity: 'error',
 			from: {path: '^packages/scene-astro/src/'},
-			to: {path: '^packages/scene-three/src/'}
+			to: {path: '^packages/scene-gpu/src/'}
 		},
 
 		// Production code must not depend on devDeps

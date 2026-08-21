@@ -3,7 +3,7 @@
   "compilerOptions": {
     "outDir": "dist",
     "lib": ["ES2023", "DOM", "DOM.Iterable"],
-    "types": ["node", "three"]
+    "types": ["node"]
   },
   "include": ["src"],
   "exclude": ["dist", "coverage", "node_modules"]

@@ -9,7 +9,7 @@
 			"@ooopsstudio/editor-contracts": ["../ooops-editor/packages/contracts/dist/index.d.ts"],
 			"@ooopsstudio/ui-editor-manifests": ["packages/ui-editor-manifests/src/index.ts"],
 			"@ooopsstudio/scene-core": ["packages/scene-core/src/index.ts"],
-			"@ooopsstudio/scene-three": ["packages/scene-three/src/index.ts"],
+			"@ooopsstudio/scene-gpu": ["packages/scene-gpu/src/index.ts"],
 			"@ooopsstudio/scene-astro": ["packages/scene-astro/src/index.ts"],
 			"@ooopsstudio/scene-astro/runtime": ["packages/scene-astro/src/runtime.ts"],
 			"@ooopsstudio/ui-primitives": ["packages/ui-primitives/src/index.ts"],

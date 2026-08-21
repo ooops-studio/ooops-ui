@@ -9,6 +9,7 @@ allowBuilds:
 minimumReleaseAgeExclude:
   - '@ooopsstudio/accessibility@0.2.0'
   - '@ooopsstudio/editor-contracts@0.3.0'
+  - '@ooopsstudio/scene-core@0.1.0'
 
 overrides:
   '@ooopsstudio/accessibility': ^0.2.0

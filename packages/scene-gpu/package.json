@@ -1,8 +1,8 @@
 {
-  "name": "@ooopsstudio/scene-three",
+  "name": "@ooopsstudio/scene-gpu",
   "version": "0.1.0",
   "private": false,
-  "description": "Three.js WebGPU and WebGL 2 runtime for Ooops interactive scenes.",
+  "description": "Small native WebGPU-first runtime with WebGL 2 fallback for Ooops interactive scenes.",
   "type": "module",
   "publishConfig": {"access": "public"},
   "sideEffects": false,
@@ -11,23 +11,15 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ooops-studio/ooops-ui.git",
-    "directory": "packages/scene-three"
+    "directory": "packages/scene-gpu"
   },
-  "homepage": "https://github.com/ooops-studio/ooops-ui/tree/main/packages/scene-three#readme",
+  "homepage": "https://github.com/ooops-studio/ooops-ui/tree/main/packages/scene-gpu#readme",
   "bugs": {"url": "https://github.com/ooops-studio/ooops-ui/issues"},
   "exports": {
     ".": {"types": "./dist/index.d.ts", "import": "./dist/index.js"}
   },
   "files": ["dist", "README.md", "CHANGELOG.md"],
-  "dependencies": {"@ooopsstudio/scene-core": "workspace:^"},
-  "peerDependencies": {
-    "@types/three": "^0.183.1",
-    "three": "^0.185.0"
-  },
-  "peerDependenciesMeta": {
-    "@types/three": {"optional": true}
-  },
-  "devDependencies": {"@types/three": "^0.183.1", "three": "0.185.1"},
+  "dependencies": {"@ooopsstudio/scene-core": "^0.1.0"},
   "scripts": {
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint .",
