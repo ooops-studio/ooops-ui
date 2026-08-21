@@ -1,7 +1,7 @@
 {
   "name": "@ooopsstudio/scene-astro",
   "version": "0.1.0",
-  "private": true,
+  "private": false,
   "description": "Astro 7 adapter for Ooops interactive scenes.",
   "type": "module",
   "publishConfig": {"access": "public"},

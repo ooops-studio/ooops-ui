@@ -12,9 +12,5 @@
 	"access": "public",
 	"baseBranch": "main",
 	"updateInternalDependencies": "patch",
-	"ignore": [
-		"@ooopsstudio/scene-astro",
-		"@ooopsstudio/scene-core",
-		"@ooopsstudio/scene-three"
-	]
+	"ignore": []
 }

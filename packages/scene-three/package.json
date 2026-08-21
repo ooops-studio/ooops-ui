@@ -1,7 +1,7 @@
 {
   "name": "@ooopsstudio/scene-three",
   "version": "0.1.0",
-  "private": true,
+  "private": false,
   "description": "Three.js WebGPU and WebGL 2 runtime for Ooops interactive scenes.",
   "type": "module",
   "publishConfig": {"access": "public"},

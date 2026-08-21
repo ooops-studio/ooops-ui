@@ -1,7 +1,7 @@
 {
   "name": "@ooopsstudio/scene-core",
   "version": "0.1.0",
-  "private": true,
+  "private": false,
   "description": "Renderer-neutral lifecycle and coordination for interactive scenes.",
   "type": "module",
   "publishConfig": {"access": "public"},
