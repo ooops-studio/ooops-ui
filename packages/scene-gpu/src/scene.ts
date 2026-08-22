@@ -16,6 +16,19 @@ type NavigatorWithGpu = Navigator & {gpu?: NativeGpuApi}
 
 const aborted = () => new DOMException('Scene mounting was aborted.', 'AbortError')
 
+const defaultPowerPreference = {
+	low: 'low-power',
+	auto: undefined,
+	high: 'high-performance'
+} as const
+
+const resolvePowerPreference = <Config>(
+	options: DefineGpuSceneOptions<Config>,
+	context: InteractiveSceneContext
+) => typeof options.powerPreference === 'string'
+	? options.powerPreference
+	: options.powerPreference?.[context.getQuality()] ?? defaultPowerPreference[context.getQuality()]
+
 export const defineGpuScene = <Config>(
 	options: DefineGpuSceneOptions<Config>
 ): GpuSceneDefinition<Config> => {
@@ -41,9 +54,10 @@ export const defineGpuScene = <Config>(
 				let prepared: PreparedWebGpuScene<Config> | null = null
 				let canvasCommitted = false
 				try {
-					const adapter = await gpu.requestAdapter({
-						powerPreference: options.powerPreference ?? 'high-performance'
-					})
+					const powerPreference = resolvePowerPreference(options, context)
+					const adapter = await gpu.requestAdapter(
+						powerPreference ? {powerPreference} : undefined
+					)
 					if (!adapter) return false
 					const device = await adapter.requestDevice()
 					const format = gpu.getPreferredCanvasFormat()
@@ -89,10 +103,11 @@ export const defineGpuScene = <Config>(
 					fail = context.fail
 					disposed = false
 					if (options.manifest.backend !== 'webgl2' && await mountWebGpu(context, config)) return
+					const powerPreference = resolvePowerPreference(options, context)
 					gl = context.canvas.getContext('webgl2', {
 						alpha: false,
 						antialias: false,
-						powerPreference: options.powerPreference ?? 'high-performance',
+						...(powerPreference ? {powerPreference} : {}),
 						...options.webGl2ContextAttributes
 					})
 					if (!gl) {

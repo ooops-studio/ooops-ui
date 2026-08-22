@@ -42,6 +42,8 @@ const applyState = (root: HTMLElement, state: SceneRuntimeState) => {
 const mountRoot = async(root: HTMLElement) => {
 	if (mounted.has(root)) return
 	const config = readConfig(root)
+	const pendingMode = root.dataset.ooopsSceneMode
+	if (pendingMode === 'select' || pendingMode === 'interact') config.mode = pendingMode
 	const definition = registry.get(config.scene)
 	if (!definition) {
 		root.dataset.ooopsSceneState = 'fallback'

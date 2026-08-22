@@ -16,7 +16,11 @@ const manifest = (backend: 'auto' | 'webgpu' | 'webgl2' | 'canvas2d' = 'auto') =
 	fallbacks: {reducedMotion: 'poster', contextLoss: 'poster'}
 } as const)
 
-const sceneContext = (canvas: HTMLCanvasElement, fail = vi.fn()) => {
+const sceneContext = (
+	canvas: HTMLCanvasElement,
+	fail = vi.fn(),
+	quality: 'low' | 'auto' | 'high' = 'auto'
+) => {
 	const selected: string[] = []
 	return {
 		selected,
@@ -25,7 +29,7 @@ const sceneContext = (canvas: HTMLCanvasElement, fail = vi.fn()) => {
 			host: document.createElement('div'),
 			canvas,
 			signal: new AbortController().signal,
-			getQuality: () => 'auto',
+			getQuality: () => quality,
 			getInteractionMode: () => 'interact',
 			getViewport: () => ({width: 100, height: 50, dpr: 2}),
 			setBackend: (value) => selected.push(value),
@@ -98,6 +102,32 @@ describe('@ooopsstudio/scene-gpu', () => {
 		expect(frame).toHaveBeenCalledOnce()
 		await instance.dispose?.()
 		expect(dispose).toHaveBeenCalledOnce()
+	})
+
+	it('selects power preference from the active quality tier', async() => {
+		for (const [quality, expected] of [
+			['low', 'low-power'],
+			['auto', undefined],
+			['high', 'high-performance']
+		] as const) {
+			const {gpu} = installWebGpu()
+			const canvas = document.createElement('canvas')
+			const canvasContext = {
+				configure: vi.fn(),
+				getCurrentTexture: vi.fn()
+			} as NativeGpuCanvasContext
+			vi.spyOn(canvas, 'getContext').mockImplementation(((kind: string) =>
+				kind === 'webgpu' ? canvasContext : null) as typeof canvas.getContext)
+			const definition = defineGpuScene({
+				manifest: manifest(),
+				webgpu: {prepare: () => ({})},
+				webgl2: {setup: () => ({})}
+			})
+			await definition.create().mount(sceneContext(canvas, vi.fn(), quality).value, {})
+			expect(gpu.requestAdapter).toHaveBeenCalledWith(
+				expected ? {powerPreference: expected} : undefined
+			)
+		}
 	})
 
 	it('falls back to WebGL 2 when WebGPU is absent or preparation fails', async() => {

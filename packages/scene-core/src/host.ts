@@ -12,6 +12,12 @@ import type {
 } from './types'
 
 const dprCaps: Record<SceneQuality, number> = {low: 1, auto: 1.5, high: 2}
+const pixelBudgets: Record<SceneQuality, number> = {
+	low: 1_000_000,
+	auto: 2_250_000,
+	high: 4_000_000
+}
+const minimumDpr = 0.25
 let nextHostId = 0
 
 export const createSceneHost = <Config>(options: SceneHostOptions<Config>): SceneHost<Config> => {
@@ -68,10 +74,14 @@ export const createSceneHost = <Config>(options: SceneHostOptions<Config>): Scen
 	const measure = () => {
 		const bounds = element.getBoundingClientRect()
 		const cap = dprCaps[quality]
+		const width = Math.max(0, Math.round(bounds.width))
+		const height = Math.max(0, Math.round(bounds.height))
+		const cssPixels = Math.max(1, width * height)
+		const budgetDpr = Math.sqrt(pixelBudgets[quality] / cssPixels)
 		const next: SceneViewport = Object.freeze({
-			width: Math.max(0, Math.round(bounds.width)),
-			height: Math.max(0, Math.round(bounds.height)),
-			dpr: Math.max(1, Math.min(cap, window.devicePixelRatio || 1))
+			width,
+			height,
+			dpr: Math.max(minimumDpr, Math.min(cap, window.devicePixelRatio || 1, budgetDpr))
 		})
 		if (
 			next.width === viewport.width
