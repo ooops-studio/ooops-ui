@@ -1,6 +1,6 @@
 # @ooopsstudio/scene-core
 
-## Unreleased
+## 0.1.1
 
 - Bound backing-store pixels by quality tier: 1 MP low, 2.25 MP auto and 4 MP high.
 - Scale DPR below 1 when necessary so large and high-DPR viewports stay inside their pixel budget.

@@ -24,6 +24,18 @@ import InteractiveScene from '@ooopsstudio/scene-astro/InteractiveScene.astro'
 <InteractiveScene scene="hero" poster="/hero.webp" description="An abstract hero animation." />
 ```
 
+Use `posterMobile` for a responsive reduced-motion and loading fallback. Poster URLs may be local
+project assets or trusted HTTP(S) CMS assets.
+
+```astro
+<InteractiveScene
+  scene="hero"
+  poster="https://cdn.example.com/hero-desktop.jpg"
+  posterMobile="https://cdn.example.com/hero-mobile.jpg"
+  description="An abstract hero animation."
+/>
+```
+
 Meaningful scenes require a description and pause control. Decorative scenes are hidden from the
 accessibility tree. Scene implementations remain locked to the developer. Install
 `@ooopsstudio/ui-editor-manifests` when explicit scene controls need to be exposed to visual-editor
