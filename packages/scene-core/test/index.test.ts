@@ -166,15 +166,25 @@ describe('@ooopsstudio/scene-core', () => {
 	it('forwards pointer input only in interact mode', async() => {
 		const {element, canvas} = makeElements()
 		const pointer = vi.fn()
+		const stateChange = vi.fn()
 		const definition = defineInteractiveScene({
 			manifest,
 			create: () => ({mount() {}, pointer})
 		})
-		const host = createSceneHost({element, canvas, definition, config: {}})
+		const host = createSceneHost({
+			element,
+			canvas,
+			definition,
+			config: {},
+			onStateChange: stateChange
+		})
 		await host.mount()
 		canvas.dispatchEvent(new PointerEvent('pointermove', {clientX: 40, clientY: 20}))
 		expect(pointer).not.toHaveBeenCalled()
 		host.setInteractionMode('interact')
+		const stateChangeCount = stateChange.mock.calls.length
+		host.setInteractionMode('interact')
+		expect(stateChange).toHaveBeenCalledTimes(stateChangeCount)
 		canvas.dispatchEvent(new PointerEvent('pointermove', {clientX: 40, clientY: 20}))
 		expect(pointer).toHaveBeenCalledTimes(1)
 		expect(pointer.mock.calls[0]?.[0]).toMatchObject({normalizedX: -0.75})

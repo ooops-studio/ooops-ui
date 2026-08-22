@@ -1,3 +1,4 @@
+import {createAdaptivePixelBudget} from './adaptive-resolution'
 import {snapshotSceneConfig} from './json'
 import {getFrameScheduler} from './scheduler'
 import type {
@@ -33,6 +34,7 @@ export const createSceneHost = <Config>(options: SceneHostOptions<Config>): Scen
 		throw new RangeError(`Scene quality ${quality} is not allowed.`)
 	}
 	let interactionMode = options.interactionMode ?? 'select'
+	const adaptivePixelBudget = createAdaptivePixelBudget()
 	canvas.style.pointerEvents = interactionMode === 'interact' ? 'auto' : 'none'
 	let status: SceneRuntimeState['status'] = 'idle'
 	let backend: SceneRuntimeState['backend'] = 'unknown'
@@ -77,7 +79,8 @@ export const createSceneHost = <Config>(options: SceneHostOptions<Config>): Scen
 		const width = Math.max(0, Math.round(bounds.width))
 		const height = Math.max(0, Math.round(bounds.height))
 		const cssPixels = Math.max(1, width * height)
-		const budgetDpr = Math.sqrt(pixelBudgets[quality] / cssPixels)
+		const pixelBudget = quality === 'auto' ? adaptivePixelBudget.value : pixelBudgets[quality]
+		const budgetDpr = Math.sqrt(pixelBudget / cssPixels)
 		const next: SceneViewport = Object.freeze({
 			width,
 			height,
@@ -101,7 +104,10 @@ export const createSceneHost = <Config>(options: SceneHostOptions<Config>): Scen
 				stopFrame = getFrameScheduler(window).add({
 					viewport: () => viewport,
 					run: (frame) => {
-						try { instance?.frame?.(frame) } catch { fail('frame-failed') }
+						try {
+							instance?.frame?.(frame)
+							if (quality === 'auto' && adaptivePixelBudget.sample(frame.delta)) measure()
+						} catch { fail('frame-failed') }
 					}
 				})
 			}
@@ -257,11 +263,13 @@ export const createSceneHost = <Config>(options: SceneHostOptions<Config>): Scen
 			if (!definition.manifest.quality.allowed.includes(next)) {
 				throw new RangeError(`Scene quality ${next} is not allowed.`)
 			}
+			if (quality !== next && next === 'auto') adaptivePixelBudget.reset()
 			quality = next
 			measure()
 			emit()
 		},
 		setInteractionMode(next) {
+			if (interactionMode === next) return
 			interactionMode = next
 			canvas.style.pointerEvents = next === 'interact' ? 'auto' : 'none'
 			coordinatorRegistration?.touch()
