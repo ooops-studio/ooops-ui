@@ -151,6 +151,21 @@ describe('@ooopsstudio/scene-astro', () => {
 		expect(dispose).toHaveBeenCalledTimes(1)
 	})
 
+	it('preserves an interaction mode selected before scene mounting', async() => {
+		const id = `pending-mode-${++sceneCounter}`
+		registerInteractiveScenes({
+			[id]: defineInteractiveScene({
+				manifest: manifest(id),
+				create: () => ({mount() {}, pointer() {}})
+			})
+		})
+		const root = fixture(id)
+		root.dataset.ooopsSceneMode = 'interact'
+		await mountInteractiveScenes()
+		expect(root.dataset.ooopsSceneMode).toBe('interact')
+		expect(root.querySelector('canvas')?.style.pointerEvents).toBe('auto')
+	})
+
 	it('uses a deterministic fallback for unregistered scene ids', async() => {
 		const root = fixture(`missing-${++sceneCounter}`)
 		await mountInteractiveScenes(root.ownerDocument)

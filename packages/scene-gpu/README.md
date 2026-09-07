@@ -29,6 +29,10 @@ export const scene = defineGpuScene({
 The package owns backend negotiation, canvas sizing, device-loss reporting and hook lifecycle. It
 does not ship shaders, a scene graph, asset loaders or a rendering engine.
 
+Unless explicitly overridden, `low` quality requests `low-power`, `auto` leaves adapter selection
+unbiased and `high` requests `high-performance`. A fixed preference or a per-quality map may be
+passed through `powerPreference`.
+
 ## License
 
 MIT

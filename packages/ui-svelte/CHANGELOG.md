@@ -1,5 +1,14 @@
 # @ooopsstudio/ui-svelte
 
+## 0.2.1
+
+### Patch Changes
+
+- [`8abcd3e`](https://github.com/ooops-studio/ooops-ui/commit/8abcd3e95ebceef5db62c7feac9f3508f079b1e4) Thanks [@italiour](https://github.com/italiour)! - Move visual-editor metadata into the optional `@ooopsstudio/ui-editor-manifests` package, decouple scene runtimes from editor contracts, and preserve controlled Svelte input values without duplicate change notifications.
+
+- Updated dependencies [[`8abcd3e`](https://github.com/ooops-studio/ooops-ui/commit/8abcd3e95ebceef5db62c7feac9f3508f079b1e4)]:
+  - @ooopsstudio/ui-primitives@0.3.0
+
 ## 0.2.0
 
 ### Minor Changes

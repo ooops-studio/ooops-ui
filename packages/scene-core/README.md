@@ -27,6 +27,12 @@ The host owns scheduling, resize, visibility, reduced-motion handling, interacti
 cleanup. Camera and microphone capture are intentionally unsupported; audio input must be an
 explicit caller-owned media element.
 
+Backing-store resolution adapts to the viewport and device DPR. Fixed `low` and `high` quality
+tiers use maximum pixel budgets of 1 MP and 4 MP. `auto` starts at 2.25 MP, observes sustained
+animation-frame cadence, and moves between 1.25 MP and 4 MP with separate downscale/upscale
+thresholds. This prevents 4K/high-DPR scenes from allocating an unbounded canvas while allowing
+smooth devices to recover more detail without changing CSS layout.
+
 ## License
 
 MIT

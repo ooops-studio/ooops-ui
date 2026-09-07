@@ -134,18 +134,57 @@ describe('@ooopsstudio/scene-core', () => {
 		expect(states.at(-1)?.status).toBe('disposed')
 	})
 
+	it('keeps each quality tier within its pixel budget on large viewports', async() => {
+		const {element, canvas} = makeElements()
+		vi.spyOn(element, 'getBoundingClientRect').mockReturnValue({
+			width: 3840,
+			height: 2160,
+			top: 0,
+			left: 0,
+			right: 3840,
+			bottom: 2160,
+			x: 0,
+			y: 0,
+			toJSON: () => ({})
+		})
+		vi.spyOn(canvas, 'getBoundingClientRect').mockReturnValue(element.getBoundingClientRect())
+		const resize = vi.fn()
+		const definition = defineInteractiveScene({
+			manifest,
+			create: () => ({mount() {}, resize})
+		})
+		const budgets = {low: 1_000_000, auto: 2_250_000, high: 4_000_000} as const
+		const host = createSceneHost({element, canvas, definition, config: {}, quality: 'auto'})
+		await host.mount()
+		for (const quality of ['low', 'auto', 'high'] as const) {
+			host.setQuality(quality)
+			expect(canvas.width * canvas.height).toBeLessThanOrEqual(budgets[quality] + 10_000)
+		}
+		await host.dispose()
+	})
+
 	it('forwards pointer input only in interact mode', async() => {
 		const {element, canvas} = makeElements()
 		const pointer = vi.fn()
+		const stateChange = vi.fn()
 		const definition = defineInteractiveScene({
 			manifest,
 			create: () => ({mount() {}, pointer})
 		})
-		const host = createSceneHost({element, canvas, definition, config: {}})
+		const host = createSceneHost({
+			element,
+			canvas,
+			definition,
+			config: {},
+			onStateChange: stateChange
+		})
 		await host.mount()
 		canvas.dispatchEvent(new PointerEvent('pointermove', {clientX: 40, clientY: 20}))
 		expect(pointer).not.toHaveBeenCalled()
 		host.setInteractionMode('interact')
+		const stateChangeCount = stateChange.mock.calls.length
+		host.setInteractionMode('interact')
+		expect(stateChange).toHaveBeenCalledTimes(stateChangeCount)
 		canvas.dispatchEvent(new PointerEvent('pointermove', {clientX: 40, clientY: 20}))
 		expect(pointer).toHaveBeenCalledTimes(1)
 		expect(pointer.mock.calls[0]?.[0]).toMatchObject({normalizedX: -0.75})

@@ -1,6 +1,6 @@
 {
   "name": "@ooopsstudio/scene-gpu",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": false,
   "description": "Small native WebGPU-first runtime with WebGL 2 fallback for Ooops interactive scenes.",
   "type": "module",

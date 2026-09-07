@@ -5,10 +5,14 @@ import type {
 	SceneFrame,
 	ScenePauseReason,
 	ScenePointerInput,
+	SceneQuality,
 	SceneViewport
 } from '@ooopsstudio/scene-core'
 
 export type GpuPowerPreference = 'high-performance' | 'low-power'
+export type GpuPowerPreferenceByQuality = Readonly<
+	Partial<Record<SceneQuality, GpuPowerPreference>>
+>
 
 export type NativeGpuBuffer = {destroy: () => void}
 export type NativeGpuShaderModule = object
@@ -84,7 +88,7 @@ export type SetupWebGl2SceneContext<Config> = Readonly<{
 
 export type DefineGpuSceneOptions<Config> = Readonly<{
 	manifest: InteractiveSceneManifest
-	powerPreference?: GpuPowerPreference
+	powerPreference?: GpuPowerPreference | GpuPowerPreferenceByQuality
 	alphaMode?: 'opaque' | 'premultiplied'
 	webGl2ContextAttributes?: WebGLContextAttributes
 	webgpu: Readonly<{

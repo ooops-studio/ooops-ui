@@ -7,6 +7,8 @@ type Props = {
   config?: unknown;
   quality?: 'low' | 'auto' | 'high';
   poster: string;
+  posterMobile?: string;
+  posterMobileMedia?: string;
   description?: string;
   decorative?: boolean;
   aspectRatio?: string;
@@ -20,6 +22,8 @@ const {
   config = {},
   quality = 'auto',
   poster,
+  posterMobile,
+  posterMobileMedia = '(max-width: 47.99rem)',
   description,
   decorative = false,
   aspectRatio = '16 / 9',
@@ -33,8 +37,11 @@ const id = Astro.props.id
 if (!decorative && (!description?.trim() || !pauseControl)) {
   throw new Error('Meaningful interactive scenes require a description and pause control.');
 }
-if (!poster || /^(?:https?:|data:|blob:|javascript:)/i.test(poster)) {
-  throw new Error('Interactive scene poster must be a local project asset.');
+if (!poster || /^(?:data:|blob:|javascript:)/i.test(poster)) {
+  throw new Error('Interactive scene poster must be a safe project or CMS asset URL.');
+}
+if (posterMobile && /^(?:data:|blob:|javascript:)/i.test(posterMobile)) {
+  throw new Error('Interactive scene mobile poster must be a safe project or CMS asset URL.');
 }
 if (!/^\d+(?:\.\d+)?\s*\/\s*\d+(?:\.\d+)?$/.test(aspectRatio)) {
   throw new Error('Interactive scene aspectRatio must use a numeric width / height ratio.');
@@ -63,7 +70,10 @@ const editorMode = import.meta.env.DEV && import.meta.env.OOOPS_EDITOR_MODE === 
     aria-labelledby={decorative ? undefined : descriptionId}
     tabindex="-1"
   ></canvas>
-  <img data-part="poster" src={poster} alt="" loading="eager" decoding="async" />
+  <picture data-part="poster">
+    {posterMobile ? <source media={posterMobileMedia} srcset={posterMobile} /> : null}
+    <img src={poster} alt="" loading="eager" decoding="async" />
+  </picture>
   {!decorative ? <figcaption id={descriptionId} data-part="description">{description}</figcaption> : null}
   {!decorative && pauseControl ? (
     <button type="button" data-part="pause-control" data-ooops-scene-pause aria-pressed="false">
