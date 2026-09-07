@@ -13,12 +13,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Checkout local editor contracts
-        run: |
-          git init ../ooops-editor
-          git -C ../ooops-editor remote add origin https://github.com/ooops-studio/ooops-editor.git
-          git -C ../ooops-editor fetch --depth 1 origin 0df7db62da546e57a34f4a3dffc02e06feb4852e
-          git -C ../ooops-editor checkout --detach FETCH_HEAD
       - uses: pnpm/action-setup@v4
         with:
           version: 11.13.1
@@ -26,11 +20,9 @@ jobs:
         with:
           node-version: 22.14.0
           cache: pnpm
-      - name: Install and build editor contracts
-        run: |
-          pnpm --dir ../ooops-editor install --frozen-lockfile --filter @ooopsstudio/editor-contracts
-          pnpm --dir ../ooops-editor --filter @ooopsstudio/editor-contracts build
-      - run: pnpm install --frozen-lockfile
+      - name: Install mutation testing dependencies
+        # Root tooling and primitives only; editor manifests are outside this test suite.
+        run: pnpm --filter @ooopsstudio/ooops-ui --filter '@ooopsstudio/ui-primitives...' install --frozen-lockfile
       - run: pnpm test:mutation
       - if: always()
         uses: actions/upload-artifact@v4

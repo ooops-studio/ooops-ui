@@ -14,6 +14,8 @@ minimumReleaseAgeExclude:
 overrides:
   '@ooopsstudio/accessibility': ^0.2.0
   '@ooopsstudio/editor-contracts': file:../ooops-editor/packages/contracts
+  # Preserve accessibility's published contract dependency outside editor manifests.
+  '@ooopsstudio/accessibility>@ooopsstudio/editor-contracts': ^0.1.0
   '@sveltejs/kit>cookie': 0.7.2
   esbuild: 0.28.1
   fast-uri: 3.1.5

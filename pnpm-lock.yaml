@@ -7,6 +7,7 @@ settings:
 overrides:
   '@ooopsstudio/accessibility': ^0.2.0
   '@ooopsstudio/editor-contracts': file:../ooops-editor/packages/contracts
+  '@ooopsstudio/accessibility>@ooopsstudio/editor-contracts': ^0.1.0
   '@sveltejs/kit>cookie': 0.7.2
   esbuild: 0.28.1
   fast-uri: 3.1.5
@@ -1430,6 +1431,10 @@ packages:
 
   '@ooopsstudio/accessibility@0.2.0':
     resolution: {integrity: sha512-ys6DbEUbATHdh0HTmFg36sBA1wz8P7iAFywAVAreo0T5wBR/a8ynrhOfg+9h/2NIwpkPJOKAN+A21uPfbbfxqg==}
+    engines: {node: '>=22.14.0'}
+
+  '@ooopsstudio/editor-contracts@0.1.0':
+    resolution: {integrity: sha512-R82yLwdwzNSTjI6ajt+/q0MV8ueZq2sSClu4wFT2wgHJG9C9HGlcNauOpkiukL1j/t8Gt1xYgKJ8V+1jHeekzg==}
     engines: {node: '>=22.14.0'}
 
   '@ooopsstudio/editor-contracts@file:../ooops-editor/packages/contracts':
@@ -6614,7 +6619,9 @@ snapshots:
 
   '@ooopsstudio/accessibility@0.2.0':
     dependencies:
-      '@ooopsstudio/editor-contracts': file:../ooops-editor/packages/contracts
+      '@ooopsstudio/editor-contracts': 0.1.0
+
+  '@ooopsstudio/editor-contracts@0.1.0': {}
 
   '@ooopsstudio/editor-contracts@file:../ooops-editor/packages/contracts': {}
 
