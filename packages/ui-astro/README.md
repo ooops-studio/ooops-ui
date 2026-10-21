@@ -93,3 +93,5 @@ Pass `parts={parts}` to the component. Target its classes or `data-part` and ARI
 Calendar named slots: `calendar-icon`, `previous-icon`, `next-icon`, `clear-icon`, `close-icon`, `day`. The day slot is an inert template cloned when navigating months; put `data-calendar-day-number` on a text element to receive each day number. Do not use duplicate IDs or interactive descendants inside the day template. The button keeps its ISO `data-date`, accessible date label and state.
 
 The month picker uses the shared custom DropdownMenu, not an OS-rendered select popup. Its nested styling map is `monthParts` (the DropdownMenu part names: `root`, `trigger`, `content`, `item`, `indicator`, etc.). It remains inside the calendar dialog and uses the existing menu controller for keyboard/focus behavior.
+
+See the [Calendar/Drawer lifecycle and migration contract](../../docs/calendar-and-drawer-contracts.md) for supported live updates, remount policy, form/reset semantics and Workspace preferences.

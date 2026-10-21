@@ -1,0 +1,53 @@
+{
+  "verifiedOn": "2026-10-22",
+  "timeZone": "Europe/Athens",
+  "releaseCommit": "bccf4dc2fae7d6d84f6c3a57bcd203e14877a716",
+  "packages": [
+    {
+      "name": "@ooopsstudio/ui-primitives",
+      "version": "0.5.0",
+      "latestAtVerification": "0.5.0",
+      "integrity": "sha512-OcjtTtv9gfiDXebc0AxNTWmb9GALfAZcIrb+ewoFb55W+zTZSxdZmR1/2JUiGE+pilR4ZjOvZWriA93pslky3w==",
+      "tarball": "https://registry.npmjs.org/@ooopsstudio/ui-primitives/-/ui-primitives-0.5.0.tgz",
+      "checksPassed": [
+        "version",
+        "registry-integrity",
+        "latest-tag",
+        "styling-types",
+        "calendar-input-types"
+      ]
+    },
+    {
+      "name": "@ooopsstudio/ui-astro",
+      "version": "0.4.0",
+      "latestAtVerification": "0.4.0",
+      "integrity": "sha512-97mHWvxaRBtTapPOt6D20sFsdRCQNCrZR3deRhvJnAtiEwn1wtVgHIQS6TIgDqxRLHnGK0IeF2dimQD6GhRjTg==",
+      "tarball": "https://registry.npmjs.org/@ooopsstudio/ui-astro/-/ui-astro-0.4.0.tgz",
+      "checksPassed": [
+        "version",
+        "registry-integrity",
+        "latest-tag",
+        "new-component-files",
+        "single-row-month-year",
+        "hidden-live-heading",
+        "styling-cascade-layer"
+      ]
+    },
+    {
+      "name": "@ooopsstudio/ui-svelte",
+      "version": "0.4.0",
+      "latestAtVerification": "0.4.0",
+      "integrity": "sha512-i1dWB9mhVXDE7YZNoRweuJ/PzfahP81oSAEGTkOGY2gJQ/wM1vzfpvZMop1v5y1PEWQHNdAJOHJs1pcqkPquxA==",
+      "tarball": "https://registry.npmjs.org/@ooopsstudio/ui-svelte/-/ui-svelte-0.4.0.tgz",
+      "checksPassed": [
+        "version",
+        "registry-integrity",
+        "latest-tag",
+        "new-component-files",
+        "single-row-month-year",
+        "hidden-live-heading",
+        "styling-cascade-layer"
+      ]
+    }
+  ]
+}

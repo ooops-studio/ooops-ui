@@ -95,3 +95,5 @@ Pass `parts={parts}` to the component. Target its classes or `data-part` and ARI
 Calendar content snippets: `calendarIcon`, `previousIcon`, `nextIcon`, `clearIcon`, `closeIcon`, plus `day(context)` with `{date, day, selected, disabled, outsideMonth}`. They replace content inside library-owned accessible controls; do not render nested interactive elements.
 
 The month picker uses the shared custom DropdownMenu, not an OS-rendered select popup. Its nested styling map is `monthParts` (the DropdownMenu part names: `root`, `trigger`, `content`, `item`, `indicator`, etc.). It remains inside the calendar dialog and uses the existing menu controller for keyboard/focus behavior.
+
+See the [Calendar/Drawer lifecycle and migration contract](../../docs/calendar-and-drawer-contracts.md) for supported live updates, remount policy, form/reset semantics and Workspace preferences.

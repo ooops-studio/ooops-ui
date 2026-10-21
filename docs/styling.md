@@ -62,3 +62,7 @@ Calendar content can also be replaced with Svelte snippets or Astro named slots.
 Calendar month menus expose a separate `monthParts` map using the shared DropdownMenu parts. This allows independent styling of the date trigger and month trigger/menu.
 
 If product styles also use cascade layers, declare their ordering before importing styles, for example `@layer ooops-ui, product;`. Unlayered product rules naturally outrank the optional library layer.
+
+## Lifecycle of styles
+
+Svelte renders `parts`, `monthParts`, classes and snippets from current props. Astro renders a snapshot; its runtime reapplies the serialized part map to regenerated calendar days/options/chips. Editing Astro config or DOM classes is not a reactive props API. See [Calendar/Drawer lifecycle contracts](calendar-and-drawer-contracts.md) before changing format, form ownership or controller configuration. Styling hooks do not transfer autosave, routing or persistence ownership into the library.

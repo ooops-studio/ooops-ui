@@ -60,7 +60,9 @@ Svelte Dialog/Modal expose `initialFocus()`/`restoreFocusTo()` getters, `busy` a
 | Slider | value, min/max/step, gap, orientation, direction, disabled | initial reset value |
 | Accordion | openIds, type, collapsible | root identity |
 | Tabs | activeId, items, mode, activation, orientation, loop | renderPanels/external panel ownership |
-| Dialog/Modal | open, busy; callbacks/getters read current props | dismiss flags and root identity |
+| Dialog/Modal | open, busy; close guard and focus getters read current props | dismiss flags, root identity, captured `onClose` and Dialog `onConfirm` callbacks |
+| DatePicker/DateRange | value, bounds, locale/week start/direction, disabled/readonly, unavailable-date predicate; labels/content/parts | reset baseline, identity/form owner; keyed remount for format/time configuration (see detailed contract) |
+| Drawer | Modal open/busy and presentation; side/content/parts | Modal dismissal flags, identity and captured `onClose` callback |
 | Popover/DropdownMenu | open; callbacks read current props | anchor identity, portal container, positioning/dismiss flags; menu item structure |
 
 Remount when changing mount-time configuration. Astro server props are snapshots; update via the controller/runtime lifecycle rather than assuming framework reactivity. The table describes supported updates, not permission to replace a live focused DOM owner without teardown.
@@ -78,6 +80,8 @@ Both adapters expose native button/link controls. Button defaults to `type="butt
 
 IconButton requires a nonempty accessible `label` and hides its icon content from the accessibility tree. Svelte supports `bind:elementRef` for both components; it follows button/anchor replacement and becomes null on teardown. When a ref anchors an overlay, mount the overlay after the ref is available and remount it if the native element identity changes. Astro uses native IDs and progressive enhancement through `runtime/actions`. Its server props require rerender/remount; they are not reactive.
 ## Calendar controls and drawers
+
+The [detailed Calendar/Drawer contract](calendar-and-drawer-contracts.md) specifies live updates versus remounts, submitted names, datetime/format defaults, reset ownership, Astro events, styling and Workspace preference mapping.
 
 DatePicker/DateRange share the Gregorian calendar model in `ui-primitives`. ISO values preserve dates across time zones; native inputs remain the no-JavaScript form fallback. Calendar selection and typed input share bounds/unavailable-date validation. Partial ranges are invalid; reverse selections are ordered and cannot cross disabled dates. Reset restores initial form values after the native reset action, respects cancellation by later listeners, and cancels deferred work on teardown.
 

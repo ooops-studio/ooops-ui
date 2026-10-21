@@ -1,0 +1,37 @@
+release	Validate workspace	2026-10-21T20:52:26.6100881Z packages/scene-gpu test:  Test Files  1 passed (1)
+release	Validate workspace	2026-10-21T20:52:26.6116805Z packages/scene-gpu test:       Tests  6 passed (6)
+release	Validate workspace	2026-10-21T20:52:26.6828532Z packages/scene-core test:  Test Files  2 passed (2)
+release	Validate workspace	2026-10-21T20:52:26.6841879Z packages/scene-core test:       Tests  14 passed (14)
+release	Validate workspace	2026-10-21T20:52:34.3362333Z packages/ui-primitives test:  Test Files  14 passed (14)
+release	Validate workspace	2026-10-21T20:52:34.3363770Z packages/ui-primitives test:       Tests  101 passed (101)
+release	Validate workspace	2026-10-21T20:52:35.8374462Z packages/scene-astro test:  Test Files  1 passed (1)
+release	Validate workspace	2026-10-21T20:52:35.8376431Z packages/scene-astro test:       Tests  6 passed (6)
+release	Validate workspace	2026-10-21T20:52:40.9928158Z packages/ui-astro test:  Test Files  1 passed (1)
+release	Validate workspace	2026-10-21T20:52:40.9942663Z packages/ui-astro test:       Tests  3 passed (3)
+release	Validate workspace	2026-10-21T20:52:45.0536438Z packages/ui-svelte test:  Test Files  4 passed (4)
+release	Validate workspace	2026-10-21T20:52:45.0537998Z packages/ui-svelte test:       Tests  19 passed (19)
+release	Validate workspace	2026-10-21T20:52:45.7593401Z packages/ui-editor-manifests test:  Test Files  2 passed (2)
+release	Validate workspace	2026-10-21T20:52:45.7595363Z packages/ui-editor-manifests test:       Tests  7 passed (7)
+release	Validate workspace	2026-10-21T20:52:55.0972684Z  Test Files  14 passed (14)
+release	Validate workspace	2026-10-21T20:52:55.0973871Z       Tests  101 passed (101)
+release	Validate workspace	2026-10-21T20:54:28.1122709Z   6 passed (9.6s)
+release	Validate workspace	2026-10-21T20:54:40.5479658Z   6 passed (11.7s)
+release	Validate workspace	2026-10-21T20:54:56.0184478Z   6 passed (14.7s)
+release	Validate workspace	2026-10-21T20:55:35.7349292Z   41 passed (38.5s)
+release	Validate workspace	2026-10-21T20:56:21.4313127Z   29 passed (44.9s)
+release	Validate workspace	2026-10-21T20:57:11.3608592Z   29 passed (49.2s)
+release	Validate workspace	2026-10-21T20:58:02.4621665Z   47 passed (49.9s)
+release	Validate workspace	2026-10-21T20:58:58.6758867Z   32 passed (55.4s)
+release	Validate workspace	2026-10-21T20:59:56.4208984Z   32 passed (56.9s)
+release	Validate workspace	2026-10-21T21:00:38.0358298Z   10 passed (13.7s)
+release	Validate workspace	2026-10-21T21:02:51.5521527Z   2 skipped
+release	Validate workspace	2026-10-21T21:02:51.5543949Z   2 passed (1.8m)
+release	Validate workspace	2026-10-21T21:04:12.6717240Z   54 passed (52.2s)
+release	Validate workspace	2026-10-21T21:04:12.7009021Z Feature execution gate passed: 115 branch/adapter cases with assertions.
+release	Version and publish packages	2026-10-21T21:04:14.1106716Z Already published: @ooopsstudio/scene-astro@0.1.1
+release	Version and publish packages	2026-10-21T21:04:14.7893186Z Already published: @ooopsstudio/scene-core@0.1.1
+release	Version and publish packages	2026-10-21T21:04:15.4509581Z Already published: @ooopsstudio/scene-gpu@0.1.1
+release	Version and publish packages	2026-10-21T21:04:15.9781933Z Already published: @ooopsstudio/ui-astro@0.4.0
+release	Version and publish packages	2026-10-21T21:04:18.3236518Z Already published: @ooopsstudio/ui-editor-manifests@0.1.0
+release	Version and publish packages	2026-10-21T21:04:18.7362796Z Already published: @ooopsstudio/ui-primitives@0.5.0
+release	Version and publish packages	2026-10-21T21:04:19.2387621Z Already published: @ooopsstudio/ui-svelte@0.4.0

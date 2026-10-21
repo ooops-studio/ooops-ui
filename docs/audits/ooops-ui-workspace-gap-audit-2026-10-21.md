@@ -1,10 +1,53 @@
 # Audit κενών του Ooops UI για σταδιακή υιοθέτηση από το Workspace
 
-> Ενημέρωση 21/10/2026: τα F01–F06 και οι έξι επόμενες προτεραιότητες υλοποιήθηκαν και πέρασαν πλήρες `validate:release`. Οι ενότητες 1–11 διατηρούν το αρχικό audit· η επόμενη εργασία και η τρέχουσα επαλήθευση περιγράφονται στις 12–17.
+> Τελική ενημέρωση 22/10/2026: οι συμφωνημένες διορθώσεις και προσθήκες δημοσιεύτηκαν. Ισχύει η συγκεντρωτική κατάσταση της ενότητας 0. Οι ενότητες 1–11 είναι το αρχικό audit της 21/10 και οι 12–18 το ιστορικό υλοποίησης/επαλήθευσης· οι παλιοί αριθμοί, candidates και προτάσεις δεν αποτελούν σημερινές εκκρεμότητες.
 
-Ημερομηνία: 21 Οκτωβρίου 2026. Έλεγχος των τοπικών checkouts, χωρίς αλλαγή production ή δημοσίευση πακέτων.
+Αρχικό audit: 21 Οκτωβρίου 2026. Τελική διασταύρωση και αρχειοθέτηση: 22 Οκτωβρίου 2026 (Europe/Athens). Η δημοσίευση της βιβλιοθήκης διαχωρίζεται από τη μεταφορά του primary Workspace.
+
+## 0. Τελική κατάσταση και τεκμήρια
+
+Δημοσιεύτηκαν **ui-primitives 0.5.0, ui-astro 0.4.0 και ui-svelte 0.4.0**. Τα release tags δείχνουν στο `bccf4dc`, που περιλαμβάνει την υλοποίηση `4a2a3d1` και το version PR #3. Το `d1f503c` προσθέτει επαλήθευση του publisher. Στο τελευταίο αυτό commit πέρασαν 16/16 CI jobs και πλήρες `validate:release`, μαζί με αναγνώριση των ήδη δημοσιευμένων εκδόσεων. Τα npm artifacts και τα `latest` tags επιβεβαιώθηκαν ανεξάρτητα.
+
+**Πηγές:** [releases, immutable commits, CI και αρχειοθετημένα τεκμήρια](evidence/2026-10-22-release/README.md), [γενικά consumer contracts](../consumer-contracts.md), [Calendar/Drawer lifecycle και migration contract](../calendar-and-drawer-contracts.md), [styling API](../styling.md).
+
+### F01–F06 και G01–G12
+
+«Κλειστό» σημαίνει ότι καλύφθηκε το τεκμηριωμένο library scope με υλοποίηση/σύμβαση και tests. Δεν σημαίνει καθολική αντικατάσταση όλων των Workspace callers.
+
+| ID | Τελική κατάσταση | Αντιμετώπιση / τεκμήριο |
+|---|---|---|
+| F01 — Input/Textarea callbacks | Κλειστό | Εξωτερικό value update χωρίς callback, επόμενο user edit με σωστό callback· [adapter regressions](../../packages/ui-svelte/src/lib/migration-regressions.test.ts) |
+| F02 — SSR checked | Κλειστό | Native checked projection για Checkbox/Switch· ίδια migration regressions και SSR/browser coverage |
+| F03 — Disabled form projection | Κλειστό | Disabled controls δεν υποβάλλουν τιμές· [controller regressions](../../packages/ui-primitives/test/migration-regressions.test.ts), [browser regressions](../../tests/e2e/astro/migration-regressions.spec.ts) και Svelte counterpart |
+| F04 — Readonly clear | Κλειστό | Clear mutation guard· adapter/browser regressions |
+| F05 — Choice reset | Κλειστό | RadioGroup/SegmentedControl reset, canceled reset και teardown· controller/adapter/browser regressions |
+| F06 — Accordion configuration | Κλειστό | Live configuration και open state σύμφωνα με το API· controller/adapter regressions |
+| G01 — Native attributes/events/refs | Κλειστό στο συμφωνημένο scope | Input/Textarea forwarding, Button/IconButton native APIs, refs και native/value event διάκριση· [consumer contracts](../consumer-contracts.md) |
+| G02 — Accessible naming | Κλειστό | Εξωτερικά label/description/error associations· [public-contract tests](../../packages/ui-svelte/src/lib/public-contracts.test.ts) |
+| G03 — Field/validation contract | Κλειστό με ρητό consumer boundary | Field control attributes και documented validation/reset recipe· autosave, business validation και presence μένουν στον consumer |
+| G04 — External anchors/portals | Κλειστό | Anchor/portal APIs, placement/width/close veto και browser coverage· consumer contracts |
+| G05 — Dialog/Modal lifecycle | Κλειστό | Busy/guard/focus/error contracts, nested Escape και Drawer composition· [nested Escape regressions](../../packages/ui-primitives/test/nested-layer-escape.test.ts) |
+| G06 — Tabs capabilities | Κλειστό ως library API | Navigation/panels, external panel IDs και badges· consumer contracts. Πραγματικά AppTabs pilots παραμένουν migration εργασία |
+| G07 — Selection/menu conventions | Κλειστό με τεκμηριωμένες διαφορές | Recursive menus, model synchronization, MultiSelect actions και explicit backend naming adaptation |
+| G08 — Astro/Svelte parity | Κλειστό στο συμφωνημένο behavior scope | SSR/default διορθώσεις και cross-adapter tests. Διαφορετικά name/default shapes και Astro snapshots παραμένουν σκόπιμα τεκμηριωμένα |
+| G09 — CSS isolation/styling | Κλειστό | Ownership markers, προαιρετικό cascade layer, `parts`/`monthParts` σε owned/portaled/generated DOM· [styling reference](../styling.md) |
+| G10 — Executed feature coverage | Κλειστό | 16 features, 54 tests, 115 asserted branch/adapter cases· archived final release evidence |
+| G11 — Manual AT evidence | Εκτός scope, όχι pass | VoiceOver και NVDA ακυρώθηκαν ρητά από τον χρήστη. Automated accessibility checks δεν δηλώνονται ως manual certification |
+| G12 — Architecture/API/migration docs | Κλειστό για το παρόν scope | [Architecture](../architecture.md), consumer contracts, lifecycle/remount policy και adapter guides. Περαιτέρω caller-specific recipes συνοδεύουν το μελλοντικό migration |
+
+### Νέα components και όρια παράδοσης
+
+- Button/IconButton, DatePicker/DateRange και modal Drawer: υλοποιημένα, packaged και δημοσιευμένα και στους δύο adapters.
+- Styling: όλα τα δημόσια UI adapter components εκθέτουν `parts`. Native OS popups παραμένουν OS-rendered· ARIA, events και focusability δεν είναι styling overrides.
+- Workspace pilot: 4/4 Settings/Form desktop/mobile Chromium με Button/IconButton candidates και απομονωμένο consumer fix. Τα [αρχειοθετημένα τεκμήρια](evidence/2026-10-22-release/README.md) διαχωρίζουν αυτό το ιστορικό pilot από τα μεταγενέστερα δημοσιευμένα πακέτα.
+- Primary Workspace: δεν μεταφέρθηκαν components/dependencies από αυτή την εργασία. Δεν δηλώνεται ολοκληρωμένο Calendar/Drawer/menu/Tabs migration ή production activation.
+- TokenInput, DataTable/virtualized lists, Toast και command palette: προαιρετικές μελλοντικές επεκτάσεις, όχι ανοιχτά bugs του συμφωνημένου scope. Το επόμενο migration backlog δεν αλλάζει με αυτή την ενημέρωση τεκμηρίωσης.
+
+---
 
 ## 1. Συμπέρασμα
+
+> Ιστορικό συμπέρασμα του αρχικού audit. Για τη σημερινή κατάσταση ισχύει η ενότητα 0.
 
 Το `ooops-ui` έχει χρήσιμη αρχιτεκτονική: framework-independent controllers, Svelte/Astro adapters, typed APIs, δοκιμές keyboard/focus και εργαλεία ελέγχου των packages. Δεν είναι όμως ακόμη πλήρης αντικατάσταση του ιδιωτικού UI του Workspace.
 
@@ -341,7 +384,7 @@ External anchors, portal/focus ownership, Dialog/Modal close lifecycle, Tabs ada
 
 Τα diagnostic bindings του browser fixture χρησιμοποιούν μη form-associated status elements: ένα native `<output>` μέσα σε φόρμα μπορεί στο reset να αντικαταστήσει τους text nodes του και να αλλοιώσει την ίδια τη μέτρηση.
 
-Οι διορθώσεις δεν κλείνουν τα υπόλοιπα κενά του audit και δεν αποτελούν έγκριση καθολικής αντικατάστασης των Workspace wrappers. Δεν έγινε publish ή μεταφορά στο Workspace. Η μεταφορά εξακολουθεί να χρειάζεται τα pilots και τα κριτήρια αποδοχής των ενοτήτων 9–10.
+Στο στάδιο αυτής της πρώτης παρτίδας δεν είχαν ακόμη κλείσει τα υπόλοιπα κενά και δεν είχε γίνει publish ή μεταφορά στο Workspace. Η τελική κατάσταση βρίσκεται στην ενότητα 0. Η καθολική αντικατάσταση wrappers εξακολουθεί να απαιτεί τα κριτήρια αποδοχής των ενοτήτων 9–10.
 
 
 ## 13. Συνέχεια: συμβόλαια για consumers και release candidate
@@ -361,7 +404,7 @@ External anchors, portal/focus ownership, Dialog/Modal close lifecycle, Tabs ada
 
 Ελέγχθηκε επίσης το fixture `/contracts` σε 1280×900 και 393×852, με πραγματική εστίαση μέσω ref και χωρίς page errors. Πρόκειται για fixture της ουδέτερης βιβλιοθήκης, όχι έλεγχο πραγματικής οθόνης Workspace. Οι εκδόσεις του candidate είναι `ui-primitives 0.4.0`, `ui-svelte 0.3.0` και `ui-astro 0.3.0`.
 
-Τα πραγματικά Workspace pilots, η χειροκίνητη δοκιμή με screen reader και τα ανεξάρτητα νέα components της ενότητας 7 παραμένουν επόμενες εργασίες. Το παρόν δεν πιστοποιεί καθολική αντικατάσταση των υφιστάμενων wrappers.
+Μετά από αυτόν τον ιστορικό candidate ακολούθησαν τα Workspace pilots και τα νέα components των ενοτήτων 17–18. Οι χειροκίνητες δοκιμές screen reader αφαιρέθηκαν ρητά από το scope. Για τις σημερινές εκκρεμότητες/εξαιρέσεις ισχύει η ενότητα 0· δεν δηλώνεται καθολική αντικατάσταση των υφιστάμενων wrappers.
 
 
 ## 14. CI follow-up: dependency audits και σταθερή κάλυψη
@@ -432,7 +475,7 @@ External anchors, portal/focus ownership, Dialog/Modal close lifecycle, Tabs ada
 
 Πέρασαν έξι calendar controller tests, με 100% statements/functions/lines και 99.27% branches στον πρώτο coverage run, και 13 νέα Chromium adapter tests για dates/drawers. Έγινε rendered έλεγχος 1280×900 και 393×852 και στους δύο adapters, χωρίς page errors· οι εικόνες αποθηκεύτηκαν εκτός repository στο `/tmp/ooops-ui-{astro,svelte}-{calendar-desktop,calendar-mobile,drawer-mobile}.png`. Οι επόμενες αλλαγές ελέγχουν αυστηρότερα το mobile gutter και τη διατήρηση native passive ARIA states στα buttons. Το τελευταίο αναπαράχθηκε με κόκκινο regression πριν από τη διόρθωση, και το στοχευμένο Svelte suite πέρασε 4/4 μετά.
 
-Το execution matrix περιλαμβάνει πλέον Calendar και Drawer, μαζί με πραγματικές assertions στα αντίστοιχα test steps. Τα νέα public exports συμπεριλαμβάνονται στους πραγματικούς packed consumers, με pending changesets. Η πλήρης επαλήθευση του τελικού candidate παραμένει σε εξέλιξη· τα παραπάνω focused αποτελέσματα δεν την αντικαθιστούν.
+Το execution matrix περιλαμβάνει πλέον Calendar και Drawer, μαζί με πραγματικές assertions στα αντίστοιχα test steps. Τα νέα public exports συμπεριλαμβάνονται στους πραγματικούς packed consumers. Στο στάδιο αυτού του pilot τα changesets ήταν pending· η επαλήθευση και δημοσίευση ολοκληρώθηκαν στη συνέχεια, όπως συνοψίζονται στην ενότητα 0.
 
 Το πραγματικό Workspace pilot προετοιμάστηκε σε ξεχωριστό managed worktree `/Users/italiour/.codex/worktrees/ui-component-pilot/ooops-workspace`, από το `01267eac4c1351db122595feb4176d8b8ea10a81`. Το αρχικό checkout με τις ανεξάρτητες αλλαγές του χρήστη δεν τροποποιήθηκε. Οι υφιστάμενοι ButtonCore/IconButton wrappers εκεί καταναλώνουν πραγματικά τοπικά tarballs του candidate, διατηρούν τα product styles και χρησιμοποιούν `fromAction` για τα Svelte actions. Τα tests εκτελούν τις πραγματικές Settings και Form/collection creation/recovery ροές σε desktop/mobile, με προσωρινή βάση και providers του υπάρχοντος owned runner. Απαιτούν native DOM markers του candidate πριν από κάθε επίσκεψη, καθώς και τις υφιστάμενες rendered/SQL assertions. Το test υπάρχει και εκτελείται· μέχρι να ολοκληρωθεί το run δεν δηλώνεται pilot pass.
 
@@ -454,7 +497,7 @@ External anchors, portal/focus ownership, Dialog/Modal close lifecycle, Tabs ada
 
 | Απαίτηση | Τεκμήριο / κατάσταση |
 |---|---|
-| Feature gate με πραγματική εκτέλεση | 14 features, 103 passing branch/adapter cases με assertions· νέο nonce/digest, χωρίς retries ή assertion-free cases |
+| Feature gate με πραγματική εκτέλεση | Τελικό release: 16 features, 115 passing branch/adapter cases σε 54 tests, χωρίς retries ή assertion-free cases |
 | Button / IconButton | Κοινός controller και Astro/Svelte adapters· native forms/links, disabled/loading, ARIA, Svelte refs και teardown, επιτυχές πλήρες library gate |
 | Πραγματικά Workspace pilots | 4/4 σε τρέχον source snapshot και packed candidates, με απομονωμένη consumer native-contract διόρθωση |
 | DatePicker / DateRange / Drawer | Και στους δύο adapters, κοινή συμπεριφορά, browser/SSR/no-JS/keyboard/validation tests και επιτυχές release gate |
@@ -462,7 +505,7 @@ External anchors, portal/focus ownership, Dialog/Modal close lifecycle, Tabs ada
 | NVDA | Αφαιρέθηκε από το scope κατόπιν ρητού αιτήματος του χρήστη· δεν εκτελέστηκε και δεν δηλώνεται pass |
 | TokenInput / DataTable / Toast / Command Palette | Μεταγενέστερες επεκτάσεις του αρχικού πλάνου |
 
-Τα νέα packages και το Workspace pilot παραμένουν τοπικοί candidates. Δεν έγινε νέο commit, push, release ή ενεργοποίηση στο primary Workspace.
+Τα library packages δημοσιεύτηκαν στις εκδόσεις της ενότητας 0. Το Workspace pilot παραμένει απομονωμένο ιστορικό candidate integration· δεν ενεργοποιήθηκε στο primary Workspace.
 
 Τα τέσσερα screenshots των τελικών Workspace pilots και το summary διατηρούνται επίσης στο `/Users/italiour/.codex/worktrees/ui-component-pilot/ooops-workspace/docs/ui-pilot-evidence/`, ανεξάρτητα από τον προσωρινό φάκελο του runner.
 
@@ -485,9 +528,9 @@ The Workspace reference remains `packages/ui/src/DateFieldCore.svelte` using Lit
 
 Every public UI adapter component now accepts `parts`, with consumer-owned classes and CSS declaration strings per named part. Existing classes are merged, native style contracts retained, and portaled/dynamically generated elements receive their own styles. Month menus expose the nested `monthParts` map. The optional base stylesheet sits in the `ooops-ui` cascade layer so normal product CSS can override it. Semantic attributes and interaction controllers remain owned by the library. Native no-JS platform pickers retain browser/OS rendering.
 
-The public API and part reference are documented in `docs/styling.md` and both adapter READMEs, with a pending minor Changeset. New browser evidence covers every rendered owned part, options/chips after updates, calendar day content/styles after navigation, nested month menu Escape/focus restoration, formats/datetime/clear/reset, native no-JS behavior and external forms/ranges. These scenarios are required execution branches in the feature gate, not just source markers.
+The public API and part reference are documented in `docs/styling.md` and both adapter READMEs, published as ui-primitives 0.5.0 and ui-astro/ui-svelte 0.4.0 (see section 0). New browser evidence covers every rendered owned part, options/chips after updates, calendar day content/styles after navigation, nested month menu Escape/focus restoration, formats/datetime/clear/reset, native no-JS behavior and external forms/ranges. These scenarios are required execution branches in the feature gate, not just source markers.
 
-The primary Workspace checkout remains unchanged. This is library implementation and fixture validation, not a production migration. Final full-gate evidence is recorded below when the frozen run completes.
+The primary Workspace checkout remains unchanged. This is library implementation and fixture validation, not a production migration. The completed full-gate evidence is summarized below and archived in the section 0 evidence index.
 
 The custom month picker reproduced a shared nested Escape defect in both controller mount orders: the floating layer closed and the surrounding dialog processed the same Escape again. Two permanent unit regressions failed before the fix and passed afterward. Dialog now yields to its nested floating layer and the layer marks the event as consumed, preventing multiple dismissals from one keypress. Browser coverage also checks month-menu Escape/focus restoration inside the actual calendar. The year navigation control is detached from the owning content form and commits on Enter without submitting it.
 
@@ -496,4 +539,4 @@ The custom month picker reproduced a shared nested Escape defect in both control
 
 The last Enter/year-form correction was included in the final feature-gate build and passed an additional 6/6 targeted runs across both adapters and all three browser engines. Final Astro and Svelte fixture typechecks passed with zero errors/warnings. Desktop/mobile consumer-themed screenshots are preserved outside the repository at `/tmp/ooops-ui-{astro,svelte}-{chromium,firefox,webkit}-calendar-custom-{desktop,mobile}.png`. Browser plugin was unavailable, so repository Playwright was used. No manual screen-reader testing was performed, per the user's explicit scope decision.
 
-The implementations and Changesets remain local. No new commit, push or published release was made, and no primary Workspace components/dependencies were migrated by this task.
+The implementations were committed, pushed and published in the versions listed in section 0. Changesets were consumed by version PR #3. No primary Workspace components/dependencies were migrated by this task. Durable CI/release links, registry verification and selected screenshots are preserved in the [release evidence archive](evidence/2026-10-22-release/README.md); the `/tmp` paths above are historical provenance, not the only evidence copies.

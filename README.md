@@ -14,14 +14,21 @@ Accessible, design-neutral UI behavior with framework adapters. The monorepo kee
 | `@ooopsstudio/scene-gpu` | Small native WebGPU-first runtime with WebGL 2 fallback. |
 | `@ooopsstudio/scene-astro` | Accessible Astro scene markup, explicit registries and view-transition lifecycle. |
 
-All styling is optional. Components expose stable `data-part` and state attributes so each product can own its visual design.
+All styling is optional. Public UI adapters accept per-part classes/styles through `parts`, alongside stable `data-part` and state attributes, so each product can own its visual design.
 
-The component set includes Field, Input, Textarea, Checkbox, RadioGroup, Switch, Select, Combobox, MultiSelect, DropdownMenu, Tooltip, Tabs, Accordion, Slider, NumberInput, SegmentedControl, Dialog, Modal and Popover. Behavior lives once in primitives; Astro and Svelte only adapt markup and lifecycle.
+The component set includes Field, Input, Textarea, Checkbox, RadioGroup, Switch, Select, Combobox, MultiSelect, DropdownMenu, Tooltip, Tabs, Accordion, Slider, NumberInput, SegmentedControl, Dialog, Modal, Popover, Button, IconButton, DatePicker, DateRange and Drawer. Behavior lives once in primitives; Astro and Svelte only adapt markup and lifecycle.
+
+## Consumer documentation
+
+- [Consumer and migration contracts](docs/consumer-contracts.md)
+- [Calendar/Drawer lifecycle, reset and remount policy](docs/calendar-and-drawer-contracts.md)
+- [Styling API and part reference](docs/styling.md)
+- [Workspace gap audit and final status](docs/audits/ooops-ui-workspace-gap-audit-2026-10-21.md)
 
 ## Requirements
 
-- Node 22.14.0 or newer
-- pnpm 11.13.0
+- Node 22.22.0 or newer for repository builds/CI (individual package runtime requirements may differ)
+- pnpm 11.13.1
 
 ## Development
 
@@ -125,7 +132,7 @@ That means the root contract scales without assuming that every package has one 
 - `pnpm -w readiness:strict` — fail on packages that need review or are blocked
 - `pnpm -w check:licenses` — verify installed dependency licenses against `license-policy.json`
 - `pnpm -w audit:prod` — blocking production dependency audit
-- `pnpm -w audit:dev` — development dependency audit; CI runs it as non-blocking warning by default
+- `pnpm -w audit:dev` — blocking development dependency audit
 - `pnpm -w release:preflight` — verify publish credentials or trusted publishing assumptions before release
 - `pnpm -w publish:packages -- --dry-run` — preview the registry-aware package publish targets without publishing
 - `pnpm -w create:package -- --name @your-scope/example --archetype public-package` — create a new package from an archetype

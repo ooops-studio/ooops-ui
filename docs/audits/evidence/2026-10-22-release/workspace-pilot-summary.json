@@ -1,0 +1,19 @@
+{
+  "status": "passed",
+  "tests": 4,
+  "views": [
+    "desktop",
+    "mobile"
+  ],
+  "screenshots": [
+    "form-desktop.png",
+    "form-mobile.png",
+    "settings-desktop.png",
+    "settings-mobile.png"
+  ],
+  "fixtureCleanup": "complete",
+  "sourceEvidence": "/var/folders/7x/x29vfs196_161w5vt8fcm8xw0000gn/T/ooops-account-acceptance-ioHvFU/workspace",
+  "primaryModified": false,
+  "voiceover": "cancelled-by-user",
+  "nvda": "cancelled-by-user"
+}
