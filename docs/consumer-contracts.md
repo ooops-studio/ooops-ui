@@ -68,3 +68,5 @@ Remount when changing mount-time configuration. Astro server props are snapshots
 ## Release validation
 
 New regression suites cover native forwarding and callbacks, external labels and Field IDs, disabled actions, CSS coexistence, portal placement, nested menus, veto, async confirmation errors and focus restoration. Run `pnpm validate:release` before publishing; automated axe is not a replacement for a manual screen-reader session. Real Workspace pilots are still required before replacing all wrappers.
+
+The repository build/release toolchain requires Node.js >=22.22.0 because it uses Astro 7.4. The CI matrix includes that minimum and the current Node 22 line.

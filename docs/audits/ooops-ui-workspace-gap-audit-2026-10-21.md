@@ -389,3 +389,5 @@ External anchors, portal/focus ownership, Dialog/Modal close lifecycle, Tabs ada
 **Επανεκτέλεση μετά το CI follow-up:** το `pnpm -w validate:release` ολοκληρώθηκε με exit 0: 132 unit tests και 4 policy tests, 143 browser εκτελέσεις, 10 visual checks χωρίς νέα baselines και 2 stress σενάρια των 100 κύκλων. Με Vitest 4 το AST-based coverage κατέγραψε 98.60% statements και 93.36% branches, με επιτυχή τα αμετάβλητα όρια ανά αρχείο. Δεν υπάρχουν peer dependency issues. Περιορίστηκε ο παραλληλισμός των unit suites και αυξήθηκε μόνο το χρονικό περιθώριο του randomized lifecycle test σε 30s· παραμένουν 100 runs με έως 60 commands και όλες οι αρχικές assertions.
 
 Για τη rendered επαλήθευση χρησιμοποιήθηκε το Playwright workflow του repo: Browser plugin/skill δεν υπήρχε στον διαθέσιμο κατάλογο. Το release παραμένει gated από τα audits και ολόκληρο το `validate:release` στο GitHub Actions πριν από τη δημοσίευση.
+
+Το CI/release toolchain ενημερώθηκε σε Node >=22.22.0, την ελάχιστη έκδοση του Astro 7.4. Το τοπικό πλήρες gate είχε εκτελεστεί με Node 22.22.1· το παλιό hardcoded 22.14 του GitHub workflow διορθώθηκε χωρίς αλλαγή στα tests ή στα thresholds.

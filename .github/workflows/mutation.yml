@@ -18,7 +18,7 @@ jobs:
           version: 11.13.1
       - uses: actions/setup-node@v4
         with:
-          node-version: 22.14.0
+          node-version: 22.22.0
           cache: pnpm
       - name: Install mutation testing dependencies
         # Root tooling and primitives only; editor manifests are outside this test suite.
