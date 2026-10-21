@@ -1,8 +1,9 @@
-import {spawn} from 'node:child_process'
-import {mkdtemp, readFile, rm, writeFile} from 'node:fs/promises'
+import {mkdtemp, readFile, readdir, rm, writeFile} from 'node:fs/promises'
 import {tmpdir} from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
+
+import {publishVerifiedPackage} from './verified-publisher.mjs'
 
 const args = parseArgs(process.argv.slice(2))
 const strategy = validateStrategy(args.registry ?? process.env.REGISTRY_STRATEGY ?? 'npm')
@@ -85,7 +86,16 @@ for (const target of targets) {
 
 	try {
 		console.log(`Publishing to ${target.id}...`)
-		await run('pnpm', ['-w', 'changeset', 'publish'], {env})
+		const entries = await readdir(path.join(repoRoot, 'packages'), {withFileTypes: true})
+		for (const entry of entries) {
+			if (!entry.isDirectory()) continue
+			const dir = path.join(repoRoot, 'packages', entry.name)
+			const manifest = JSON.parse(await readFile(path.join(dir, 'package.json'), 'utf8'))
+			if (manifest.private) continue
+			await publishVerifiedPackage({dir, manifest}, {
+				registry: target.registry, env, root: repoRoot
+			})
+		}
 	} finally {
 		for (const directory of cleanup) {
 			await rm(directory, {recursive: true, force: true})
@@ -132,25 +142,6 @@ function validateStrategy(value) {
 function parseScope(packageName) {
 	const match = /^@([^/]+)\//.exec(packageName ?? '')
 	return match?.[1] ?? ''
-}
-
-function run(command, commandArgs, options) {
-	return new Promise((resolve, reject) => {
-		const child = spawn(command, commandArgs, {
-			cwd: repoRoot,
-			stdio: 'inherit',
-			env: options.env
-		})
-
-		child.on('close', (code) => {
-			if (code === 0) {
-				resolve()
-				return
-			}
-
-			reject(new Error(`${command} ${commandArgs.join(' ')} failed with exit code ${code}`))
-		})
-	})
 }
 
 function assert(condition, message) {

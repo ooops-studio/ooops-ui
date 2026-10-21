@@ -86,3 +86,52 @@ test('Changesets discovers pnpm packages, versions dependencies, renders GitHub 
 		assert.deepEqual(tags.trim().split('\n').sort(), ['@fixture/adapter@1.0.1', '@fixture/core@0.5.0'])
 		await changeset('git-tag') // Re-running must not recreate or duplicate existing tags.
 	})
+
+test('publisher verifies registry visibility before emitting the action v1 tag protocol', async(t) => {
+	const {publishVerifiedPackage} = await import('./verified-publisher.mjs')
+	for (const outcome of ['published', 'false-success', 'auth-failure', 'publish-failure', 'already-published']) {
+		await t.test(outcome, async(t) => {
+			const root = await mkdtemp(path.join(tmpdir(), 'ooops-publisher-test-'))
+			t.after(() => rm(root, {recursive: true, force: true}))
+			const logs = [], commands = []
+			let published = outcome === 'already-published', tarball
+			const missing = () => Object.assign(new Error('missing'), {stderr: 'npm error E404'})
+			const run = async(command, args) => {
+				commands.push([command, ...args])
+				if (args[0] === 'view') {
+					if (outcome === 'auth-failure') throw Object.assign(new Error('unauthorized'), {stderr: 'E401'})
+					if (!published) throw missing()
+					return {stdout: '"0.5.0"'}
+				}
+				if (command === 'pnpm') {
+					tarball = path.join(args[2], 'fixture-0.5.0.tgz')
+					await writeFile(tarball, 'packed workspace artifact')
+				}
+				if (command === 'npm' && args[0] === 'publish') {
+					assert.equal(await readFile(args[1], 'utf8'), 'packed workspace artifact')
+					assert.ok(args.includes('https://registry.example.invalid'))
+					if (outcome === 'publish-failure') throw new Error('OIDC rejected')
+					published = outcome !== 'false-success'
+				}
+				return {stdout: command === 'git' ? '' : '{}'}
+			}
+			const operation = publishVerifiedPackage({dir: root, manifest: {name: '@fixture/core', version: '0.5.0'}}, {
+				root, registry: 'https://registry.example.invalid', env: {}, run, wait: async() => {},
+				log: (message) => logs.push(message)
+			})
+			if (outcome === 'published') {
+				assert.equal(await operation, true)
+				assert.ok(logs.includes('New tag: @fixture/core@0.5.0'))
+				assert.equal(commands.filter(([command]) => command === 'git').length, 2)
+			} else if (outcome === 'already-published') {
+				assert.equal(await operation, false)
+				assert.equal(commands.length, 1)
+			} else {
+				await assert.rejects(operation, outcome === 'false-success' ? /absent from/ : /unauthorized|OIDC rejected/)
+				assert.equal(commands.filter(([command]) => command === 'git').length, 0)
+				assert.equal(logs.some((line) => line.startsWith('New tag:')), false)
+			}
+			if (tarball) await assert.rejects(readFile(tarball), {code: 'ENOENT'})
+		})
+	}
+})

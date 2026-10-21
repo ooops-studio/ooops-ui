@@ -273,6 +273,8 @@ Renovate is enabled by default for this generated repository. It runs weekly for
 
 ## Release safety
 
+The publisher packs workspace dependencies with pnpm, publishes each tarball with the npm CLI, and verifies the exact version in the target registry before emitting a release tag. A successful subprocess exit without a visible registry version fails the release. The tag output remains compatible with `changesets/action@v1`.
+
 Release supports classic `NPM_TOKEN` and npm trusted publishing for npm, plus GitHub Packages publishing when the registry strategy is `github` or `both`. Before publishing, `pnpm -w release:preflight` verifies that the required credentials for `npm` are present. The release workflow also supports manual `workflow_dispatch` with `dry_run=true` for validation without publishing.
 
 Recommended branch protection:
