@@ -114,9 +114,11 @@ const nativeConstraintIssue = (
 
 const equalValues = (left: unknown, right: unknown): boolean => {
 	if (Object.is(left, right)) return true
-	if (left instanceof Date && right instanceof Date) return left.getTime() === right.getTime()
-	if (Array.isArray(left) && Array.isArray(right))
+	if (left instanceof Date || right instanceof Date)
+		return left instanceof Date && right instanceof Date && left.getTime() === right.getTime()
+	if (Array.isArray(left) || Array.isArray(right))
 		return (
+			Array.isArray(left) && Array.isArray(right) &&
 			left.length === right.length && left.every((entry, index) => equalValues(entry, right[index]))
 		)
 	if (!left || !right || typeof left !== 'object' || typeof right !== 'object') return false

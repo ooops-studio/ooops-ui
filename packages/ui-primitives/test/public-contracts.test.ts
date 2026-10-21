@@ -92,4 +92,36 @@ describe('consumer contracts', () => {
 		expect(anchor.getAttribute('aria-haspopup')).toBe('false'); restore()
 	})
 
+	it('guards native dialog.close and busy close events without double-checking an approved close', () => {
+		document.body.innerHTML = '<button id="restore">Restore</button><div><dialog><button>Inside</button></dialog></div>'
+		const dialog = document.querySelector('dialog')!
+		dialog.showModal = vi.fn(() => dialog.setAttribute('open', ''))
+		dialog.close = vi.fn((reason = '') => { dialog.returnValue = reason; dialog.removeAttribute('open'); dialog.dispatchEvent(new Event('close')) })
+		let allow = false
+		const beforeClose = vi.fn(() => allow), onClose = vi.fn()
+		const c = createDialogController({
+			getRoot: () => dialog.parentElement, getDialog: () => dialog,
+			beforeClose, onClose
+		})
+		c.mount(); c.open(); dialog.close('external')
+		expect(dialog.open).toBe(true)
+		expect(c.getState().open).toBe(true)
+		expect(onClose).not.toHaveBeenCalled()
+		c.setBusy(true); dialog.close('external'); expect(dialog.open).toBe(true)
+		c.setBusy(false); allow = true; dialog.close('external')
+		expect(c.getState().open).toBe(false); expect(onClose).toHaveBeenCalledExactlyOnceWith('external')
+		c.open(); beforeClose.mockClear(); c.close('cancel')
+		expect(beforeClose).toHaveBeenCalledTimes(1); expect(dialog.open).toBe(false); c.destroy()
+	})
+	it('does not emit confirmation after teardown while a save is pending', async() => {
+		document.body.innerHTML = '<div id="owner"><div id="dialog"></div></div>'
+		let resolve = () => {}
+		const pending = new Promise<void>((done) => { resolve = done })
+		const owner = document.querySelector<HTMLElement>('#owner')!, emitted = vi.fn()
+		owner.addEventListener('ooops:dialog-confirm', emitted)
+		const c = createDialogController({getRoot: () => owner, getDialog: () => document.querySelector('#dialog'), onConfirm: () => pending})
+		c.mount(); c.open(); const save = c.confirm(); c.destroy(); resolve(); await save
+		expect(c.getState().mounted).toBe(false); expect(emitted).not.toHaveBeenCalled()
+	})
+
 })

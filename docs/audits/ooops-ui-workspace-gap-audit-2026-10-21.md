@@ -1,6 +1,6 @@
 # Audit κενών του Ooops UI για σταδιακή υιοθέτηση από το Workspace
 
-> Ενημέρωση 21/10/2026: τα F01–F06 και οι έξι επόμενες προτεραιότητες υλοποιήθηκαν και πέρασαν πλήρες `validate:release`. Οι ενότητες 1–11 διατηρούν το αρχικό audit· η τρέχουσα κατάσταση περιγράφεται στις 12–13.
+> Ενημέρωση 21/10/2026: τα F01–F06 και οι έξι επόμενες προτεραιότητες υλοποιήθηκαν και πέρασαν πλήρες `validate:release`. Οι ενότητες 1–11 διατηρούν το αρχικό audit· η τρέχουσα κατάσταση περιγράφεται στις 12–14.
 
 Ημερομηνία: 21 Οκτωβρίου 2026. Έλεγχος των τοπικών checkouts, χωρίς αλλαγή production ή δημοσίευση πακέτων.
 
@@ -362,3 +362,30 @@ External anchors, portal/focus ownership, Dialog/Modal close lifecycle, Tabs ada
 Ελέγχθηκε επίσης το fixture `/contracts` σε 1280×900 και 393×852, με πραγματική εστίαση μέσω ref και χωρίς page errors. Πρόκειται για fixture της ουδέτερης βιβλιοθήκης, όχι έλεγχο πραγματικής οθόνης Workspace. Οι εκδόσεις του candidate είναι `ui-primitives 0.4.0`, `ui-svelte 0.3.0` και `ui-astro 0.3.0`.
 
 Τα πραγματικά Workspace pilots, η χειροκίνητη δοκιμή με screen reader και τα ανεξάρτητα νέα components της ενότητας 7 παραμένουν επόμενες εργασίες. Το παρόν δεν πιστοποιεί καθολική αντικατάσταση των υφιστάμενων wrappers.
+
+
+## 14. CI follow-up: dependency audits και σταθερή κάλυψη
+
+Το πρώτο commit `fee543a` πέρασε το τοπικό release gate με το αρχικό toolchain, αλλά το GitHub CI εντόπισε advisories σε development/fixture dependencies και το Release σταμάτησε στο per-file coverage του Dialog στο Linux. Δεν έφτασε στο βήμα publish.
+
+Ενημερώθηκαν Astro σε 7.4.1, Vite σε διορθωμένες εκδόσεις των ήδη χρησιμοποιούμενων majors και Vitest/coverage-v8 σε 4.1.x, μαζί με στοχευμένα transitive overrides. Το release gate εκτελεί πλέον τα ίδια production/development audits πριν από τα υπόλοιπα checks. Το preview του Astro εκκινεί με `--ignore-lock`, ώστε το Playwright να κατέχει foreground process ακόμη και σε περιβάλλον agent.
+
+Η αλλαγή coverage provider του Vitest 4 χρησιμοποιεί AST-based remapping. Προστέθηκαν ουσιαστικά regressions για native/busy dialog close, pending-save teardown, RTL/non-looping/empty menus, επιλογές Select χωρίς native projection ή μετά από απομάκρυνση του listbox και dirty state Date/array/object. Τα τελευταία εντόπισαν και διόρθωσαν εσφαλμένη ισότητα μεταξύ διαφορετικών τύπων τιμής. Τα όρια κάλυψης δεν μειώθηκαν.
+
+### Περιορισμένες development εξαιρέσεις
+
+Το `config/dependency-audit-policy.json` περιέχει δύο ακριβείς, προσωρινές εξαιρέσεις:
+
+- `braces 3.0.3`, [GHSA-vfj7-8cjw-p6xm](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm): glob patterns εργαλείων Changesets/Stryker που ορίζονται από το repository. Δεν δέχονται εξωτερικά runtime patterns.
+- `sprintf-js 1.0.3`, [GHSA-hp3w-g68c-fv3c](https://github.com/advisories/GHSA-hp3w-g68c-fv3c): YAML/argparse του Changesets με σταθερά developer-controlled format strings.
+
+Κατά τον έλεγχο δεν υπήρχαν δημοσιευμένα patched npm releases για αυτές τις δύο εξαρτήσεις. Παραμένουν πραγματικά upstream advisories, όχι ισχυρισμός μηδενικών ευπαθειών. Δεν αποτελούν εξαρτήσεις του shipped UI runtime.
+
+Η πολιτική επιτρέπει μόνο το συγκεκριμένο GHSA/package/version όταν **όλα** τα findings έχουν `dev=true`. Δεν εφαρμόζεται στο production audit. Νέα advisories, διαφορετικές εκδόσεις, παραγωγικές διαδρομές, μη έγκυρα audit responses ή ελλιπής αιτιολόγηση μπλοκάρουν τον έλεγχο. Η επανεξέταση ορίστηκε έως **21/11/2026** και μετά η εξαίρεση παύει να ισχύει. Τα τέσσερα Node tests στο `scripts/audit-dependencies.test.mjs` ελέγχουν αυτούς τους περιορισμούς και εκτελούνται μέσα στο `validate`.
+
+Ο ενημερωμένος candidate επαληθεύεται με `pnpm -w validate:release`, περιλαμβανομένων audits, policy tests, όλων των unit/browser/visual/stress suites και πραγματικών packed-consumer builds. Το production audit δεν έχει blocking findings· το development audit εμφανίζει ρητά τις δύο παραπάνω εξαιρέσεις.
+
+
+**Επανεκτέλεση μετά το CI follow-up:** το `pnpm -w validate:release` ολοκληρώθηκε με exit 0: 132 unit tests και 4 policy tests, 143 browser εκτελέσεις, 10 visual checks χωρίς νέα baselines και 2 stress σενάρια των 100 κύκλων. Με Vitest 4 το AST-based coverage κατέγραψε 98.60% statements και 93.36% branches, με επιτυχή τα αμετάβλητα όρια ανά αρχείο. Δεν υπάρχουν peer dependency issues. Περιορίστηκε ο παραλληλισμός των unit suites και αυξήθηκε μόνο το χρονικό περιθώριο του randomized lifecycle test σε 30s· παραμένουν 100 runs με έως 60 commands και όλες οι αρχικές assertions.
+
+Για τη rendered επαλήθευση χρησιμοποιήθηκε το Playwright workflow του repo: Browser plugin/skill δεν υπήρχε στον διαθέσιμο κατάλογο. Το release παραμένει gated από τα audits και ολόκληρο το `validate:release` στο GitHub Actions πριν από τη δημοσίευση.

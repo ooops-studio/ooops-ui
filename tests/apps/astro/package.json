@@ -16,6 +16,6 @@
     "@ooopsstudio/scene-core": "workspace:*",
     "@ooopsstudio/ui-astro": "workspace:*",
     "@ooopsstudio/ui-primitives": "workspace:*",
-    "astro": "^7.1.6"
+    "astro": "^7.4.1"
   }
 }

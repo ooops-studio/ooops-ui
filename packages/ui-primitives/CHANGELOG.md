@@ -10,6 +10,8 @@
 
 ### Patch Changes
 
+- Keep field dirty state correct when values change between dates, arrays and plain objects.
+
 - Fix control state consistency before migrating project-local UI: emit text edits once after parent updates, project checked defaults during SSR and preserve pre-hydration native edits, omit disabled hidden values from form submissions, prevent readonly clears, synchronize choice resets, and support reactive accordion configuration. Add controller, adapter, SSR/no-JavaScript and cross-browser regression coverage.
 
 ## 0.3.0

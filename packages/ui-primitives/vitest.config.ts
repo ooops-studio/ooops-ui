@@ -6,6 +6,8 @@ export default defineConfig({
 	root: fileURLToPath(new URL('../..', import.meta.url)),
 	test: {
 		environment: 'node',
+		// Bound parallel jsdom workers when workspace packages test concurrently.
+		maxWorkers: 2,
 		include: ['packages/ui-primitives/test/**/*.test.ts'],
 		passWithNoTests: true,
 		coverage: {

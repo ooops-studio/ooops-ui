@@ -4,29 +4,53 @@
   "private": false,
   "description": "Astro 7 adapter for Ooops interactive scenes.",
   "type": "module",
-  "publishConfig": {"access": "public"},
-  "sideEffects": ["**/*.css"],
+  "publishConfig": {
+    "access": "public"
+  },
+  "sideEffects": [
+    "**/*.css"
+  ],
   "license": "MIT",
-  "engines": {"node": ">=22.14.0"},
+  "engines": {
+    "node": ">=22.14.0"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ooops-studio/ooops-ui.git",
     "directory": "packages/scene-astro"
   },
   "homepage": "https://github.com/ooops-studio/ooops-ui/tree/main/packages/scene-astro#readme",
-  "bugs": {"url": "https://github.com/ooops-studio/ooops-ui/issues"},
+  "bugs": {
+    "url": "https://github.com/ooops-studio/ooops-ui/issues"
+  },
   "exports": {
-    ".": {"types": "./dist/index.d.ts", "import": "./dist/index.js"},
-    "./runtime": {"types": "./dist/runtime.d.ts", "import": "./dist/runtime.js"},
-    "./InteractiveScene.astro": {"default": "./dist/InteractiveScene.astro"},
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./runtime": {
+      "types": "./dist/runtime.d.ts",
+      "import": "./dist/runtime.js"
+    },
+    "./InteractiveScene.astro": {
+      "default": "./dist/InteractiveScene.astro"
+    },
     "./base.css": "./dist/base.css"
   },
-  "files": ["dist", "README.md", "CHANGELOG.md"],
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md"
+  ],
   "dependencies": {
     "@ooopsstudio/scene-core": "workspace:^"
   },
-  "peerDependencies": {"astro": ">=7 <8"},
-  "devDependencies": {"astro": "^7.1.6"},
+  "peerDependencies": {
+    "astro": ">=7 <8"
+  },
+  "devDependencies": {
+    "astro": "^7.4.1"
+  },
   "scripts": {
     "typecheck": "astro check",
     "lint": "eslint .",

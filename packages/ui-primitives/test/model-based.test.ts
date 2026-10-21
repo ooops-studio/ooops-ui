@@ -190,7 +190,7 @@ describe('model-based controller lifecycle', () => {
 			),
 			{numRuns: 100}
 		)
-	})
+	}, 30_000)
 })
 
 describe('property-level numeric and geometry invariants', () => {

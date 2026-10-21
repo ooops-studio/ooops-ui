@@ -101,7 +101,7 @@ export default defineConfig({
 			timeout: 120_000
 		},
 		{
-			command: 'corepack pnpm --filter @ooopsstudio/ui-e2e-astro exec astro preview --host 127.0.0.1 --port 4392',
+			command: 'corepack pnpm --filter @ooopsstudio/ui-e2e-astro exec astro preview --ignore-lock --host 127.0.0.1 --port 4392',
 			url: 'http://127.0.0.1:4392/',
 			reuseExistingServer: !process.env.CI,
 			timeout: 120_000
