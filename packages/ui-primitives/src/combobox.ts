@@ -94,7 +94,7 @@ export const createComboboxController = <Value extends string = string, Metadata
 			element.dataset.selected = String(store.getState().options[index]?.value === state.value)
 		})
 		const native = options.getNativeInput?.()
-		if (native) native.value = state.value
+		if (native) { native.value = state.value; native.disabled = disabled }
 	}
 	const setVisibleOptions = (entries: ReadonlyArray<SelectOption<Value, Metadata>>) => {
 		const frozen = snapshotSelectOptions(entries)
@@ -240,6 +240,7 @@ export const createComboboxController = <Value extends string = string, Metadata
 			disabled = nextDisabled
 			if (disabled) close()
 			options.getInput()?.toggleAttribute('disabled', disabled)
+			sync()
 		},
 		setAllowCustomValue(nextAllowCustomValue: boolean) {
 			allowCustomValue = nextAllowCustomValue

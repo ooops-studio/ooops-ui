@@ -214,7 +214,10 @@ export const createSliderController = (options: SliderControllerOptions) => {
 					`${((value - min) / (max - min)) * 100}%`
 				)
 			}
-			if (inputs[index]) inputs[index]!.value = String(value)
+			if (inputs[index]) {
+				inputs[index]!.value = String(value)
+				inputs[index]!.disabled = disabled
+			}
 		})
 	}
 	const setValue = (value: SliderValue, emit = false) => {

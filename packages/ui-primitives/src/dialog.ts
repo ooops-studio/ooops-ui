@@ -24,6 +24,8 @@ export type DialogControllerOptions = {
 	getInitialFocus?: () => HTMLElement | null | undefined
 	getRestoreFocusTo?: () => HTMLElement | null | undefined
 	onOpenChange?: (open: boolean) => void
+	beforeClose?: (reason: DialogCloseReason) => boolean | void
+	onConfirmError?: (error: unknown) => void
 	onClose?: (reason: DialogCloseReason) => void
 	onConfirm?: () => void | Promise<void>
 	eventNames?: {
@@ -47,6 +49,9 @@ export type DialogController = {
 export const createDialogController = (config: DialogControllerOptions): DialogController => {
 	let mounted = false
 	let focusTrap: FocusTrap | null = null
+	let approvedClose = false
+	let confirming = false
+	let externalBusy = config.busy ?? false
 	const store = createControllerStore<DialogState>({
 		open: config.open ?? false,
 		busy: config.busy ?? false,
@@ -86,9 +91,14 @@ export const createDialogController = (config: DialogControllerOptions): DialogC
 	}
 
 	const close = (reason: DialogCloseReason = 'close') => {
-		if (!store.getState().open || store.getState().busy) return
+		if (!store.getState().open) return
+		if (store.getState().busy || config.beforeClose?.(reason) === false) {
+			config.onOpenChange?.(true)
+			return
+		}
 		const dialog = config.getDialog()
 		if (dialog instanceof HTMLDialogElement && dialog.open) {
+			approvedClose = true
 			dialog.close(reason)
 			return
 		}
@@ -97,8 +107,22 @@ export const createDialogController = (config: DialogControllerOptions): DialogC
 	}
 
 	const confirm = async() => {
-		if (store.getState().busy) return
-		await config.onConfirm?.()
+		if (!store.getState().open || store.getState().busy || confirming) return
+		confirming = true
+		store.setState({busy: true})
+		syncDom()
+		try {
+			await config.onConfirm?.()
+		} catch(error) {
+			config.onConfirmError?.(error)
+			dispatchUiEvent(config.getRoot(), 'ooops:dialog-error', {error})
+			return
+		} finally {
+			confirming = false
+			store.setState({busy: externalBusy})
+			syncDom()
+		}
+		if (!mounted) return
 		dispatchUiEvent(config.getRoot(), config.eventNames?.confirm ?? UI_EVENTS.dialogConfirm, {})
 		close('confirm')
 	}
@@ -110,7 +134,12 @@ export const createDialogController = (config: DialogControllerOptions): DialogC
 
 	const handleNativeClose = (event: Event) => {
 		const dialog = event.currentTarget as HTMLDialogElement
-		finalizeClose(dialog.returnValue || 'close')
+		const reason = dialog.returnValue || 'close'
+		if (!approvedClose &&
+			(store.getState().busy ||
+			config.beforeClose?.(reason) === false)) { dialog.showModal(); return }
+		approvedClose = false
+		finalizeClose(reason)
 	}
 
 	const handleBackdrop = (event: PointerEvent) => {
@@ -171,7 +200,8 @@ export const createDialogController = (config: DialogControllerOptions): DialogC
 		toggle: () => (store.getState().open ? close() : open()),
 		confirm,
 		setBusy(busy) {
-			store.setState({busy})
+			externalBusy = busy
+			store.setState({busy: busy || confirming})
 			syncDom()
 		}
 	}

@@ -20,5 +20,5 @@ This monorepo owns design-neutral, accessible UI behavior. `ui-primitives` is th
 ## Avoid
 
 - Do not substitute native-only Select behavior where the custom selectable/stylable control is required.
-- Do not add Combobox/autocomplete behavior to Select; it is a separate future primitive.
+- Keep Combobox/autocomplete behavior separate from non-editable Select.
 - Do not couple primitives to Astro, Svelte, CSS frameworks or application state.

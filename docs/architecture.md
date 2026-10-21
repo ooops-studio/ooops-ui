@@ -13,7 +13,7 @@ Focus behavior comes from `@ooopsstudio/accessibility`. `ui-primitives` re-expor
 - `ui-svelte` may depend on primitives and peer-depend on Svelte. Components may expose reactive bindings and snippets but must delegate behavior to controllers.
 - Base CSS is optional. Product-specific design never belongs in the controller layer.
 
-Combobox and MultiSelect are separate future primitives. The Select API must remain non-editable and single-value so those responsibilities do not overlap.
+Combobox and MultiSelect are implemented separate primitives. The Select API must remain non-editable and single-value so those responsibilities do not overlap.
 
 ## Migration from project-local components
 

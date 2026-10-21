@@ -1,14 +1,14 @@
 ---
 import {resolveUiMessages, type UiMessages} from '@ooopsstudio/ui-primitives'; import {serializeUiConfig} from './index';
-type Props = {id: string; triggerLabel?: string; open?: boolean; placement?: 'top' | 'bottom' | 'left' | 'right'; align?: 'start' | 'center' | 'end'; role?: 'dialog' | 'region' | 'menu' | 'listbox'; ariaLabel?: string; closeOnOutside?: boolean; closeOnOutsideFocus?: boolean; closeOnEscape?: boolean; focusOnOpen?: boolean; trapFocus?: boolean; portal?: boolean; messages?: Partial<UiMessages>; class?: string};
-const {id, triggerLabel, open = false, placement = 'bottom', align = 'start', role = 'dialog', ariaLabel, closeOnOutside = true, closeOnOutsideFocus = false, closeOnEscape = true, focusOnOpen = false, trapFocus = false, portal = true, messages, class: className = ''} = Astro.props;
+type Props = {id: string; anchorId?: string; portalTargetId?: string; offset?: number; zIndex?: number; matchAnchorWidth?: boolean; triggerLabel?: string; open?: boolean; placement?: 'top' | 'bottom' | 'left' | 'right'; align?: 'start' | 'center' | 'end'; role?: 'dialog' | 'region' | 'menu' | 'listbox'; ariaLabel?: string; closeOnOutside?: boolean; closeOnOutsideFocus?: boolean; closeOnEscape?: boolean; focusOnOpen?: boolean; trapFocus?: boolean; portal?: boolean; messages?: Partial<UiMessages>; class?: string};
+const {id, anchorId, portalTargetId, offset = 8, zIndex = 1000, matchAnchorWidth = false, triggerLabel, open = false, placement = 'bottom', align = 'start', role = 'dialog', ariaLabel, closeOnOutside = true, closeOnOutsideFocus = false, closeOnEscape = true, focusOnOpen = false, trapFocus = false, portal = true, messages, class: className = ''} = Astro.props;
 const uiMessages = resolveUiMessages(messages);
-const config = serializeUiConfig({id, open, portal, placement, align, closeOnOutside, closeOnOutsideFocus, closeOnEscape, focusOnOpen, trapFocus});
+const config = serializeUiConfig({id, anchorId, portalTargetId, offset, zIndex, matchAnchorWidth, open, portal, placement, align, closeOnOutside, closeOnOutsideFocus, closeOnEscape, focusOnOpen, trapFocus});
 const ariaHasPopup = role === 'region' ? undefined : role;
 ---
-<span class:list={['ooops-popover-root', className]} data-ooops-popover-root={id} data-part="root">
-  <button type="button" aria-haspopup={ariaHasPopup} aria-controls={`${id}-panel`} aria-expanded="false" data-part="trigger"><slot name="trigger">{triggerLabel ?? uiMessages.open}</slot></button>
+<span class:list={['ooops-popover-root', className]} data-ooops-popover-root={id} data-ooops-ui data-part="root">
+  {!anchorId ? <button type="button" aria-haspopup={ariaHasPopup} aria-controls={`${id}-panel`} aria-expanded="false" data-ooops-ui data-part="trigger"><slot name="trigger">{triggerLabel ?? uiMessages.open}</slot></button> : null}
   <script is:inline type="application/json" data-ooops-ui-config set:html={config} />
 </span>
-<div id={`${id}-panel`} role={role} aria-label={ariaLabel ?? uiMessages.popover} data-ooops-popover-panel={id} data-part="panel" hidden><slot /></div>
+<div id={`${id}-panel`} role={role} aria-label={ariaLabel ?? uiMessages.popover} data-ooops-popover-panel={id} data-ooops-ui data-part="panel" hidden><slot /></div>
 <script>import {installAstroUi} from '@ooopsstudio/ui-astro'; installAstroUi();</script>

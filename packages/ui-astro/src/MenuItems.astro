@@ -1,0 +1,10 @@
+---
+import Self from './MenuItems.astro';
+import type {MenuItem} from './DropdownMenu.astro';
+type Props = {items: MenuItem[]};
+const {items} = Astro.props;
+---
+{items.map((item) => item.type === 'separator' ? <hr role="separator" data-ooops-ui data-part="separator" /> : item.type === 'label' ? <div data-ooops-ui data-part="label">{item.label}</div> : item.href ? <a href={item.href} role="menuitem" aria-disabled={item.disabled ? 'true' : undefined} data-ooops-ui data-part="item" data-value={item.value ?? item.id} data-label={item.label}>{item.label}</a> : <div data-ooops-ui data-part={item.children?.length ? 'submenu-group' : 'item-wrapper'}>
+<button type="button" role={item.type === 'checkbox' ? 'menuitemcheckbox' : item.type === 'radio' ? 'menuitemradio' : 'menuitem'} aria-checked={item.type === 'checkbox' || item.type === 'radio' ? Boolean(item.checked) : undefined} disabled={item.disabled} aria-haspopup={item.children?.length ? 'menu' : undefined} data-ooops-ui data-part={item.children?.length ? 'submenu-trigger' : 'item'} data-value={item.value ?? item.id} data-group={item.group} data-label={item.label} data-keep-open={String(Boolean(item.keepOpen))}>{item.label}</button>
+{item.children?.length ? <div role="menu" aria-label={item.label} data-ooops-ui data-part="submenu-content" data-submenu="true" hidden><Self items={item.children} /></div> : null}
+</div>)}

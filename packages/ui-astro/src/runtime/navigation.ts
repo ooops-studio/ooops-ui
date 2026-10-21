@@ -3,6 +3,8 @@ import {createAccordionController, createTabsController} from '@ooopsstudio/ui-p
 import {mountUiRoots, readUiConfig} from './shared'
 
 type TabsConfig = {
+	renderPanels?: boolean
+	panelIds?: string[]
 	activeId: string
 	defaultActiveId?: string
 	mode?: 'panels' | 'navigation'
@@ -15,7 +17,7 @@ const mountTabs = (root: HTMLElement) => {
 	const controller = createTabsController({
 		...config,
 		getTabs: () => Array.from(root.querySelectorAll('[data-tab]')),
-		getPanels: () => Array.from(root.querySelectorAll('[data-tab-panel]')),
+		getPanels: () => config.renderPanels === false ? (config.panelIds ?? []).map((id) => document.getElementById(id)).filter((entry): entry is HTMLElement => Boolean(entry)) : Array.from(root.querySelectorAll('[data-tab-panel]')),
 		onChange: (activeId) =>
 			root.dispatchEvent(
 				new CustomEvent('ooops:tabs-change', {bubbles: true, detail: {activeId}})

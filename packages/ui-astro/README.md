@@ -28,3 +28,5 @@ Astro props are serializable. Use `@ooopsstudio/ui-primitives` directly when cus
 ## License
 
 MIT
+
+See [consumer contracts and migration](../../docs/consumer-contracts.md) for native forwarding, Field associations, adapter defaults, layer composition and reactive options.

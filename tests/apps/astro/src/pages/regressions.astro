@@ -1,0 +1,37 @@
+---
+import Checkbox from '@ooopsstudio/ui-astro/Checkbox.astro';
+import Combobox from '@ooopsstudio/ui-astro/Combobox.astro';
+import Input from '@ooopsstudio/ui-astro/Input.astro';
+import MultiSelect from '@ooopsstudio/ui-astro/MultiSelect.astro';
+import RadioGroup from '@ooopsstudio/ui-astro/RadioGroup.astro';
+import SegmentedControl from '@ooopsstudio/ui-astro/SegmentedControl.astro';
+import Slider from '@ooopsstudio/ui-astro/Slider.astro';
+import Switch from '@ooopsstudio/ui-astro/Switch.astro';
+import Layout from '../layouts/Layout.astro';
+const options = [{value:'a', label:'Alpha'}, {value:'b', label:'Beta'}];
+---
+<Layout title="Astro migration regressions">
+  <h1>Astro migration regression laboratory</h1>
+  <form id="checks"><Checkbox id="checked" name="checked" label="Initially checked" checked /><Switch id="enabled" name="enabled" label="Initially enabled" checked /></form>
+  <form id="disabled-projections">
+    <Combobox id="combo" name="country" label="Country" value="a" {options} disabled />
+    <MultiSelect id="multi" name="tags" label="Tags" values={['a']} {options} disabled />
+    <SegmentedControl id="segments" name="view" label="View" value="a" {options} disabled />
+    <Slider id="slider" name="volume" label="Volume" value={[20,80]} disabled />
+    <button type="submit">Serialize controls</button><output id="projection-output"></output>
+  </form>
+  <Input id="readonly" name="locked" label="Locked input" value="Locked" readonly clearable />
+  <form id="choice-reset">
+    <RadioGroup id="radio" name="plan" label="Reset plan" value="a" {options} />
+    <SegmentedControl id="reset-segments" name="view" label="Reset view" value="a" {options} />
+    <button type="reset">Reset choices</button><button type="submit">Serialize choices</button><output id="choice-output"></output>
+  </form>
+</Layout>
+<script>
+  for (const [formId, outputId] of [['disabled-projections','projection-output'],['choice-reset','choice-output']]) {
+    document.getElementById(formId!)?.addEventListener('submit', event => {
+      event.preventDefault(); const output = document.getElementById(outputId!);
+      if (output) output.textContent = JSON.stringify([...new FormData(event.currentTarget as HTMLFormElement)]);
+    });
+  }
+</script>

@@ -1,5 +1,7 @@
 # @ooopsstudio/ui-primitives
 
+Choice controllers synchronize native form resets without emitting user-change callbacks and cancel pending reset work on teardown. Accordion controllers expose `configure({type, collapsible})`; changing to single mode normalizes the open IDs and emits a change only when normalization changes the selection.
+
 Framework-neutral state, validation, form projection, keyboard behavior and layers for accessible custom controls. The package has no visual theme and reuses the canonical focus trap from `@ooopsstudio/accessibility`.
 
 ## Install
@@ -44,3 +46,5 @@ The primitives own behavior, not application copy, visual design or CMS data. Co
 ## License
 
 MIT
+
+See [consumer contracts and migration](../../docs/consumer-contracts.md) for native forwarding, Field associations, adapter defaults, layer composition and reactive options.

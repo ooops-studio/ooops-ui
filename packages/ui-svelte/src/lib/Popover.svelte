@@ -1,10 +1,16 @@
 <script lang="ts">
-	import {createPopoverController, resolveUiMessages, type PopoverAlign, type PopoverPlacement, type PopoverState, type UiMessages} from '@ooopsstudio/ui-primitives'
+	import {connectOverlayTrigger, createPopoverController, resolveUiMessages, type PopoverAlign, type PopoverPlacement, type PopoverState, type UiMessages} from '@ooopsstudio/ui-primitives'
 	import {onMount, type Snippet} from 'svelte'
 
 	import {portal} from './portal'
 
 	type Props = {
+		anchorEl?: HTMLElement | null
+		portalTarget?: HTMLElement | null
+		offset?: number
+		zIndex?: number
+		matchAnchorWidth?: boolean
+		beforeClose?: (reason: import('@ooopsstudio/ui-primitives').PopoverCloseReason) => boolean | void
 		id?: string
 		open?: boolean
 		placement?: PopoverPlacement
@@ -27,7 +33,7 @@
 
 	const generatedId = $props.id()
 	let {
-		id = generatedId, open = $bindable(false), placement = 'bottom', align = 'start', role = 'dialog',
+		anchorEl, portalTarget, offset = 8, zIndex = 1000, matchAnchorWidth = false, beforeClose, id = generatedId, open = $bindable(false), placement = 'bottom', align = 'start', role = 'dialog',
 		ariaLabel, closeOnOutside = true, closeOnOutsideFocus = false, closeOnEscape = true, focusOnOpen = false,
 		trapFocus = false, portal: usePortal = true, messages, class: className = '', triggerLabel, trigger, children, onClose
 	}: Props = $props()
@@ -41,12 +47,14 @@
 	onMount(() => {
 		controller = createPopoverController({
 			open, placement, align, closeOnOutsidePointer: closeOnOutside, closeOnOutsideFocus, closeOnEscape, focusOnOpen, trapFocus,
-			getRoot: () => root, getAnchor: () => anchor, getPanel: () => panel,
+			getRoot: () => root, getAnchor: () => anchorEl ?? anchor, portal: usePortal, getPortalRoot: () => portalTarget, offset, zIndex, matchAnchorWidth, beforeClose: reason => beforeClose?.(reason), getPanel: () => panel,
 			onOpenChange: (next) => { open = next }, onClose
 		})
 		const unsubscribe = controller.subscribe((next) => { state = next })
-		controller.mount()
-		return () => { unsubscribe(); controller?.destroy(); controller = null }
+		const restoreTrigger = anchorEl ? connectOverlayTrigger(anchorEl, `${id}-panel`, role) : () => {}; controller.mount()
+		const toggle = () => controller?.toggle()
+		anchorEl?.addEventListener('click', toggle)
+		return () => { anchorEl?.removeEventListener('click', toggle); unsubscribe(); controller?.destroy(); restoreTrigger(); controller = null }
 	})
 	$effect(() => {
 		if (!controller) return
@@ -55,11 +63,11 @@
 	})
 </script>
 
-<span bind:this={root} class={`ooops-popover-root ${className}`.trim()} data-part="root">
-	<button bind:this={anchor} type="button" aria-haspopup={role} aria-controls={`${id}-panel`} aria-expanded={state.open} onclick={() => controller?.toggle()} data-part="trigger">
+<span bind:this={root} class={`ooops-popover-root ${className}`.trim()} data-ooops-ui data-part="root">
+	{#if !anchorEl}<button bind:this={anchor} type="button" aria-haspopup={role} aria-controls={`${id}-panel`} aria-expanded={state.open} onclick={() => controller?.toggle()} data-ooops-ui data-part="trigger">
 		{#if trigger}{@render trigger(state.open)}{:else}{triggerLabel ?? uiMessages.open}{/if}
-	</button>
+	</button>{/if}
 </span>
-<div use:portal={usePortal} bind:this={panel} id={`${id}-panel`} {role} aria-label={ariaLabel ?? uiMessages.popover} data-part="panel" hidden={!state.open}>
+<div use:portal={{enabled: usePortal, target: portalTarget}} bind:this={panel} id={`${id}-panel`} {role} aria-label={ariaLabel ?? uiMessages.popover} data-ooops-ui data-part="panel" hidden={!state.open}>
 	{#if children}{@render children()}{/if}
 </div>

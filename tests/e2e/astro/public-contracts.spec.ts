@@ -1,0 +1,26 @@
+import {expect, test} from '@playwright/test'
+
+import {expectNoAxeViolations, watchRuntimeErrors} from '../support'
+test('@critical native attributes, external layers, nested menu, modal guards and external tabs', async({page}, info) => {
+	const healthy = watchRuntimeErrors(page)
+	await page.goto('/contracts'); await expect(page.locator('html')).toHaveAttribute('data-contract-ready', 'true')
+	const input = page.getByRole('textbox', {name: 'Contact email'})
+	await expect(input).toHaveAttribute('aria-describedby', 'email-field-description email-field-error'); await expect(input).toHaveAttribute('aria-invalid', 'true')
+	await expect(input).toHaveAttribute('form', 'native-form'); await expect(input).toHaveAttribute('maxlength', '30')
+	await expect(page.getByRole('textbox', {name: 'Private notes'})).toHaveAttribute('aria-describedby', 'outside-help')
+	await expect(page.getByRole('spinbutton', {name: 'Amount'})).toHaveValue('20')
+	await page.getByRole('spinbutton', {name: 'Amount'}).focus(); await input.focus(); await expect(page.getByRole('spinbutton', {name: 'Amount'})).toHaveValue('20')
+	const remove = page.locator('[data-remove-value="a"]'); await expect(remove).toBeDisabled(); await remove.dispatchEvent('click'); await expect(page.locator('[data-remove-value="a"]')).toHaveCount(1)
+	expect(await page.locator('#foreign-content').evaluate((el) => getComputedStyle(el).position)).toBe('static'); expect(await page.locator('#foreign-track').evaluate((el) => getComputedStyle(el).position)).toBe('static')
+	await page.getByRole('button', {name: 'External popover', exact: true}).click(); await expect(page.locator('#custom-portal #external-pop-panel')).toBeVisible()
+	await page.keyboard.press('Escape'); await expect(page.locator('#external-pop-panel')).toBeVisible(); await page.getByRole('button', {name: 'Allow close', exact: true}).click(); await page.keyboard.press('Escape'); await expect(page.locator('#external-pop-panel')).toBeHidden()
+	await page.getByRole('button', {name: 'External menu', exact: true}).click(); await expect(page.locator('#custom-portal #external-menu-menu')).toBeVisible()
+	await page.getByRole('menuitem', {name: 'Level one', exact: true}).click(); await page.getByRole('menuitem', {name: 'Level two', exact: true}).click(); await page.getByRole('menuitem', {name: 'Deep action', exact: true}).click(); await expect(page.locator('#selected')).toHaveText('leaf')
+	await page.getByRole('button', {name: 'Open guarded modal'}).click(); await expect(page.getByRole('textbox', {name: 'Modal input'})).toBeFocused()
+	await page.keyboard.press('Escape'); await expect(page.getByRole('dialog', {name: 'Guarded modal'})).toBeVisible()
+	await page.getByRole('dialog', {name: 'Guarded modal'}).evaluate((el) => (el as HTMLDialogElement).close())
+	await expect(page.getByRole('dialog', {name: 'Guarded modal'})).toBeVisible()
+	await page.getByRole('button', {name: 'Allow modal close'}).click(); await page.keyboard.press('Escape'); await expect(page.getByRole('dialog', {name: 'Guarded modal'})).toBeHidden(); await expect(page.locator('#modal-trigger')).toBeFocused()
+	await page.getByRole('tab', {name: 'Second tab'}).click(); await expect(page.locator('#external-one')).toBeHidden(); await expect(page.locator('#external-two')).toBeVisible()
+	await expectNoAxeViolations(page, info); healthy()
+})

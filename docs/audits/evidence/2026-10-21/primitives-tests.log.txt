@@ -1,0 +1,23 @@
+$ vitest run
+
+ RUN  v3.2.7 /Users/italiour/Sites/Ooops Studio/ooops-ui
+
+ ✓ packages/ui-primitives/test/regression-audit.test.ts (5 tests) 470ms
+   ✓ audit regressions > applies reactive disabled state and refreshes removed tabs  400ms
+ ✓ packages/ui-primitives/test/mutation-contracts.test.ts (10 tests) 692ms
+   ✓ mutation-gated multi-select behavior > enforces allowed unique values, maximum, selection helpers and Backspace removal  504ms
+ ✓ packages/ui-primitives/test/index.test.ts (6 tests) 780ms
+   ✓ createSelectController > synchronizes value, native form control and custom events  578ms
+ ✓ packages/ui-primitives/test/expansion.test.ts (16 tests) 852ms
+   ✓ menu controller > opens once, reports state, and focuses the first item after the scheduled frame  441ms
+ ✓ packages/ui-primitives/test/coverage-contracts.test.ts (21 tests) 1742ms
+   ✓ dialog and popover controller coverage > covers fallback-dialog, busy, cancel, backdrop and custom event behavior  319ms
+   ✓ dialog and popover controller coverage > covers popover focus, toggle, outside dismissals and missing DOM  468ms
+ ✓ packages/ui-primitives/test/model-based.test.ts (4 tests) 1808ms
+   ✓ model-based controller lifecycle > [FM-ASYNC-UNMOUNT] preserves multi-select invariants across random mount/open/select/reset/unmount sequences  1409ms
+
+ Test Files  6 passed (6)
+      Tests  62 passed (62)
+   Start at  14:45:35
+   Duration  9.80s (transform 921ms, setup 0ms, collect 4.73s, tests 6.34s, environment 37.82s, prepare 827ms)
+

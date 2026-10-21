@@ -1,10 +1,16 @@
-import {createLayerController, type LayerController} from './layer'
+import {createLayerController, type LayerController, type LayerCloseReason} from './layer'
 import {createControllerStore, type Subscriber} from './store'
 
 export type MenuState = {open: boolean; activeIndex: number; mounted: boolean}
 export type MenuControllerOptions = {
 	open?: boolean
 	loop?: boolean
+	placement?: 'top' | 'bottom' | 'left' | 'right'
+	align?: 'start' | 'center' | 'end'
+	offset?: number
+	zIndex?: number
+	matchAnchorWidth?: boolean
+	beforeClose?: (reason: LayerCloseReason) => boolean | void
 	portal?: boolean
 	getPortalRoot?: () => HTMLElement | null | undefined
 	getTrigger: () => HTMLElement | null | undefined
@@ -35,6 +41,16 @@ export const createMenuController = (options: MenuControllerOptions) => {
 	const submenuLayers = new Map<HTMLElement, LayerController>()
 	const layer = createLayerController({
 		getAnchor: options.getTrigger,
+		...(options.placement === undefined ? {} : {placement: options.placement}),
+		...(options.align === undefined ? {} : {align: options.align}),
+		...(options.offset === undefined ? {} : {offset: options.offset}),
+		...(options.zIndex === undefined ? {} : {zIndex: options.zIndex}),
+		...(options.matchAnchorWidth === undefined ? {} : {matchAnchorWidth: options.matchAnchorWidth}),
+		beforeClose: (reason) => {
+			if (options.beforeClose?.(reason) !== false) return true
+			options.onOpenChange?.(true)
+			return false
+		},
 		getLayer: options.getMenu,
 		...(options.portal === undefined ? {} : {portal: options.portal}),
 		...(options.getPortalRoot ? {getPortalRoot: options.getPortalRoot} : {}),
@@ -106,6 +122,7 @@ export const createMenuController = (options: MenuControllerOptions) => {
 		cancelScheduledFocus()
 		closeSubmenus()
 		layer.close()
+		if (layer.isOpen()) return
 		store.setState({open: false, activeIndex: -1})
 		sync()
 		if (restoreFocus) options.getTrigger()?.focus()

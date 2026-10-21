@@ -27,7 +27,7 @@ const mountInput = (root: HTMLElement) => {
 	const input = root.querySelector<HTMLInputElement>('[data-part="control"]')
 	if (!input) return null
 	const controller = createInputController({...config, getElement: () => input})
-	const clear = () => controller.setValue('', true)
+	const clear = () => { if (!input.disabled && !input.readOnly) controller.setValue('', true) }
 	const reveal = () => {
 		input.type = input.type === 'password' ? 'text' : 'password'
 		root.dataset.revealed = String(input.type === 'text')
@@ -119,8 +119,9 @@ const mountChoice = (root: HTMLElement) => {
 			)
 		}
 	})
+	const unsubscribe = controller.subscribe((state) => { if (hidden) hidden.value = state.value })
 	controller.mount()
-	return {destroy: controller.destroy}
+	return {destroy: () => { unsubscribe(); controller.destroy() }}
 }
 
 type NumberConfig = {

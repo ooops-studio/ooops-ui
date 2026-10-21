@@ -1,0 +1,25 @@
+$ pnpm --filter @ooopsstudio/ui-primitives build && vitest run
+$ tsup
+CLI Building entry: {"index":"src/index.ts"}
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+CLI Using tsup config: /Users/italiour/Sites/Ooops Studio/ooops-ui/packages/ui-primitives/tsup.config.ts
+CLI Target: node22
+CLI Cleaning output folder
+ESM Build start
+ESM dist/index.js     93.42 KB
+ESM dist/index.js.map 223.66 KB
+ESM ⚡️ Build success in 361ms
+DTS Build start
+DTS ⚡️ Build success in 3608ms
+DTS dist/index.d.ts 26.74 KB
+
+ RUN  v3.2.7 /Users/italiour/Sites/Ooops Studio/ooops-ui/packages/ui-svelte
+
+ ✓ src/lib/components.test.ts (5 tests) 154ms
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  14:45:46
+   Duration  5.85s (transform 1.90s, setup 0ms, collect 3.27s, tests 154ms, environment 1.50s, prepare 234ms)
+

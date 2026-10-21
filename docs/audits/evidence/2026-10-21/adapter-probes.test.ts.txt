@@ -1,0 +1,72 @@
+import {afterEach, describe, expect, it, vi} from 'vitest'
+import {cleanup, fireEvent, render} from '@testing-library/svelte'
+import Input from './Input.svelte'
+import Textarea from './Textarea.svelte'
+import Combobox from './Combobox.svelte'
+import Slider from './Slider.svelte'
+import MultiSelect from './MultiSelect.svelte'
+import SegmentedControl from './SegmentedControl.svelte'
+import RadioGroup from './RadioGroup.svelte'
+import Accordion from './Accordion.svelte'
+afterEach(cleanup)
+describe('audit desired-behavior probes', () => {
+ for (const [name, component, selector] of [['Input',Input,'input'],['Textarea',Textarea,'textarea']] as const) {
+  it(`${name}: emits returning to initial value after a parent update`, async()=>{
+   const changed=vi.fn(); const view=render(component as any,{props:{value:'A',label:'Text',onChange:changed}})
+   await view.rerender({value:'B'})
+   const control=view.container.querySelector(selector)!
+   await fireEvent.input(control,{target:{value:'A'}})
+   expect(changed).toHaveBeenLastCalledWith('A')
+  })
+ }
+ it('MultiSelect: disabled values are excluded from native form submission',()=>{
+  const view=render(MultiSelect,{props:{name:'tags',label:'Tags',values:['a'],options:[{value:'a',label:'A'}],disabled:true}})
+  const form=document.createElement('form'); form.appendChild(view.container)
+  expect(new FormData(form).getAll('tags[]')).toEqual([])
+ })
+ it('SegmentedControl: disabled values are excluded from native form submission',()=>{
+  const view=render(SegmentedControl,{props:{name:'view',label:'View',value:'a',options:[{value:'a',label:'A'}],disabled:true}})
+  const form=document.createElement('form'); form.appendChild(view.container)
+  expect(new FormData(form).get('view')).toBeNull()
+ })
+ it('Combobox: disabled values are excluded from native form submission',()=>{
+  const view=render(Combobox,{props:{name:'country',label:'Country',value:'a',options:[{value:'a',label:'A'}],disabled:true}})
+  const form=document.createElement('form'); form.appendChild(view.container)
+  expect(new FormData(form).get('country')).toBeNull()
+ })
+ it('Slider: disabled values are excluded from native form submission',()=>{
+  const view=render(Slider,{props:{name:'volume',label:'Volume',value:20,disabled:true}})
+  const form=document.createElement('form'); form.appendChild(view.container)
+  expect(new FormData(form).get('volume')).toBeNull()
+ })
+ it('Input: readonly cannot be changed with its clear button',async()=>{
+  const view=render(Input,{props:{value:'Locked',label:'Text',readonly:true,clearable:true}})
+  await fireEvent.click(view.container.querySelector('[data-part="clear"]')!)
+  expect(view.container.querySelector('input')?.value).toBe('Locked')
+ })
+ it('RadioGroup: form reset restores rendered selection and subsequent events',async()=>{
+  const form=document.createElement('form'); document.body.appendChild(form)
+  const changed=vi.fn();const view=render(RadioGroup,{target:form,props:{name:'plan',label:'Plan',value:'a',options:[{value:'a',label:'A'},{value:'b',label:'B'}],onChange:changed}})
+  const b=view.container.querySelector<HTMLInputElement>('input[value="b"]')!
+  b.checked=true
+  await fireEvent.change(b)
+  expect(view.container.querySelector('label[data-selected="true"] input')?.getAttribute('value')).toBe('b')
+  form.reset()
+  await new Promise(resolve=>requestAnimationFrame(resolve))
+  expect(view.container.querySelector('label[data-selected="true"] input')?.getAttribute('value')).toBe('a')
+ })
+ it('Accordion: reacts to single-to-multiple mode changes',async()=>{
+  const view=render(Accordion,{props:{type:'single',items:[{id:'a',title:'A'},{id:'b',title:'B'}]}})
+  await view.rerender({type:'multiple'})
+  await fireEvent.click(view.container.querySelector('[data-accordion-trigger][data-value="a"]')!)
+  await fireEvent.click(view.container.querySelector('[data-accordion-trigger][data-value="b"]')!)
+  expect(view.container.querySelectorAll('[data-accordion-trigger][aria-expanded="true"]')).toHaveLength(2)
+ })
+ it('Accordion: dynamically added items respond to interaction',async()=>{
+  const view=render(Accordion,{props:{items:[{id:'a',title:'A',content:'A'}]}})
+  await view.rerender({items:[{id:'a',title:'A',content:'A'},{id:'b',title:'B',content:'B'}]})
+  const b=view.container.querySelector<HTMLButtonElement>('[data-value="b"][data-accordion-trigger]')!
+  await fireEvent.click(b)
+  expect(b.getAttribute('aria-expanded')).toBe('true')
+ })
+})

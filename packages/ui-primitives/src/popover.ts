@@ -22,6 +22,10 @@ export type PopoverControllerOptions = {
 	offset?: number
 	viewportPadding?: number
 	zIndex?: number
+	matchAnchorWidth?: boolean
+	getPortalRoot?: () => HTMLElement | null | undefined
+	portal?: boolean
+	beforeClose?: (reason: PopoverCloseReason) => boolean | void
 	closeOnOutsidePointer?: boolean
 	closeOnOutsideFocus?: boolean
 	closeOnEscape?: boolean
@@ -79,6 +83,14 @@ export const createPopoverController = (config: PopoverControllerOptions): Popov
 	}
 	const layer = createLayerController({
 		getAnchor: config.getAnchor,
+		...(config.getPortalRoot === undefined ? {} : {getPortalRoot: config.getPortalRoot}),
+		...(config.portal === undefined ? {} : {portal: config.portal}),
+		...(config.matchAnchorWidth === undefined ? {} : {matchAnchorWidth: config.matchAnchorWidth}),
+		beforeClose: (reason) => {
+			if (config.beforeClose?.(reason) !== false) return true
+			config.onOpenChange?.(true)
+			return false
+		},
 		getLayer: config.getPanel,
 		...(config.placement ? {placement: config.placement} : {}),
 		...(config.align ? {align: config.align} : {}),

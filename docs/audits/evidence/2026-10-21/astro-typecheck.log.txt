@@ -1,0 +1,10 @@
+$ astro check
+14:49:40 [WARN] Missing pages directory: src/pages
+14:49:40 [vite] Re-optimizing dependencies because lockfile has changed
+14:49:40 [types] Generated 95ms
+14:49:40 [check] Getting diagnostics for Astro files in /Users/italiour/Sites/Ooops Studio/ooops-ui/packages/ui-astro...
+Result (28 files): 
+- 0 errors
+- 0 warnings
+- 0 hints
+

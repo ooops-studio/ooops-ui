@@ -1,5 +1,6 @@
 import {spawn} from 'node:child_process'
-import {mkdtemp, readFile, readdir, rm, writeFile} from 'node:fs/promises'
+import {mkdtemp, readFile, readdir, realpath, rm, writeFile} from 'node:fs/promises'
+import {createRequire} from 'node:module'
 import os from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
@@ -28,7 +29,7 @@ const rootLocalDirs = Object.values(workspaceOverrides)
 	.map((value) => path.resolve(repoRoot, value.slice('file:'.length)))
 const localOverrideDirs = [...new Set([...rootLocalDirs, ...packageLocalDirs])]
 
-const tempRoot = await mkdtemp(path.join(os.tmpdir(), 'packages-monorepo-template-pack-'))
+const tempRoot = await realpath(await mkdtemp(path.join(os.tmpdir(), 'packages-monorepo-template-pack-')))
 
 try {
 	const tarballDir = path.join(tempRoot, 'tarballs')
@@ -169,7 +170,7 @@ import Slider from '@ooopsstudio/ui-astro/Slider.astro'
 <Select id="packed-select" label="Packed select" options={[{value: 'a', label: 'Alpha'}]} />
 <Slider id="packed-slider" label="Packed slider" value={20} />
 `)
-	await run('pnpm', ['exec', 'astro', 'build'], {cwd: appDir})
+	await run('pnpm', ['exec', 'astro', 'build', '--root', appDir], {cwd: consumerDir})
 	const html = await readFile(path.join(appDir, 'dist/index.html'), 'utf8')
 	assert(html.includes('Packed checkbox'), 'Packed Astro consumer did not render Checkbox.')
 	assert(html.includes('data-ooops-slider-root'), 'Packed Astro consumer did not render Slider.')
@@ -201,7 +202,7 @@ mount(App, {target: document.querySelector('#app')})
 <Select id="packed-select" label="Packed select" options={[{value: 'a', label: 'Alpha'}]} />
 <Slider id="packed-slider" label="Packed slider" value={20} />
 `)
-	await run('pnpm', ['exec', 'vite', 'build'], {cwd: appDir})
+	await run('pnpm', ['exec', 'vite', 'build', appDir], {cwd: consumerDir})
 	const files = await readdir(path.join(appDir, 'dist/assets'))
 	assert(files.some((entry) => entry.endsWith('.js')), 'Packed Svelte consumer emitted no JavaScript.')
 }
@@ -209,7 +210,9 @@ mount(App, {target: document.querySelector('#app')})
 function testedPeerVersion(packageInfo, name, fallbackRange) {
 	const testedVersion = packageInfo.manifest.devDependencies?.[name]
 	if (typeof testedVersion !== 'string' || /^(?:file|link|workspace):/u.test(testedVersion)) return fallbackRange
-	return testedVersion
+	// Exercise the locked toolchain, rather than resolving a newer semver match at each run.
+	const require = createRequire(path.join(packageInfo.dir, 'package.json'))
+	return require(`${name}/package.json`).version
 }
 
 async function writeConsumerChecks(consumerDir, pkgInfo, exportEntries) {

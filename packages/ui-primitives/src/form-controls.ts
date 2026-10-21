@@ -170,11 +170,15 @@ export const createCheckboxController = (options: CheckboxControllerOptions) => 
 		mount() {
 			const input = options.getInput()
 			if (!input || store.getState().mounted) return
+			// Preserve native edits made before the adapter hydrates.
+			const preMountEdit = input.checked !== input.defaultChecked
+			if (preMountEdit) store.setState({checked: input.checked, indeterminate: false})
 			form = input.form
 			input.addEventListener('change', onChange)
 			form?.addEventListener('reset', onReset)
 			store.setState({mounted: true})
 			sync()
+			if (preMountEdit) options.onChange?.({checked: input.checked, indeterminate: false})
 		},
 		setChecked,
 		setIndeterminate(indeterminate: boolean) {
@@ -213,8 +217,11 @@ export type ChoiceControllerOptions<Value extends string = string> = {
 }
 
 const createChoiceController = <Value extends string>(options: ChoiceControllerOptions<Value>) => {
+	let disabled = options.disabled ?? false
 	let values: ReadonlyArray<ChoiceOption<Value>> = snapshotSelectOptions(options.options)
 	const initial = options.value ?? options.defaultValue ?? ''
+	let form: HTMLFormElement | null = null
+	let resetTimer: ReturnType<typeof setTimeout> | undefined
 	const store = createControllerStore({value: initial as Value | '', mounted: false})
 	const setValue = (value: Value | '', emit = false) => {
 		if (value && !values.some((entry) => entry.value === value && !entry.disabled)) return
@@ -223,6 +230,7 @@ const createChoiceController = <Value extends string>(options: ChoiceControllerO
 			const selected = input.value === value
 			if (input instanceof HTMLInputElement) input.checked = selected
 			input.setAttribute('aria-checked', String(selected))
+			input.closest('[data-part="option"]')?.setAttribute('data-selected', String(selected))
 			input.tabIndex =
 				selected || (!value && input === options.getInputs().find((entry) => !entry.disabled))
 					? 0
@@ -243,7 +251,10 @@ const createChoiceController = <Value extends string>(options: ChoiceControllerO
 		const control = (event.target as Element | null)?.closest<HTMLInputElement | HTMLButtonElement>(
 			'input, button'
 		)
-		return control && options.getInputs().includes(control) ? control : null
+		return !disabled &&
+			control &&
+			!control.disabled &&
+			options.getInputs().includes(control) ? control : null
 	}
 	const onChange = (event: Event) => {
 		const control = eventControl(event)
@@ -273,6 +284,16 @@ const createChoiceController = <Value extends string>(options: ChoiceControllerO
 			}
 		}
 	}
+	const onReset = (event: Event) => {
+		if (resetTimer !== undefined) clearTimeout(resetTimer)
+		// Wait for the native reset default action and framework reset handlers.
+		resetTimer = setTimeout(() => {
+			resetTimer = undefined
+			if (event.defaultPrevented) return
+			const value = options.defaultValue ?? initial
+			setValue(values.some((entry) => entry.value === value && !entry.disabled) ? value : '')
+		})
+	}
 	return {
 		getState: store.getState,
 		subscribe: store.subscribe,
@@ -283,9 +304,13 @@ const createChoiceController = <Value extends string>(options: ChoiceControllerO
 			root.addEventListener('change', onChange)
 			root.addEventListener('click', onClick)
 			root.addEventListener('keydown', onKey)
+			const first = options.getInputs()[0]
+			form = first instanceof HTMLInputElement ? first.form : root.closest('form')
+			form?.addEventListener('reset', onReset)
 			store.setState({mounted: true})
 			setValue(initial)
 		},
+		setDisabled(next: boolean) { disabled = next },
 		setValue,
 		setOptions(next: ReadonlyArray<ChoiceOption<Value>>) {
 			values = snapshotSelectOptions(next)
@@ -299,6 +324,9 @@ const createChoiceController = <Value extends string>(options: ChoiceControllerO
 			root?.removeEventListener('change', onChange)
 			root?.removeEventListener('click', onClick)
 			root?.removeEventListener('keydown', onKey)
+			form?.removeEventListener('reset', onReset)
+			if (resetTimer !== undefined) clearTimeout(resetTimer)
+			resetTimer = undefined
 			store.setState({mounted: false})
 			store.clear()
 		}

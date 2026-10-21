@@ -1,0 +1,188 @@
+
+ RUN  v3.2.7 /Users/italiour/Sites/Ooops Studio/ooops-ui/packages/ui-svelte
+
+ ❯ src/lib/audit-probe.test.ts (10 tests | 9 failed) 108ms
+   × audit desired-behavior probes > Input: emits returning to initial value after a parent update 22ms
+     → expected last "spy" call to have been called with [ 'A' ]
+   × audit desired-behavior probes > Textarea: emits returning to initial value after a parent update 5ms
+     → expected last "spy" call to have been called with [ 'A' ]
+   × audit desired-behavior probes > MultiSelect: disabled values are excluded from native form submission 31ms
+     → expected [ 'a' ] to deeply equal []
+   × audit desired-behavior probes > SegmentedControl: disabled values are excluded from native form submission 4ms
+     → expected 'a' to be null
+   × audit desired-behavior probes > Combobox: disabled values are excluded from native form submission 5ms
+     → expected 'a' to be null
+   × audit desired-behavior probes > Slider: disabled values are excluded from native form submission 3ms
+     → expected '20' to be null
+   × audit desired-behavior probes > Input: readonly cannot be changed with its clear button 3ms
+     → expected '' to be 'Locked' // Object.is equality
+   × audit desired-behavior probes > RadioGroup: form reset restores rendered selection and subsequent events 22ms
+     → expected 'b' to be 'a' // Object.is equality
+   × audit desired-behavior probes > Accordion: reacts to single-to-multiple mode changes 8ms
+     → expected <button type="button" …(7)>…(1)</button> to have a length of 2 but got 1
+   ✓ audit desired-behavior probes > Accordion: dynamically added items respond to interaction 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 9 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/lib/audit-probe.test.ts > audit desired-behavior probes > Input: emits returning to initial value after a parent update
+ FAIL  src/lib/audit-probe.test.ts > audit desired-behavior probes > Textarea: emits returning to initial value after a parent update
+AssertionError: expected last "spy" call to have been called with [ 'A' ]
+
+- Expected: 
+[
+  "A",
+]
+
++ Received: 
+undefined
+
+ ❯ src/lib/audit-probe.test.ts:19:20
+     17|    const control=view.container.querySelector(selector)!
+     18|    await fireEvent.input(control,{target:{value:'A'}})
+     19|    expect(changed).toHaveBeenLastCalledWith('A')
+       |                    ^
+     20|   })
+     21|  }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/9]⎯
+
+ FAIL  src/lib/audit-probe.test.ts > audit desired-behavior probes > MultiSelect: disabled values are excluded from native form submission
+AssertionError: expected [ 'a' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "a",
++ ]
+
+ ❯ src/lib/audit-probe.test.ts:25:47
+     23|   const view=render(MultiSelect,{props:{name:'tags',label:'Tags',value…
+     24|   const form=document.createElement('form'); form.appendChild(view.con…
+     25|   expect(new FormData(form).getAll('tags[]')).toEqual([])
+       |                                               ^
+     26|  })
+     27|  it('SegmentedControl: disabled values are excluded from native form s…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/9]⎯
+
+ FAIL  src/lib/audit-probe.test.ts > audit desired-behavior probes > SegmentedControl: disabled values are excluded from native form submission
+AssertionError: expected 'a' to be null
+
+- Expected: 
+null
+
++ Received: 
+"a"
+
+ ❯ src/lib/audit-probe.test.ts:30:42
+     28|   const view=render(SegmentedControl,{props:{name:'view',label:'View',…
+     29|   const form=document.createElement('form'); form.appendChild(view.con…
+     30|   expect(new FormData(form).get('view')).toBeNull()
+       |                                          ^
+     31|  })
+     32|  it('Combobox: disabled values are excluded from native form submissio…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/9]⎯
+
+ FAIL  src/lib/audit-probe.test.ts > audit desired-behavior probes > Combobox: disabled values are excluded from native form submission
+AssertionError: expected 'a' to be null
+
+- Expected: 
+null
+
++ Received: 
+"a"
+
+ ❯ src/lib/audit-probe.test.ts:35:45
+     33|   const view=render(Combobox,{props:{name:'country',label:'Country',va…
+     34|   const form=document.createElement('form'); form.appendChild(view.con…
+     35|   expect(new FormData(form).get('country')).toBeNull()
+       |                                             ^
+     36|  })
+     37|  it('Slider: disabled values are excluded from native form submission'…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/9]⎯
+
+ FAIL  src/lib/audit-probe.test.ts > audit desired-behavior probes > Slider: disabled values are excluded from native form submission
+AssertionError: expected '20' to be null
+
+- Expected: 
+null
+
++ Received: 
+"20"
+
+ ❯ src/lib/audit-probe.test.ts:40:44
+     38|   const view=render(Slider,{props:{name:'volume',label:'Volume',value:…
+     39|   const form=document.createElement('form'); form.appendChild(view.con…
+     40|   expect(new FormData(form).get('volume')).toBeNull()
+       |                                            ^
+     41|  })
+     42|  it('Input: readonly cannot be changed with its clear button',async()=…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/9]⎯
+
+ FAIL  src/lib/audit-probe.test.ts > audit desired-behavior probes > Input: readonly cannot be changed with its clear button
+AssertionError: expected '' to be 'Locked' // Object.is equality
+
+- Expected
++ Received
+
+- Locked
+
+ ❯ src/lib/audit-probe.test.ts:45:56
+     43|   const view=render(Input,{props:{value:'Locked',label:'Text',readonly…
+     44|   await fireEvent.click(view.container.querySelector('[data-part="clea…
+     45|   expect(view.container.querySelector('input')?.value).toBe('Locked')
+       |                                                        ^
+     46|  })
+     47|  it('RadioGroup: form reset restores rendered selection and subsequent…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/9]⎯
+
+ FAIL  src/lib/audit-probe.test.ts > audit desired-behavior probes > RadioGroup: form reset restores rendered selection and subsequent events
+AssertionError: expected 'b' to be 'a' // Object.is equality
+
+Expected: "a"
+Received: "b"
+
+ ❯ src/lib/audit-probe.test.ts:56:100
+     54|   form.reset()
+     55|   await new Promise(resolve=>requestAnimationFrame(resolve))
+     56|   expect(view.container.querySelector('label[data-selected="true"] inp…
+       |                                                                                                    ^
+     57|  })
+     58|  it('Accordion: reacts to single-to-multiple mode changes',async()=>{
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/9]⎯
+
+ FAIL  src/lib/audit-probe.test.ts > audit desired-behavior probes > Accordion: reacts to single-to-multiple mode changes
+AssertionError: expected <button type="button" …(7)>…(1)</button> to have a length of 2 but got 1
+
+- Expected
++ Received
+
+- 2
++ 1
+
+ ❯ src/lib/audit-probe.test.ts:63:93
+     61|   await fireEvent.click(view.container.querySelector('[data-accordion-…
+     62|   await fireEvent.click(view.container.querySelector('[data-accordion-…
+     63|   expect(view.container.querySelectorAll('[data-accordion-trigger][ari…
+       |                                                                                             ^
+     64|  })
+     65|  it('Accordion: dynamically added items respond to interaction',async(…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/9]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  9 failed | 1 passed (10)
+   Start at  14:49:26
+   Duration  2.07s (transform 488ms, setup 0ms, collect 784ms, tests 108ms, environment 764ms, prepare 102ms)
+
+undefined
+/Users/italiour/Sites/Ooops Studio/ooops-ui/packages/ui-svelte:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/lib/audit-probe.test.ts

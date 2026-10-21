@@ -29,6 +29,7 @@ const renderOptions = (
 			element.id = `${listbox.id}-option-${index}`
 			element.role = 'option'
 			element.dataset.part = 'option'
+			element.dataset.ooopsUi = ''
 			element.dataset.optionIndex = String(index)
 			element.dataset.disabled = String(option.disabled === true)
 			element.setAttribute('aria-disabled', String(option.disabled === true))
@@ -110,10 +111,13 @@ const mountMultiSelect = (root: HTMLElement) => {
 				...values.map((value) => {
 					const chip = document.createElement('span')
 					chip.dataset.part = 'chip'
+					chip.dataset.ooopsUi = ''
 					chip.dataset.value = value
 					chip.append(config.options.find((entry) => entry.value === value)?.label ?? value)
 					const remove = document.createElement('button')
 					remove.type = 'button'
+					remove.disabled = input.disabled
+					remove.dataset.ooopsUi = ''
 					remove.dataset.part = 'chip-remove'
 					remove.dataset.removeValue = value
 					const label = config.options.find((entry) => entry.value === value)?.label ?? value
@@ -128,6 +132,7 @@ const mountMultiSelect = (root: HTMLElement) => {
 		for (const value of values) {
 			const hidden = document.createElement('input')
 			hidden.type = 'hidden'
+			hidden.disabled = input.disabled
 			hidden.name = config.name ?? config.id
 			hidden.value = value
 			hidden.dataset.generatedInput = 'true'

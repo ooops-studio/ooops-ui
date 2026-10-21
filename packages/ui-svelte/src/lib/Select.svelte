@@ -8,6 +8,9 @@
 		id?: string
 		name?: string
 		label?: string
+		ariaLabel?: string
+		ariaLabelledby?: string
+		ariaDescribedby?: string
 		description?: string
 		error?: string
 		value?: string
@@ -28,7 +31,7 @@
 	let {
 		id = generatedId,
 		name,
-		label,
+		label, ariaLabel, ariaLabelledby, ariaDescribedby,
 		description,
 		error,
 		value = $bindable(''),
@@ -98,9 +101,9 @@
 	onDestroy(() => controller?.destroy())
 </script>
 
-<div bind:this={root} class={`ooops-select ${className}`.trim()} data-part="root" data-state={state.open ? 'open' : 'closed'}>
-	{#if label}<label id={labelId} for={`${id}-trigger`} data-part="label">{label}</label>{/if}
-	{#if description}<span id={descriptionId} data-part="description">{description}</span>{/if}
+<div bind:this={root} class={`ooops-select ${className}`.trim()} data-ooops-ui data-part="root" data-state={state.open ? 'open' : 'closed'}>
+	{#if label}<label id={labelId} for={`${id}-trigger`} data-ooops-ui data-part="label">{label}</label>{/if}
+	{#if description}<span id={descriptionId} data-ooops-ui data-part="description">{description}</span>{/if}
 	<button
 		bind:this={triggerElement}
 		id={`${id}-trigger`}
@@ -109,8 +112,8 @@
 		aria-haspopup="listbox"
 		aria-controls={listboxId}
 		aria-expanded={state.open}
-		aria-labelledby={labelId}
-		aria-describedby={[descriptionId, errorId].filter(Boolean).join(' ') || undefined}
+		aria-label={ariaLabel} aria-labelledby={ariaLabelledby ?? labelId}
+		aria-describedby={[ariaDescribedby, descriptionId, errorId].filter(Boolean).join(' ') || undefined}
 		aria-invalid={error ? 'true' : undefined}
 		{disabled}
 		data-part="trigger"
@@ -118,15 +121,15 @@
 		{#if trigger}
 			{@render trigger(selectedOption)}
 		{:else}
-			<span data-part="value">{selectedOption?.label ?? resolvedPlaceholder}</span>
+			<span data-ooops-ui data-part="value">{selectedOption?.label ?? resolvedPlaceholder}</span>
 		{/if}
-		<span data-part="indicator" aria-hidden="true"></span>
+		<span data-ooops-ui data-part="indicator" aria-hidden="true"></span>
 	</button>
-	<select bind:this={nativeSelect} bind:value {name} {required} {disabled} tabindex="-1" aria-hidden="true" data-part="native-select">
+	<select bind:this={nativeSelect} bind:value {name} {required} {disabled} tabindex="-1" aria-hidden="true" data-ooops-ui data-part="native-select">
 		{#if allowEmpty}<option value="">{resolvedPlaceholder}</option>{/if}
 		{#each options as entry}<option value={entry.value} disabled={entry.disabled}>{entry.label}</option>{/each}
 	</select>
-	{#if error}<span id={errorId} data-part="error">{error}</span>{/if}
+	{#if error}<span id={errorId} data-ooops-ui data-part="error">{error}</span>{/if}
 </div>
 
 <div
@@ -134,14 +137,14 @@
 	bind:this={listbox}
 	id={listboxId}
 	role="listbox"
-	aria-labelledby={labelId}
+	aria-label={ariaLabel} aria-labelledby={ariaLabelledby ?? labelId}
 	class="ooops-select-listbox"
 	data-part="listbox"
 	hidden={!state.open}
 >
 	{#each options as entry, index (entry.value)}
 		{#if index === 0 || entry.group !== options[index - 1]?.group}
-			{#if entry.group}<div role="presentation" data-part="group-label">{entry.group}</div>{/if}
+			{#if entry.group}<div role="presentation" data-ooops-ui data-part="group-label">{entry.group}</div>{/if}
 		{/if}
 		<div
 			id={`${id}-option-${index}`}
@@ -157,9 +160,9 @@
 			{#if option}
 				{@render option(entry, {selected: entry.value === value, active: state.activeIndex === index})}
 			{:else}
-				{#if entry.icon}<span data-part="option-icon" aria-hidden="true">{entry.icon}</span>{/if}
-				{#if entry.iconUrl}<img data-part="option-image" src={entry.iconUrl} alt="" loading="lazy" />{/if}
-				<span data-part="option-copy"><span>{entry.label}</span>{#if entry.description}<small>{entry.description}</small>{/if}</span>
+				{#if entry.icon}<span data-ooops-ui data-part="option-icon" aria-hidden="true">{entry.icon}</span>{/if}
+				{#if entry.iconUrl}<img data-ooops-ui data-part="option-image" src={entry.iconUrl} alt="" loading="lazy" />{/if}
+				<span data-ooops-ui data-part="option-copy"><span>{entry.label}</span>{#if entry.description}<small>{entry.description}</small>{/if}</span>
 			{/if}
 		</div>
 	{/each}

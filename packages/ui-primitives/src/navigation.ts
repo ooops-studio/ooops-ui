@@ -155,8 +155,10 @@ export type AccordionControllerOptions = {
 }
 
 export const createAccordionController = (options: AccordionControllerOptions) => {
+	let type = options.type ?? 'single'
+	let collapsible = options.collapsible ?? true
 	const normalize = (ids: ReadonlyArray<string>) =>
-		Object.freeze((options.type ?? 'single') === 'single' ? ids.slice(0, 1) : [...new Set(ids)])
+		Object.freeze(type === 'single' ? ids.slice(0, 1) : [...new Set(ids)])
 	const initial = normalize(options.openIds ?? options.defaultOpenIds ?? [])
 	const store = createControllerStore<AccordionState>({openIds: initial, mounted: false})
 	const idOf = (trigger: HTMLElement) => trigger.dataset.value ?? trigger.id
@@ -182,12 +184,12 @@ export const createAccordionController = (options: AccordionControllerOptions) =
 	const toggle = (id: string) => {
 		const current = store.getState().openIds
 		if (current.includes(id)) {
-			if (options.collapsible === false && (options.type ?? 'single') === 'single') return
+			if (!collapsible && type === 'single') return
 			setOpenIds(
 				current.filter((entry) => entry !== id),
 				true
 			)
-		} else setOpenIds((options.type ?? 'single') === 'single' ? [id] : [...current, id], true)
+		} else setOpenIds(type === 'single' ? [id] : [...current, id], true)
 	}
 	const enabled = () =>
 		options
@@ -238,6 +240,13 @@ export const createAccordionController = (options: AccordionControllerOptions) =
 		},
 		toggle,
 		setOpenIds,
+		configure(next: Pick<AccordionControllerOptions, 'type' | 'collapsible'>) {
+			type = next.type ?? 'single'
+			collapsible = next.collapsible ?? true
+			const previous = store.getState().openIds
+			const normalized = normalize(previous)
+			setOpenIds(normalized, normalized.length !== previous.length)
+		},
 		destroy() {
 			const root = options.getTriggers()[0]?.closest<HTMLElement>('[data-accordion-root]')
 			root?.removeEventListener('click', onClick)

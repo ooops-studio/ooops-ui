@@ -9,5 +9,5 @@
 	onMount(() => { const controller = createTooltipController({getTrigger: () => trigger, getTooltip: () => tooltip, openDelayMs, closeDelayMs, touch, portal: usePortal}); const unsubscribe = controller.subscribe((next) => { open = next.open }); controller.mount(); return () => { unsubscribe(); controller.destroy() } })
 </script>
 
-<span bind:this={trigger} class={`ooops-tooltip-trigger ${className}`.trim()} data-part="trigger">{@render children()}</span>
-<div use:portal={usePortal} bind:this={tooltip} {id} role="tooltip" hidden={!open} data-part="content" data-state={open ? 'open' : 'closed'}>{content}<span aria-hidden="true" data-part="arrow"></span></div>
+<span bind:this={trigger} class={`ooops-tooltip-trigger ${className}`.trim()} data-ooops-ui data-part="trigger">{@render children()}</span>
+<div use:portal={usePortal} bind:this={tooltip} {id} role="tooltip" hidden={!open} data-ooops-ui data-part="content" data-state={open ? 'open' : 'closed'}>{content}<span aria-hidden="true" data-ooops-ui data-part="arrow"></span></div>

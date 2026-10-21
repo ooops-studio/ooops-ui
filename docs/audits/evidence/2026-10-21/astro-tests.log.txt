@@ -1,0 +1,25 @@
+$ pnpm --filter @ooopsstudio/ui-primitives build && vitest run
+$ tsup
+CLI Building entry: {"index":"src/index.ts"}
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+CLI Using tsup config: /Users/italiour/Sites/Ooops Studio/ooops-ui/packages/ui-primitives/tsup.config.ts
+CLI Target: node22
+CLI Cleaning output folder
+ESM Build start
+ESM dist/index.js     93.42 KB
+ESM dist/index.js.map 223.66 KB
+ESM ⚡️ Build success in 214ms
+DTS Build start
+DTS ⚡️ Build success in 1342ms
+DTS dist/index.d.ts 26.74 KB
+
+ RUN  v3.2.7 /Users/italiour/Sites/Ooops Studio/ooops-ui/packages/ui-astro
+
+ ✓ src/index.test.ts (3 tests) 116ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  14:48:12
+   Duration  1.03s (transform 142ms, setup 0ms, collect 221ms, tests 116ms, environment 435ms, prepare 51ms)
+

@@ -14,6 +14,8 @@ export type DropdownMenuItem = {
 }
 
 export type TabItem = {
+	panelId?: string
+	badge?: string | number
 	id: string
 	label: string
 	content?: string

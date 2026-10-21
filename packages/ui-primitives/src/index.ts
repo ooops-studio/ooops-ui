@@ -95,3 +95,7 @@ export type {
 	TabsMode,
 	TabsState
 } from './navigation'
+
+export {getFieldControlAttributes, type FieldAttributesOptions} from './field-attributes'
+
+export {connectOverlayTrigger} from './overlay-trigger'

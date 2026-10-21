@@ -1,5 +1,17 @@
 # @ooopsstudio/ui-primitives
 
+## 0.4.0
+
+### Minor Changes
+
+- Complete consumer contracts before Workspace adoption: guard disabled MultiSelect actions, forward native text-control attributes/events and refs, expose external accessible naming and Field attributes, scope optional structural CSS to owned elements, align numeric/action defaults, support recursive menus and external Tabs panels, and expose external layer anchors, custom portals, focus targets and guarded dialog dismissal. Lock concurrent async confirmations and report failures without closing. Add controller, adapter and cross-browser regressions.
+
+  Astro NumberInput now defaults clampOnBlur to false, matching Svelte; pass clampOnBlur explicitly to retain prior clamping. See the consumer contracts document for mount-time options and migration guidance.
+
+### Patch Changes
+
+- Fix control state consistency before migrating project-local UI: emit text edits once after parent updates, project checked defaults during SSR and preserve pre-hydration native edits, omit disabled hidden values from form submissions, prevent readonly clears, synchronize choice resets, and support reactive accordion configuration. Add controller, adapter, SSR/no-JavaScript and cross-browser regression coverage.
+
 ## 0.3.0
 
 ### Minor Changes

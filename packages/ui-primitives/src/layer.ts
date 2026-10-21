@@ -30,6 +30,7 @@ export type LayerControllerOptions = {
 	closeOnOutsideFocus?: boolean
 	isTargetInside?: (target: EventTarget | null) => boolean
 	onPosition?: (position: LayerPosition) => void
+	beforeClose?: (reason: LayerCloseReason) => boolean | void
 	onClose?: (reason: LayerCloseReason) => void
 }
 
@@ -191,8 +192,8 @@ export const createLayerController = (options: LayerControllerOptions): LayerCon
 		layer.dataset.placement = position.placement
 		options.onPosition?.(position)
 	}
-	const close = (reason: LayerCloseReason = 'close') => {
-		if (!opened) return
+	const close = (reason: LayerCloseReason = 'close', force = false) => {
+		if (!opened || (!force && options.beforeClose?.(reason) === false)) return
 		opened = false
 		const currentDocument = document()
 		if (currentDocument) {
@@ -262,7 +263,7 @@ export const createLayerController = (options: LayerControllerOptions): LayerCon
 		}
 	}
 	const destroy = () => {
-		close()
+		close('close', true)
 		if (!mounted) return
 		const currentDocument = document()
 		const view = currentDocument?.defaultView

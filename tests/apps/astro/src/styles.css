@@ -16,7 +16,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
 [data-active="true"], [data-selected="true"] { background: #dbeafe; }
 dialog { color: #111; background: #fff; border: 2px solid #222; max-width: 32rem; }
 dialog::backdrop { background: rgb(0 0 0 / .35); }
-[data-part="track"] { position: relative; display: block; width: 14rem; height: 1.25rem; background: #ddd; }
+[data-ooops-ui][data-part="track"] { position: relative; display: block; width: 14rem; height: 1.25rem; background: #ddd; }
 [data-part="thumb"] { min-height: 1.5rem; min-width: 1.5rem; }
 [data-part="chips"] { display: flex; gap: .25rem; }
 [data-part="error"] { color: #8a0014; }

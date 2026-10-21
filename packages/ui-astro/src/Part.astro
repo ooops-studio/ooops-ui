@@ -13,4 +13,4 @@ type Props = {
 const {part, as: tag = 'div', state, orientation, disabled, selected, active, class: className, ...attributes}: Props = Astro.props;
 const Tag = tag;
 ---
-<Tag {...attributes} class={className} data-part={part} data-state={state} data-orientation={orientation} data-disabled={disabled === undefined ? undefined : String(disabled)} data-selected={selected === undefined ? undefined : String(selected)} data-active={active === undefined ? undefined : String(active)}><slot /></Tag>
+<Tag {...attributes} class={className} data-ooops-ui data-part={part} data-state={state} data-orientation={orientation} data-disabled={disabled === undefined ? undefined : String(disabled)} data-selected={selected === undefined ? undefined : String(selected)} data-active={active === undefined ? undefined : String(active)}><slot /></Tag>

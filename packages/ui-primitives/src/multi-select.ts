@@ -100,6 +100,7 @@ export const createMultiSelectController = <Value extends string = string, Metad
 		if (shouldEmit) emit(allowed)
 	}
 	const toggleValue = (value: Value) => {
+		if (disabled) return
 		const state = store.getState()
 		const entry = source.find((option) => option.value === value)
 		if (!entry || entry.disabled) return
@@ -145,6 +146,7 @@ export const createMultiSelectController = <Value extends string = string, Metad
 	const onInput = (event: Event) => setQuery((event.currentTarget as HTMLInputElement).value)
 	const onFocus = () => open()
 	const onKey = (event: KeyboardEvent) => {
+		if (disabled) return
 		if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
 			event.preventDefault()
 			open()
@@ -208,12 +210,14 @@ export const createMultiSelectController = <Value extends string = string, Metad
 		setValues,
 		toggleValue,
 		selectAll() {
+			if (disabled) return
 			setValues(
 				source.filter((entry) => !entry.disabled).map((entry) => entry.value),
 				true
 			)
 		},
 		clear() {
+			if (disabled) return
 			setValues([], true)
 		},
 		setOptions(entries: ReadonlyArray<SelectOption<Value, Metadata>>) {

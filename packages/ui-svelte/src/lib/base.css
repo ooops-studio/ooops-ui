@@ -3,23 +3,23 @@
 	color: inherit;
 }
 
-:where(button, input, textarea, select)[data-part] {
+:where(button, input, textarea, select)[data-ooops-ui][data-part] {
 	font: inherit;
 	color: inherit;
 }
 
-:where(button, input, textarea, select)[data-part]:focus-visible,
-:where([role='option'], [role^='menuitem'], [role='tab'], [role='slider'])[data-part]:focus-visible {
+:where(button, input, textarea, select)[data-ooops-ui][data-part]:focus-visible,
+:where([role='option'], [role^='menuitem'], [role='tab'], [role='slider'])[data-ooops-ui][data-part]:focus-visible {
 	outline: 2px solid currentColor;
 	outline-offset: 2px;
 }
 
-[hidden] {
+[data-ooops-ui][hidden] {
 	display: none !important;
 }
 
-[data-part='native-select'],
-[data-part='native-input'],
+[data-ooops-ui][data-part='native-select'],
+[data-ooops-ui][data-part='native-input'],
 .ooops-checkbox [data-part='control'],
 .ooops-switch [data-part='control'] {
 	position: absolute;
@@ -33,26 +33,26 @@
 	border: 0;
 }
 
-:where(.ooops-select-listbox, .ooops-popover-panel, [data-part='listbox'], [data-part='content'], [data-part='submenu-content']) {
+:where(.ooops-select-listbox, .ooops-popover-panel, [data-ooops-ui][data-part='listbox'], [data-ooops-ui][data-part='content'], [data-ooops-ui][data-part='submenu-content']) {
 	position: fixed;
 	z-index: var(--ooops-ui-layer-z, 1000);
 	overflow: auto;
 }
 
-:where(dialog[data-part='dialog']) {
+:where(dialog[data-ooops-ui][data-part='dialog']) {
 	padding: 0;
 }
 
-[data-part='root'][data-orientation='vertical'] {
+[data-ooops-ui][data-part='root'][data-orientation='vertical'] {
 	touch-action: pan-x;
 }
 
-[data-part='root'][data-orientation='horizontal'] {
+[data-ooops-ui][data-part='root'][data-orientation='horizontal'] {
 	touch-action: pan-y;
 }
 
 @media (prefers-reduced-motion: reduce) {
-	:where([data-part]) {
+	:where([data-ooops-ui][data-part]) {
 		scroll-behavior: auto !important;
 	}
 }

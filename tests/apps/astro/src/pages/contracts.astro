@@ -1,0 +1,41 @@
+---
+import Input from '@ooopsstudio/ui-astro/Input.astro';
+import Textarea from '@ooopsstudio/ui-astro/Textarea.astro';
+import Field from '@ooopsstudio/ui-astro/Field.astro';
+import MultiSelect from '@ooopsstudio/ui-astro/MultiSelect.astro';
+import Popover from '@ooopsstudio/ui-astro/Popover.astro';
+import DropdownMenu from '@ooopsstudio/ui-astro/DropdownMenu.astro';
+import Modal from '@ooopsstudio/ui-astro/Modal.astro';
+import Tabs from '@ooopsstudio/ui-astro/Tabs.astro';
+import NumberInput from '@ooopsstudio/ui-astro/NumberInput.astro';
+import {getFieldControlAttributes} from '@ooopsstudio/ui-primitives';
+import Layout from '../layouts/Layout.astro';
+const control = getFieldControlAttributes({id:'email-field', description:'Description', error:'Invalid', required:true});
+const items = [{id:'parent',label:'Level one',children:[{id:'child',label:'Level two',children:[{id:'leaf',label:'Deep action'}]}]}];
+---
+<Layout title="Astro consumer contracts">
+<h1>Consumer contracts</h1><form id="native-form"></form><p id="outside-help">External help</p>
+<Field id="email-field" label="Contact email" description="Description" error="Invalid"><Input {...control} name="email" type="email" form="native-form" maxlength={30} inputmode="email" /></Field>
+<Textarea id="notes" ariaLabel="Private notes" aria-describedby="outside-help" minlength={2} maxlength={40} />
+<NumberInput id="amount" ariaLabel="Amount" value={20} min={0} max={10} />
+<MultiSelect id="tags" label="Protected tags" values={['a']} options={[{value:'a',label:'Alpha'}]} disabled showClear={false} showSelectAll={false} />
+<div id="foreign-content" data-part="content">Foreign content</div><div id="foreign-track" data-part="track">Foreign track</div>
+<div id="custom-portal"></div><button id="pop-anchor">External popover</button>
+<Popover id="external-pop" anchorId="pop-anchor" portalTargetId="custom-portal" matchAnchorWidth ariaLabel="Contract popover"><p>External popover content</p></Popover>
+<button id="allow-close">Allow close</button><button id="menu-anchor">External menu</button>
+<DropdownMenu id="external-menu" anchorId="menu-anchor" portalTargetId="custom-portal" {items} />
+<p id="selected">none</p><button id="modal-trigger" data-ooops-modal-open="guarded">Open guarded modal</button>
+<Modal id="guarded" title="Guarded modal" initialFocusId="modal-input" restoreFocusId="modal-trigger"><input id="modal-input" aria-label="Modal input" /><button id="allow-modal-close">Allow modal close</button></Modal>
+<Tabs id="external-tabs" renderPanels={false} items={[{id:'one',label:'First tab',panelId:'external-one',badge:2},{id:'two',label:'Second tab',panelId:'external-two'}]} />
+<section id="external-one" role="tabpanel" aria-labelledby="external-tabs-one-tab" data-value="one">First external panel</section><section id="external-two" role="tabpanel" aria-labelledby="external-tabs-two-tab" data-value="two">Second external panel</section>
+<script>
+ let allow = false;
+ document.querySelector('#allow-close')?.addEventListener('click', () => { allow = true });
+ document.querySelector('#allow-modal-close')?.addEventListener('click', () => { allow = true });
+ document.querySelector('[data-ooops-popover-root="external-pop"]')?.addEventListener('ooops:before-close', event => { if (!allow) event.preventDefault() });
+ document.querySelector('[data-ooops-modal-root="guarded"]')?.addEventListener('ooops:before-close', event => { if (!allow) event.preventDefault() });
+ document.querySelector('#modal-trigger')?.addEventListener('click', () => { allow = false });
+ document.querySelector('#external-menu-menu')?.addEventListener('ooops:menu-select', (event) => { const result = document.querySelector('#selected'); if (result) result.textContent = (event as CustomEvent).detail.value });
+ document.documentElement.dataset.contractReady = 'true';
+</script>
+</Layout>

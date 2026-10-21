@@ -1,5 +1,6 @@
 import {
 	UI_EVENTS,
+	connectOverlayTrigger,
 	createDialogController,
 	createPopoverController,
 	createSelectController,
@@ -110,6 +111,8 @@ const mountSelect = (root: HTMLElement) => {
 }
 
 type DialogConfig = {
+	initialFocusId?: string
+	restoreFocusId?: string
 	id: string
 	open: boolean
 	busy?: boolean
@@ -138,27 +141,44 @@ const mountDialog = (root: HTMLElement) => {
 		closeOnEscape: config.closeOnEscape,
 		getRoot: () => root,
 		getDialog: () => dialog,
-		getInitialFocus: () => initialFocus,
-		getRestoreFocusTo: () => triggers[0],
+		getInitialFocus: () => config.initialFocusId
+			? document.getElementById(config.initialFocusId)
+			: initialFocus,
+		getRestoreFocusTo: () => config.restoreFocusId
+			? document.getElementById(config.restoreFocusId)
+			: triggers[0],
+		beforeClose: (reason) => root.dispatchEvent(new CustomEvent('ooops:before-close', {bubbles: true, cancelable: true, detail: {reason}})),
 		...(config.type === 'modal' ? {eventNames: {close: UI_EVENTS.modalClose}} : {})
 	})
-	for (const trigger of triggers) {
-		trigger.addEventListener('click', controller.open)
+	const cleanup: Array<() => void> = []
+	const listen = (element: HTMLElement | undefined, action: () => void) => {
+		if (!element) return
+		element.addEventListener('click', action)
+		cleanup.push(() => element.removeEventListener('click', action))
 	}
-	Array.from(root.querySelectorAll<HTMLElement>('[data-dialog-cancel]'))
+	for (const trigger of triggers) listen(trigger, controller.open)
+	const cancel = Array.from(root.querySelectorAll<HTMLElement>('[data-dialog-cancel]'))
 		.find((element) => element.closest('[data-ooops-dialog-root]') === root)
-		?.addEventListener('click', () => controller.close('cancel'))
-	Array.from(root.querySelectorAll<HTMLElement>('[data-dialog-confirm]'))
+	listen(cancel, () => controller.close('cancel'))
+	const confirm = Array.from(root.querySelectorAll<HTMLElement>('[data-dialog-confirm]'))
 		.find((element) => element.closest('[data-ooops-dialog-root]') === root)
-		?.addEventListener('click', () => void controller.confirm())
-	Array.from(root.querySelectorAll<HTMLElement>('[data-modal-close]'))
+	listen(confirm, () => void controller.confirm())
+	const dismiss = Array.from(root.querySelectorAll<HTMLElement>('[data-modal-close]'))
 		.find((element) => element.closest('[data-ooops-modal-root]') === root)
-		?.addEventListener('click', () => controller.close('close'))
+	listen(dismiss, () => controller.close('close'))
 	controller.mount()
-	mounted.set(root, {destroy: () => controller.destroy(), portals: []})
+	mounted.set(root, {
+		destroy: () => { for (const remove of cleanup) remove(); controller.destroy() },
+		portals: []
+	})
 }
 
 type PopoverConfig = {
+	anchorId?: string
+	portalTargetId?: string
+	offset?: number
+	zIndex?: number
+	matchAnchorWidth?: boolean
 	id: string
 	open: boolean
 	portal: boolean
@@ -173,15 +193,23 @@ type PopoverConfig = {
 
 const mountPopover = (root: HTMLElement) => {
 	const config = readConfig<PopoverConfig>(root)
-	const anchor = root.querySelector<HTMLElement>('[data-part="trigger"]')
+	const anchor = config.anchorId
+		? document.getElementById(config.anchorId)
+		: root.querySelector<HTMLElement>('[data-part="trigger"]')
 	const panel = document.querySelector<HTMLElement>(
 		`[data-ooops-popover-panel="${escapeSelector(config.id)}"]`
 	)
 	if (!anchor || !panel) return
 	const portals: HTMLElement[] = []
-	ownPortal(panel, config.portal, portals)
+	if (config.portal &&
+			config.portalTargetId) {
+		document.getElementById(config.portalTargetId)?.appendChild(panel)
+		portals.push(panel)
+	}
+	else ownPortal(panel, config.portal, portals)
 	const controller: PopoverController = createPopoverController({
 		open: config.open,
+		portal: false,
 		placement: config.placement,
 		align: config.align,
 		closeOnOutsidePointer: config.closeOnOutside,
@@ -190,17 +218,23 @@ const mountPopover = (root: HTMLElement) => {
 		focusOnOpen: config.focusOnOpen,
 		trapFocus: config.trapFocus,
 		getRoot: () => root,
+		offset: config.offset ?? 8,
+		zIndex: config.zIndex ?? 1000,
+		matchAnchorWidth: config.matchAnchorWidth ?? false,
+		beforeClose: (reason) => root.dispatchEvent(new CustomEvent('ooops:before-close', {bubbles: true, cancelable: true, detail: {reason}})),
 		getAnchor: () => anchor,
 		getPanel: () => panel
 	})
+	const restoreTrigger = connectOverlayTrigger(anchor, `${config.id}-panel`, panel.getAttribute('role') ?? 'dialog')
 	anchor.addEventListener('click', controller.toggle)
-	for (const trigger of document.querySelectorAll<HTMLElement>(
+	const extraTriggers = document.querySelectorAll<HTMLElement>(
 		`[data-ooops-popover-open="${escapeSelector(config.id)}"]`
-	)) {
+	)
+	for (const trigger of extraTriggers) {
 		trigger.addEventListener('click', controller.toggle)
 	}
 	controller.mount()
-	mounted.set(root, {destroy: () => controller.destroy(), portals})
+	mounted.set(root, {destroy: () => { anchor.removeEventListener('click', controller.toggle); for (const trigger of extraTriggers) trigger.removeEventListener('click', controller.toggle); controller.destroy(); restoreTrigger() }, portals})
 }
 
 export const mountAstroUi = (scope: ParentNode = document) => {

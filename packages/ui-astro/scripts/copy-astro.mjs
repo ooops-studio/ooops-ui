@@ -7,7 +7,7 @@ for (const file of [
 	'Field.astro', 'Input.astro', 'Textarea.astro', 'Checkbox.astro', 'RadioGroup.astro',
 	'Switch.astro', 'Combobox.astro', 'MultiSelect.astro', 'DropdownMenu.astro', 'Tooltip.astro',
 	'Tabs.astro', 'Accordion.astro', 'Slider.astro', 'NumberInput.astro', 'SegmentedControl.astro',
-	'Part.astro',
+	'Part.astro', 'MenuItems.astro',
 	'base.css'
 ]) {
 	await copyFile(new URL(`../src/${file}`, import.meta.url), new URL(`../dist/${file}`, import.meta.url))

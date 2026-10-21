@@ -1,24 +1,33 @@
-import {createMenuController, createTooltipController} from '@ooopsstudio/ui-primitives'
+import {connectOverlayTrigger, createMenuController, createTooltipController} from '@ooopsstudio/ui-primitives'
 
 import {mountUiRoots, readUiConfig} from './shared'
 
-type MenuConfig = {id: string; open?: boolean; loop?: boolean; portal?: boolean}
+type MenuConfig = {id: string; anchorId?: string; portalTargetId?: string; offset?: number; zIndex?: number; matchAnchorWidth?: boolean; placement?: 'top' | 'bottom' | 'left' | 'right'; align?: 'start' | 'center' | 'end'; open?: boolean; loop?: boolean; portal?: boolean}
 const mountMenu = (root: HTMLElement) => {
 	const config = readUiConfig<MenuConfig>(root)
-	const trigger = root.querySelector<HTMLElement>('[data-part="trigger"]')
+	const trigger = config.anchorId
+		? document.getElementById(config.anchorId)
+		: root.querySelector<HTMLElement>(
+			'[data-part="trigger"]'
+		)
 	const menu = document.querySelector<HTMLElement>(
 		`[data-ooops-menu-content="${CSS.escape(config.id)}"]`
 	)
 	if (!trigger || !menu) return null
 	const controller = createMenuController({
 		...config,
+		getPortalRoot: () => config.portalTargetId
+			? document.getElementById(config.portalTargetId)
+			: null,
+		beforeClose: (reason) => root.dispatchEvent(new CustomEvent('ooops:before-close', {bubbles: true, cancelable: true, detail: {reason}})),
 		getTrigger: () => trigger,
 		getMenu: () => menu,
 		getItems: () => Array.from(menu.querySelectorAll('[role^="menuitem"]')),
 		getSubmenu: (item) => item.parentElement?.querySelector<HTMLElement>('[role="menu"]')
 	})
+	const restoreTrigger = connectOverlayTrigger(trigger, `${config.id}-menu`, 'menu')
 	controller.mount()
-	return {destroy: controller.destroy}
+	return {destroy: () => { controller.destroy(); restoreTrigger() }}
 }
 
 type TooltipConfig = {
