@@ -4,6 +4,7 @@ import {mkdtemp, mkdir, readFile, rm, writeFile} from 'node:fs/promises'
 import {createRequire} from 'node:module'
 import {tmpdir} from 'node:os'
 import path from 'node:path'
+import process from 'node:process'
 import {test} from 'node:test'
 import {fileURLToPath} from 'node:url'
 import {promisify} from 'node:util'
@@ -14,8 +15,8 @@ const require = createRequire(import.meta.url)
 const cli = path.join(path.dirname(require.resolve('@changesets/cli/package.json')), 'bin.js')
 const config = JSON.parse(await readFile(new URL('../.changeset/config.json', import.meta.url), 'utf8'))
 const readJson = async(file) => JSON.parse(await readFile(file, 'utf8'))
-const run = (command, args, cwd) => exec(command, args, {
-	cwd, timeout: 60_000, maxBuffer: 4 * 1024 * 1024
+const run = (command, args, cwd, env = process.env) => exec(command, args, {
+	cwd, env, timeout: 60_000, maxBuffer: 4 * 1024 * 1024
 })
 
 test('the installed workspace graph contains neither braces nor sprintf-js', async() => {
@@ -28,10 +29,10 @@ test('Changesets discovers pnpm packages, versions dependencies, renders GitHub 
 		const cwd = await mkdtemp(path.join(tmpdir(), 'ooops-ui-release-toolchain-'))
 		t.after(() => rm(cwd, {recursive: true, force: true}))
 		const json = (file, value) => writeFile(path.join(cwd, file), `${JSON.stringify(value, null, 2)}\n`)
-		const changeset = (...args) => run(process.execPath, [cli, ...args], cwd)
-		const git = (...args) => run('git', ['-c', 'core.hooksPath=/dev/null',
-			'-c', 'commit.gpgsign=false', '-c', 'user.name=Release test',
-			'-c', 'user.email=release-test@example.invalid', ...args], cwd)
+		// CLI-spawned git commands must work without a developer's global Git identity/config.
+		const env = {...process.env, GIT_CONFIG_GLOBAL: '/dev/null', GIT_CONFIG_NOSYSTEM: '1'}
+		const changeset = (...args) => run(process.execPath, [cli, ...args], cwd, env)
+		const git = (...args) => run('git', args, cwd, env)
 		await mkdir(path.join(cwd, '.changeset'))
 		await json('package.json', {name: 'release-fixture', private: true,
 			packageManager: JSON.parse(await readFile(new URL('../package.json', import.meta.url))).packageManager})
@@ -49,6 +50,11 @@ test('Changesets discovers pnpm packages, versions dependencies, renders GitHub 
 			await json(`${dir}/package.json`, pkg)
 		}
 		await git('init', '--initial-branch=main')
+		await git('config', '--local', 'user.name', 'Release test')
+		await git('config', '--local', 'user.email', 'release-test@example.invalid')
+		await git('config', '--local', 'core.hooksPath', '/dev/null')
+		await git('config', '--local', 'commit.gpgsign', 'false')
+		await git('config', '--local', 'tag.gpgsign', 'false')
 		await git('add', '.')
 		await git('commit', '-m', 'Initialize release fixture')
 		// Leave the changeset uncommitted so the real GitHub plugin needs no network/token.
