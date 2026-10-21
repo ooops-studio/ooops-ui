@@ -1,0 +1,11 @@
+---
+import {getUiPart} from '@ooopsstudio/ui-primitives';
+import Button, {type Props as ButtonProps} from './Button.astro';
+type Props = Omit<ButtonProps, 'ariaLabel' | 'aria-label'> & {label: string};
+const {parts, label, ...props} = Astro.props;
+if (!label?.trim()) throw new Error('IconButton requires a nonempty accessible label');
+---
+<Button {...props} {parts} aria-label={label.trim()} data-icon-only="true">
+  <span aria-hidden="true" data-ooops-ui {...getUiPart(parts, 'icon')} data-part="icon"><slot /></span>
+  {Astro.slots.has('loading') ? <Fragment slot="loading"><slot name="loading" /></Fragment> : null}
+</Button>

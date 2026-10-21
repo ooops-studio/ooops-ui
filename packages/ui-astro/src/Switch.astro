@@ -1,11 +1,12 @@
 ---
+import {getUiPart} from '@ooopsstudio/ui-primitives';
 import {serializeUiConfig} from './index';
-type Props = {id: string; ariaLabelledby?: string; ariaDescribedby?: string; ariaLabel?: string; name?: string; label?: string; description?: string; checked?: boolean; defaultChecked?: boolean; disabled?: boolean; required?: boolean; class?: string};
-const {id, ariaLabelledby, ariaDescribedby, ariaLabel,  name = id, label, description, checked = false, defaultChecked = checked, disabled = false, required = false, class: className = ''} = Astro.props;
+type Props = {parts?: import('@ooopsstudio/ui-primitives').UiParts | undefined; id: string; ariaLabelledby?: string; ariaDescribedby?: string; ariaLabel?: string; name?: string; label?: string; description?: string; checked?: boolean; defaultChecked?: boolean; disabled?: boolean; required?: boolean; class?: string};
+const {id, ariaLabelledby, ariaDescribedby, ariaLabel,  name = id, label, description, checked = false, defaultChecked = checked, disabled = false, required = false, parts, class: className = ''} = Astro.props;
 const config = serializeUiConfig({checked, defaultChecked, switch: true});
 ---
-<div class:list={['ooops-switch', className]} data-ooops-switch-root data-ooops-ui data-part="root" data-state={checked ? 'on' : 'off'}>
-  <input aria-label={ariaLabel} aria-labelledby={ariaLabelledby} {id} {name} type="checkbox" {checked} {disabled} {required} role="switch" aria-describedby={[ariaDescribedby, description && `${id}-description`].filter(Boolean).join(' ') || undefined} data-ooops-ui data-part="control" /><label for={id} data-ooops-ui data-part="switch-label"><span aria-hidden="true" data-ooops-ui data-part="track"><span data-ooops-ui data-part="thumb"></span></span><span data-ooops-ui data-part="label">{label}</span></label>{description ? <span id={`${id}-description`} data-ooops-ui data-part="description">{description}</span> : null}
+<div  data-ooops-switch-root data-ooops-ui {...getUiPart(parts, 'root', ['ooops-switch', className], undefined)} data-part="root" data-state={checked ? 'on' : 'off'}>
+  <input aria-label={ariaLabel} aria-labelledby={ariaLabelledby} {id} {name} type="checkbox" {checked} {disabled} {required} role="switch" aria-describedby={[ariaDescribedby, description && `${id}-description`].filter(Boolean).join(' ') || undefined} data-ooops-ui {...getUiPart(parts, 'control')} data-part="control" /><label for={id} data-ooops-ui {...getUiPart(parts, 'switch-label')} data-part="switch-label"><span aria-hidden="true" data-ooops-ui {...getUiPart(parts, 'track')} data-part="track"><span data-ooops-ui {...getUiPart(parts, 'thumb')} data-part="thumb"></span></span><span data-ooops-ui {...getUiPart(parts, 'label')} data-part="label">{label}</span></label>{description ? <span id={`${id}-description`} data-ooops-ui {...getUiPart(parts, 'description')} data-part="description">{description}</span> : null}
   <script is:inline type="application/json" data-ooops-ui-config set:html={config} />
 </div>
 <script>import {installSwitch} from '@ooopsstudio/ui-astro/runtime/forms'; installSwitch();</script>

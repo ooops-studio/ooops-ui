@@ -70,3 +70,17 @@ Remount when changing mount-time configuration. Astro server props are snapshots
 New regression suites cover native forwarding and callbacks, external labels and Field IDs, disabled actions, CSS coexistence, portal placement, nested menus, veto, async confirmation errors and focus restoration. Run `pnpm validate:release` before publishing; automated axe is not a replacement for a manual screen-reader session. Real Workspace pilots are still required before replacing all wrappers.
 
 The repository build/release toolchain requires Node.js >=22.22.0 because it uses Astro 7.4. The CI matrix includes that minimum and the current Node 22 line.
+
+
+## Button and IconButton
+
+Both adapters expose native button/link controls. Button defaults to `type="button"`; opt into `submit`/`reset` explicitly. Disabled or loading buttons are native-disabled. Links keep link semantics but lose their href and tab stop while unavailable, including during SSR without JavaScript. Native DOM attributes/events are forwarded and loading keeps the accessible name stable with `aria-busy`. An optional Svelte `loadingIndicator` snippet or Astro `loading` slot is decorative. Visual themes and async application state remain with the consumer.
+
+IconButton requires a nonempty accessible `label` and hides its icon content from the accessibility tree. Svelte supports `bind:elementRef` for both components; it follows button/anchor replacement and becomes null on teardown. When a ref anchors an overlay, mount the overlay after the ref is available and remount it if the native element identity changes. Astro uses native IDs and progressive enhancement through `runtime/actions`. Its server props require rerender/remount; they are not reactive.
+## Calendar controls and drawers
+
+DatePicker/DateRange share the Gregorian calendar model in `ui-primitives`. ISO values preserve dates across time zones; native inputs remain the no-JavaScript form fallback. Calendar selection and typed input share bounds/unavailable-date validation. Partial ranges are invalid; reverse selections are ordered and cannot cross disabled dates. Reset restores initial form values after the native reset action, respects cancellation by later listeners, and cancels deferred work on teardown.
+
+Calendar labels and help/error text are explicit props, independently of locale-based date formatting. The calendar uses a named modal, one roving grid tab stop, full weekday names, month announcements, arrow/Home/End/Page Up/Page Down navigation and Escape/focus restoration. Automated role/axe checks are recorded separately from manual screen-reader evidence.
+
+Drawer delegates behavior to Modal and adds only logical edge placement plus scrolling-body/footer geometry in optional `base.css`. It accepts the existing close guard and busy contracts. Its `start`/`end` placement respects RTL. Surface colors, borders, animation and branding belong to the consumer.

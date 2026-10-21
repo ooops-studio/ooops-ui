@@ -1,5 +1,6 @@
 ---
-type Props = {
+import {getUiPart} from '@ooopsstudio/ui-primitives';
+type Props = {parts?: import('@ooopsstudio/ui-primitives').UiParts | undefined;
   part: string;
   as?: keyof HTMLElementTagNameMap;
   state?: string;
@@ -10,7 +11,7 @@ type Props = {
   class?: string;
   [attribute: string]: unknown;
 };
-const {part, as: tag = 'div', state, orientation, disabled, selected, active, class: className, ...attributes}: Props = Astro.props;
+const {part, as: tag = 'div', state, orientation, disabled, selected, active, parts, class: className, ...attributes}: Props = Astro.props;
 const Tag = tag;
 ---
-<Tag {...attributes} class={className} data-ooops-ui data-part={part} data-state={state} data-orientation={orientation} data-disabled={disabled === undefined ? undefined : String(disabled)} data-selected={selected === undefined ? undefined : String(selected)} data-active={active === undefined ? undefined : String(active)}><slot /></Tag>
+<Tag {...attributes} {...getUiPart(parts, part, className, typeof attributes.style === 'string' ? attributes.style : undefined)} data-ooops-ui data-part={part} data-state={state} data-orientation={orientation} data-disabled={disabled === undefined ? undefined : String(disabled)} data-selected={selected === undefined ? undefined : String(selected)} data-active={active === undefined ? undefined : String(active)}><slot /></Tag>

@@ -1,0 +1,27 @@
+---
+import Drawer from '@ooopsstudio/ui-astro/Drawer.astro';
+import Layout from '../layouts/Layout.astro';
+---
+<Layout title="Astro drawers">
+  <h1>Drawer contracts</h1>
+  <Drawer id="editor" title="Edit details" triggerLabel="Edit details" initialFocusId="drawer-name">
+    <label>Name <input id="drawer-name" name="name" /></label>
+    <button id="allow-dismiss">Allow dismissal</button>
+    {Array.from({length: 40}, (_, i) => <p>Body row {i + 1}</p>)}
+    <p slot="footer">Persistent footer</p>
+  </Drawer>
+  <Drawer id="start" side="start" title="Start panel" triggerLabel="Open start"><p>Start content</p></Drawer>
+  <Drawer id="bottom" side="bottom" title="Bottom panel" triggerLabel="Open bottom"><p>Bottom content</p></Drawer>
+  <Drawer id="busy" busy title="Saving details" triggerLabel="Open busy"><p>Saving in progress</p></Drawer>
+  <a href="/transition">Leave drawers</a>
+</Layout>
+<script>
+  document.addEventListener('astro:page-load', () => {
+    const root = document.querySelector('[data-ooops-modal-root="editor"]');
+    if (!root) return;
+    let allow = false;
+    root.addEventListener('ooops:before-close', event => { if (!allow) event.preventDefault(); });
+    document.querySelector('#allow-dismiss')?.addEventListener('click', () => { allow = true; });
+    document.documentElement.dataset.drawerReady = 'true';
+  });
+</script>

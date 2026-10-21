@@ -1,0 +1,43 @@
+---
+import DatePicker from '@ooopsstudio/ui-astro/DatePicker.astro';
+import DateRange from '@ooopsstudio/ui-astro/DateRange.astro';
+import Layout from '../layouts/Layout.astro';
+---
+<Layout title="Astro calendars">
+  <h1>Calendar contracts</h1><p id="ready">server</p>
+  <form id="dates">
+    <DatePicker id="event-date" label="Event date" name="date" value="2026-10-21" min="2026-10-01" max="2026-12-31" today="2026-10-21" required />
+    <DateRange id="trip" label="Travel dates" name="trip" today="2026-10-21" min="2026-10-01" max="2026-12-31" disabledDates={['2026-10-25']} />
+    <DatePicker id="locked" label="Locked date" value="2026-10-21" disabled />
+    <DatePicker id="readonly" label="Read only date" value="2026-10-21" readOnly />
+    <button type="submit">Submit dates</button><button type="reset">Reset dates</button>
+  </form>
+  <button id="toggle-reset">Toggle reset prevention</button>
+  <p id="form-values"></p><p id="changes">0</p><a href="/transition">Leave calendar</a>
+
+<form id="formatted-dates">
+  <DatePicker id="formatted" label="Formatted date" name="formatted" value="2026-10-21" dateFormat="DD-MM-YYYY" spacedSeparators min="2026-10-01" max="2026-12-31" today="2026-10-21" required parts={{day: {class: 'branded-day', style: 'background: rgb(20, 60, 90); color: white; border-radius: 8px'}, 'calendar-dialog': {class: 'branded-calendar', style: 'border: 3px solid rgb(20, 60, 90)'}, previous: {style: 'color: rgb(80, 20, 120)'}}}>
+    <span slot="day" data-custom-day data-calendar-day-number></span>
+    <span slot="previous-icon" data-nav-glyph aria-hidden="true">←</span>
+  </DatePicker>
+  <DatePicker id="appointment" label="Appointment" name="appointment" mode="datetime" dateFormat="MM-DD-YYYY" value="2026-10-21T13:35" min="2026-10-21T12:05" max="2026-12-31T18:00" timeStepMinutes={15} defaultTime="12:00" today="2026-10-21" required />
+  <DatePicker id="iso-formatted" label="ISO formatted date" dateFormat="YYYY-MM-DD" value="2026-10-21" />
+  <button type="submit">Submit formatted dates</button><button type="reset">Reset formatted dates</button>
+</form>
+
+<form id="external-dates"><button type="reset">Reset external dates</button></form>
+<DatePicker id="external-date" form="external-dates" label="External date" name="outside" dateFormat="DD-MM-YYYY" value="2026-10-21" required />
+<DateRange id="agenda" form="external-dates" name="agenda" label="Agenda" mode="datetime" dateFormat="YYYY-MM-DD" value={{start: '2026-10-21T10:00', end: '2026-10-21T11:00'}} />
+</Layout>
+<script>
+  document.addEventListener('astro:page-load', () => {
+    const form = document.querySelector<HTMLFormElement>('#dates');
+    if (!form) return;
+    let changes = 0, blockReset = false;
+    document.querySelector('#event-date')?.addEventListener('change', () => { document.querySelector('#changes')!.textContent = String(++changes); });
+    document.querySelector('#toggle-reset')?.addEventListener('click', () => { blockReset = !blockReset; });
+    form.addEventListener('reset', event => { if (blockReset) event.preventDefault(); });
+    form.addEventListener('submit', event => { event.preventDefault(); document.querySelector('#form-values')!.textContent = JSON.stringify(Object.fromEntries(new FormData(form))); });
+    document.querySelector('#ready')!.textContent = 'ready';
+  });
+</script>

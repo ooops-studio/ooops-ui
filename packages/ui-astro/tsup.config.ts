@@ -3,6 +3,8 @@ import {defineConfig} from 'tsup'
 export default defineConfig({
 	entry: {
 		index: 'src/index.ts',
+		'runtime/actions': 'src/runtime/actions.ts',
+		'runtime/calendar': 'src/runtime/calendar.ts',
 		'runtime/forms': 'src/runtime/forms.ts',
 		'runtime/selections': 'src/runtime/selections.ts',
 		'runtime/navigation': 'src/runtime/navigation.ts',

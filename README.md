@@ -109,7 +109,8 @@ That means the root contract scales without assuming that every package has one 
 - `pnpm -w test:e2e:stress` — run 100-cycle navigation, mount/unmount, listener, portal and async-cleanup checks
 - `pnpm -w test:mutation` — run the blocking Stryker gate over the high-risk primitive behavior ranges
 - `pnpm -w test:mutation:full` — generate a non-blocking mutation-debt report for the complete primitive controllers
-- `pnpm -w check:feature-coverage` — require every declared behavior branch in the adapter feature matrix
+- `pnpm -w check:feature-matrix` — validate the feature matrix schema only; does not prove execution
+- `pnpm -w check:feature-coverage` — build and execute all declared branch/adapter cases in Chromium, then require fresh first-attempt passing assertions. Rejects missing, skipped, failed, assertion-free, duplicate or stale evidence. JSON reports are written to ignored `reports/feature-coverage/` and uploaded by the dedicated CI job. Firefox/WebKit suites and manual AT testing remain separate checks.
 - `pnpm -w check:at-protocol` — validate the VoiceOver/NVDA manual release protocol (not human test results)
 - `pnpm -w size` — run package `size` scripts when present
 - `pnpm -w depcruise` — run dependency-cruiser against workspace source

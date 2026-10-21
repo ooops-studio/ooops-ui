@@ -9,7 +9,11 @@ export default defineConfig({
 	workers: 1,
 	forbidOnly: Boolean(process.env.CI),
 	retries: process.env.CI ? 1 : 0,
-	reporter: process.env.CI ? [['html', {open: 'never'}], ['list']] : 'list',
+	reporter: process.env.OOOPS_FEATURE_REPORT
+		? [['list'], ['./scripts/feature-coverage-reporter.mjs', {
+			outputFile: process.env.OOOPS_FEATURE_REPORT, runId: process.env.OOOPS_FEATURE_RUN_ID
+		}]]
+		: process.env.CI ? [['html', {open: 'never'}], ['list']] : 'list',
 	use: {
 		trace: 'retain-on-failure',
 		screenshot: 'only-on-failure',

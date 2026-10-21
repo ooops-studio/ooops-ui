@@ -2,6 +2,7 @@ import {createFocusTrap, shouldReduceMotion, type FocusTrap} from '@ooopsstudio/
 
 import {dispatchUiEvent, isBrowser} from './dom'
 import {UI_EVENTS} from './events'
+import {hasLayerEscape} from './layer'
 import {createControllerStore, type Subscriber} from './store'
 
 export type DialogCloseReason = 'cancel' | 'confirm' | 'close' | 'escape' | 'backdrop' | string
@@ -158,7 +159,8 @@ export const createDialogController = (config: DialogControllerOptions): DialogC
 			getRoot: config.getRoot,
 			...(config.getInitialFocus ? {getInitialFocus: config.getInitialFocus} : {}),
 			...(config.getRestoreFocusTo ? {getRestoreFocusTo: config.getRestoreFocusTo} : {}),
-			onEscape: () => {
+			onEscape: (event) => {
+				if (hasLayerEscape(event, config.getDialog())) return
 				if (config.closeOnEscape !== false) close('escape')
 			}
 		})

@@ -43,8 +43,23 @@ export type LayerController = {
 	isOpen: () => boolean
 }
 
-type LayerStackEntry = {controller: LayerController; layer: () => HTMLElement | null | undefined}
+type LayerStackEntry = {
+	controller: LayerController
+	layer: () => HTMLElement | null | undefined
+	anchor: () => HTMLElement | null | undefined
+}
 const stacks = new WeakMap<Document, LayerStackEntry[]>()
+const handledLayerEscapes = new WeakSet<Event>()
+
+/** A nested floating layer owns this Escape, regardless of capture-listener order. */
+export function hasLayerEscape(event: Event, container: HTMLElement | null | undefined): boolean {
+	if (handledLayerEscapes.has(event)) return true
+	if (!container) return false
+	const top = stacks.get(container.ownerDocument)?.at(-1)
+	return Boolean(top && (
+		container.contains(top.layer() ?? null) || container.contains(top.anchor() ?? null)
+	))
+}
 
 const stackFor = (document: Document) => {
 	const existing = stacks.get(document)
@@ -217,7 +232,8 @@ export const createLayerController = (options: LayerControllerOptions): LayerCon
 			close('outside-focus')
 	}
 	const onKey = (event: KeyboardEvent) => {
-		if (!opened || !isTopmost() || options.closeOnEscape === false || event.key !== 'Escape') return
+		if (!opened || handledLayerEscapes.has(event) || !isTopmost() || options.closeOnEscape === false || event.key !== 'Escape') return
+		handledLayerEscapes.add(event)
 		event.preventDefault()
 		close('escape')
 		options.getAnchor()?.focus()
@@ -236,7 +252,7 @@ export const createLayerController = (options: LayerControllerOptions): LayerCon
 			originalNext = layer.nextSibling
 			;(options.getPortalRoot?.() ?? currentDocument.body).appendChild(layer)
 		}
-		stackFor(currentDocument).push({controller, layer: options.getLayer})
+		stackFor(currentDocument).push({controller, layer: options.getLayer, anchor: options.getAnchor})
 		layer.hidden = false
 		layer.dataset.state = 'open'
 		update()

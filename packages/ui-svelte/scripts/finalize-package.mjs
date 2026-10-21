@@ -9,11 +9,11 @@ await Promise.all(
     .map((entry) => rm(new URL(entry, dist), {force: true})),
 )
 
-for (const component of [
-  'Accordion', 'Checkbox', 'Combobox', 'Dialog', 'DropdownMenu', 'Field', 'Input',
-  'Modal', 'MultiSelect', 'NumberInput', 'Part', 'Popover', 'RadioGroup', 'SegmentedControl',
-  'Select', 'Slider', 'Switch', 'Tabs', 'Textarea', 'Tooltip',
-]) {
+// TypeScript's Node16 resolver looks for Component.d.svelte.ts when the
+// declaration imports Component.svelte. Derive aliases from the emitted files
+// so every new public component receives the same packaging support.
+for (const entry of entries.filter((entry) => entry.endsWith('.svelte.d.ts'))) {
+  const component = entry.slice(0, -'.svelte.d.ts'.length)
   await copyFile(
     new URL(`${component}.svelte.d.ts`, dist),
     new URL(`${component}.d.svelte.ts`, dist),

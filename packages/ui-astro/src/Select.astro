@@ -1,8 +1,9 @@
 ---
+import {getUiPart} from '@ooopsstudio/ui-primitives';
 import {resolveUiMessages, type SelectOption, type UiMessages} from '@ooopsstudio/ui-primitives';
 import {serializeUiConfig} from './index';
 
-type Props = {
+type Props = {parts?: import('@ooopsstudio/ui-primitives').UiParts | undefined;
   id: string; ariaLabelledby?: string; ariaDescribedby?: string; ariaLabel?: string;
   name?: string;
   label?: string;
@@ -21,7 +22,7 @@ type Props = {
 
 const {
   id, ariaLabel, ariaLabelledby, ariaDescribedby, name = id, label, description, error, value = '', placeholder, options,
-  required = false, disabled = false, allowEmpty = true, portal = true, messages, class: className = ''
+  required = false, disabled = false, allowEmpty = true, portal = true, messages, parts, class: className = ''
 } = Astro.props;
 const uiMessages = resolveUiMessages(messages); const resolvedPlaceholder = placeholder ?? uiMessages.selectOption;
 const labelId = label ? `${id}-label` : undefined;
@@ -32,32 +33,32 @@ const selected = options.find((option) => option.value === value) ?? null;
 const config = serializeUiConfig({id, value, defaultValue: value, disabled, allowEmpty, portal, options});
 ---
 
-<div class:list={['ooops-select', className]} data-ooops-select-root={id} data-ooops-ui data-part="root" data-placeholder={resolvedPlaceholder}>
-  {label ? <label id={labelId} for={`${id}-trigger`} data-ooops-ui data-part="label">{label}</label> : null}
-  {description ? <span id={descriptionId} data-ooops-ui data-part="description">{description}</span> : null}
-  <button id={`${id}-trigger`} type="button" role="combobox" aria-haspopup="listbox" aria-controls={listboxId} aria-expanded="false" aria-label={ariaLabel} aria-labelledby={ariaLabelledby ?? labelId} aria-describedby={[ariaDescribedby, descriptionId, errorId].filter(Boolean).join(' ') || undefined} aria-invalid={error ? 'true' : undefined} disabled={disabled} data-ooops-ui data-part="trigger">
-    <span data-ooops-ui data-part="value">
-      {selected?.icon ? <span data-ooops-ui data-part="value-icon" aria-hidden="true">{selected.icon}</span> : null}
-      {selected?.iconUrl ? <img data-ooops-ui data-part="value-image" src={selected.iconUrl} alt="" loading="lazy" /> : null}
+<div  data-ooops-select-root={id} data-ooops-ui {...getUiPart(parts, 'root', ['ooops-select', className], undefined)} data-part="root" data-placeholder={resolvedPlaceholder}>
+  {label ? <label id={labelId} for={`${id}-trigger`} data-ooops-ui {...getUiPart(parts, 'label')} data-part="label">{label}</label> : null}
+  {description ? <span id={descriptionId} data-ooops-ui {...getUiPart(parts, 'description')} data-part="description">{description}</span> : null}
+  <button id={`${id}-trigger`} type="button" role="combobox" aria-haspopup="listbox" aria-controls={listboxId} aria-expanded="false" aria-label={ariaLabel} aria-labelledby={ariaLabelledby ?? labelId} aria-describedby={[ariaDescribedby, descriptionId, errorId].filter(Boolean).join(' ') || undefined} aria-invalid={error ? 'true' : undefined} disabled={disabled} data-ooops-ui {...getUiPart(parts, 'trigger')} data-part="trigger">
+    <span data-ooops-ui {...getUiPart(parts, 'value')} data-part="value">
+      {selected?.icon ? <span data-ooops-ui {...getUiPart(parts, 'value-icon')} data-part="value-icon" aria-hidden="true">{selected.icon}</span> : null}
+      {selected?.iconUrl ? <img data-ooops-ui {...getUiPart(parts, 'value-image')} data-part="value-image" src={selected.iconUrl} alt="" loading="lazy" /> : null}
       {selected?.label ?? resolvedPlaceholder}
     </span>
-    <span data-ooops-ui data-part="indicator" aria-hidden="true"></span>
+    <span data-ooops-ui {...getUiPart(parts, 'indicator')} data-part="indicator" aria-hidden="true"></span>
   </button>
-  <select name={name} value={value} required={required} disabled={disabled} tabindex="-1" aria-hidden="true" data-ooops-ui data-part="native-select">
+  <select name={name} value={value} required={required} disabled={disabled} tabindex="-1" aria-hidden="true" data-ooops-ui {...getUiPart(parts, 'native-select')} data-part="native-select">
     {allowEmpty ? <option value="">{resolvedPlaceholder}</option> : null}
     {options.map((option) => <option value={option.value} disabled={option.disabled}>{option.label}</option>)}
   </select>
-  {error ? <span id={errorId} data-ooops-ui data-part="error">{error}</span> : null}
+  {error ? <span id={errorId} data-ooops-ui {...getUiPart(parts, 'error')} data-part="error">{error}</span> : null}
   <script is:inline type="application/json" data-ooops-ui-config set:html={config} />
 </div>
 
-<div id={listboxId} role="listbox" aria-label={ariaLabel} aria-labelledby={ariaLabelledby ?? labelId} data-ooops-select-listbox={id} data-ooops-ui data-part="listbox" hidden>
+<div id={listboxId} role="listbox" aria-label={ariaLabel} aria-labelledby={ariaLabelledby ?? labelId} data-ooops-select-listbox={id} data-ooops-ui {...getUiPart(parts, 'listbox')} data-part="listbox" hidden>
   {options.map((option, index) => <>
-    {(index === 0 || option.group !== options[index - 1]?.group) && option.group ? <div role="presentation" data-ooops-ui data-part="group-label">{option.group}</div> : null}
-    <div id={`${id}-option-${index}`} role="option" aria-selected={option.value === value} aria-disabled={option.disabled ? 'true' : undefined} data-ooops-select-option data-option-index={index} data-ooops-ui data-part="option" data-selected={option.value === value ? 'true' : 'false'} data-disabled={option.disabled ? 'true' : 'false'}>
-      {option.icon ? <span data-ooops-ui data-part="option-icon" aria-hidden="true">{option.icon}</span> : null}
-      {option.iconUrl ? <img data-ooops-ui data-part="option-image" src={option.iconUrl} alt="" loading="lazy" /> : null}
-      <span data-ooops-ui data-part="option-copy"><span>{option.label}</span>{option.description ? <small>{option.description}</small> : null}</span>
+    {(index === 0 || option.group !== options[index - 1]?.group) && option.group ? <div role="presentation" data-ooops-ui {...getUiPart(parts, 'group-label')} data-part="group-label">{option.group}</div> : null}
+    <div id={`${id}-option-${index}`} role="option" aria-selected={option.value === value} aria-disabled={option.disabled ? 'true' : undefined} data-ooops-select-option data-option-index={index} data-ooops-ui {...getUiPart(parts, 'option')} data-part="option" data-selected={option.value === value ? 'true' : 'false'} data-disabled={option.disabled ? 'true' : 'false'}>
+      {option.icon ? <span data-ooops-ui {...getUiPart(parts, 'option-icon')} data-part="option-icon" aria-hidden="true">{option.icon}</span> : null}
+      {option.iconUrl ? <img data-ooops-ui {...getUiPart(parts, 'option-image')} data-part="option-image" src={option.iconUrl} alt="" loading="lazy" /> : null}
+      <span data-ooops-ui {...getUiPart(parts, 'option-copy')} data-part="option-copy"><span {...getUiPart(parts, 'text')} data-ooops-ui data-part="text">{option.label}</span>{option.description ? <small {...getUiPart(parts, 'small')} data-ooops-ui data-part="small">{option.description}</small> : null}</span>
     </div>
   </>)}
 </div>

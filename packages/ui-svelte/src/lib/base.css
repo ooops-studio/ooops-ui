@@ -1,3 +1,4 @@
+@layer ooops-ui {
 :where([class^='ooops-'], [class*=' ooops-']) {
 	font: inherit;
 	color: inherit;
@@ -51,8 +52,45 @@
 	touch-action: pan-y;
 }
 
+:where(.ooops-drawer-root > dialog[data-part='dialog']) {
+	position: fixed;
+	box-sizing: border-box;
+	margin: 0;
+	max-inline-size: 100vw;
+	max-block-size: 100dvh;
+	inline-size: min(var(--ooops-ui-drawer-size, 28rem), 100vw);
+	block-size: 100dvh;
+	inset-block: 0;
+	inset-inline: auto 0;
+}
+:where(.ooops-drawer-start > dialog[data-part='dialog']) { inset-inline: 0 auto; }
+:where(.ooops-drawer-top > dialog[data-part='dialog'], .ooops-drawer-bottom > dialog[data-part='dialog']) {
+	inline-size: 100vw;
+	block-size: min(var(--ooops-ui-drawer-size, 28rem), 100dvh);
+	inset-inline: 0;
+	inset-block: 0 auto;
+}
+:where(.ooops-drawer-bottom > dialog[data-part='dialog']) { inset-block: auto 0; }
+:where(.ooops-drawer-root > dialog > [data-part='surface']) { display: flex; flex-direction: column; block-size: 100%; overflow: hidden; }
+:where(.ooops-drawer-root > dialog > [data-part='surface'] > [data-part='body']) { min-block-size: 0; overflow: auto; flex: 1; }
+
+.ooops-calendar-field :where([data-part='calendar-dialog']) { box-sizing: border-box; inline-size: min(24rem, calc(100vw - 2rem)); min-inline-size: 0; max-inline-size: calc(100vw - 2rem); max-block-size: calc(100dvh - 2rem); padding: 1rem; }
+:where(.ooops-calendar-field [data-part='calendar-header']) { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+:where(.ooops-calendar-field [data-part='month-controls']) { display: flex; align-items: center; justify-content: center; gap: 0.5rem; min-inline-size: 0; }
+:where(.ooops-calendar-field [data-part='year-input']) { box-sizing: border-box; inline-size: 5rem; min-inline-size: 0; }
+:where(.ooops-calendar-field [data-part='month-controls'] > [data-part='root']) { min-inline-size: 0; }
+:where(.ooops-calendar-field [data-part='month-controls'] [data-part='trigger']) { max-inline-size: 100%; white-space: normal; }
+:where(.ooops-calendar-field table) { inline-size: 100%; table-layout: fixed; }
+:where(.ooops-calendar-field [data-date]) { min-inline-size: 2rem; min-block-size: 2rem; inline-size: 100%; font: inherit; }
+:where(.ooops-calendar-field [data-date][aria-disabled='true'], .ooops-calendar-field [data-outside-month='true']) { opacity: 0.5; }
+:where(.ooops-calendar-field td[aria-selected='true'] [data-date]) { outline: 2px solid currentColor; outline-offset: -2px; }
+:where(.ooops-calendar-field [data-date]:focus-visible) { outline: 2px solid currentColor; outline-offset: 2px; }
+:where(.ooops-calendar-field [data-part='calendar-dialog'] > [data-part='surface']) { max-inline-size: 24rem; }
+
 @media (prefers-reduced-motion: reduce) {
 	:where([data-ooops-ui][data-part]) {
 		scroll-behavior: auto !important;
 	}
+}
+
 }

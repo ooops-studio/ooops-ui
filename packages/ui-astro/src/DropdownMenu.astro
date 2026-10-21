@@ -1,18 +1,19 @@
 ---
+import {getUiPart} from '@ooopsstudio/ui-primitives';
 import MenuItems from './MenuItems.astro';
 import {resolveUiMessages, type UiMessages} from '@ooopsstudio/ui-primitives'; import {serializeUiConfig} from './index';
 export type MenuItem = {id: string;  label?: string; href?: string; value?: string; type?: 'item' | 'checkbox' | 'radio' | 'separator' | 'label'; checked?: boolean; disabled?: boolean; group?: string; keepOpen?: boolean; children?: MenuItem[]};
-type Props = {id: string; anchorId?: string; portalTargetId?: string; offset?: number; zIndex?: number; matchAnchorWidth?: boolean; triggerLabel?: string; ariaLabel?: string; items?: MenuItem[]; placement?: 'top' | 'bottom' | 'left' | 'right'; align?: 'start' | 'center' | 'end'; open?: boolean; loop?: boolean; portal?: boolean; messages?: Partial<UiMessages>; class?: string};
-const {placement = 'bottom', align = 'start', id, anchorId, portalTargetId, offset = 8, zIndex = 1000, matchAnchorWidth = false, triggerLabel, ariaLabel, items = [], open = false, loop = true, portal = true, messages, class: className = ''} = Astro.props;
+type Props = {parts?: import('@ooopsstudio/ui-primitives').UiParts | undefined; id: string; anchorId?: string; portalTargetId?: string; offset?: number; zIndex?: number; matchAnchorWidth?: boolean; triggerLabel?: string; ariaLabel?: string; items?: MenuItem[]; placement?: 'top' | 'bottom' | 'left' | 'right'; align?: 'start' | 'center' | 'end'; open?: boolean; loop?: boolean; portal?: boolean; messages?: Partial<UiMessages>; class?: string};
+const {placement = 'bottom', align = 'start', id, anchorId, portalTargetId, offset = 8, zIndex = 1000, matchAnchorWidth = false, triggerLabel, ariaLabel, items = [], open = false, loop = true, portal = true, messages, parts, class: className = ''} = Astro.props;
 const uiMessages = resolveUiMessages(messages);
 const config = serializeUiConfig({placement, align, id, anchorId, portalTargetId, offset, zIndex, matchAnchorWidth, open, loop, portal});
 ---
-<span class:list={['ooops-menu', className]} data-ooops-menu-root data-ooops-ui data-part="root">
-  {!anchorId ? <button type="button" aria-haspopup="menu" aria-expanded="false" aria-controls={`${id}-menu`} data-ooops-ui data-part="trigger"><slot name="trigger">{triggerLabel ?? uiMessages.menu}</slot></button> : null}
+<span  data-ooops-menu-root data-ooops-ui {...getUiPart(parts, 'root', ['ooops-menu', className], undefined)} data-part="root">
+  {!anchorId ? <button type="button" aria-haspopup="menu" aria-expanded="false" aria-controls={`${id}-menu`} data-ooops-ui {...getUiPart(parts, 'trigger')} data-part="trigger"><slot name="trigger">{triggerLabel ?? uiMessages.menu}</slot></button> : null}
   <script is:inline type="application/json" data-ooops-ui-config set:html={config} />
 </span>
-<div id={`${id}-menu`} role="menu" aria-label={ariaLabel ?? uiMessages.menu} data-ooops-menu-content={id} data-ooops-ui data-part="content" hidden>
-  <MenuItems {items} />
+<div id={`${id}-menu`} role="menu" aria-label={ariaLabel ?? uiMessages.menu} data-ooops-menu-content={id} data-ooops-ui {...getUiPart(parts, 'content')} data-part="content" hidden>
+  <MenuItems {parts} {items} />
   <slot />
 </div>
 <script>import {installDropdownMenu} from '@ooopsstudio/ui-astro/runtime/overlays'; installDropdownMenu();</script>

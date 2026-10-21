@@ -1,8 +1,9 @@
 <script lang="ts">
+	import {getUiPart} from '@ooopsstudio/ui-primitives'
 	import {createDialogController, resolveUiMessages, type DialogCloseReason, type DialogState, type UiMessages} from '@ooopsstudio/ui-primitives'
 	import {onMount, type Snippet} from 'svelte'
 
-	type Props = {
+	type Props = {parts?: import('@ooopsstudio/ui-primitives').UiParts | undefined;
 		initialFocus?: () => HTMLElement | null | undefined
 		restoreFocusTo?: () => HTMLElement | null | undefined
 		beforeClose?: (reason: DialogCloseReason) => boolean | void
@@ -29,7 +30,7 @@
 	let {
 		initialFocus, restoreFocusTo, beforeClose, onConfirmError, id = generatedId, open = $bindable(false), title, description,
 		confirmLabel, cancelLabel, tone = 'primary', busy = false,
-		closeOnBackdrop = true, closeOnEscape = true, messages, class: className = '', trigger, children,
+		closeOnBackdrop = true, closeOnEscape = true, messages, parts, class: className = '', trigger, children,
 		onConfirm, onClose
 	}: Props = $props()
 	const uiMessages = $derived(resolveUiMessages(messages))
@@ -59,15 +60,15 @@
 	$effect(() => controller?.setBusy(busy))
 </script>
 
-{#if trigger}<button bind:this={triggerButton} type="button" onclick={() => controller?.open()} aria-haspopup="dialog" data-ooops-ui data-part="trigger">{@render trigger()}</button>{/if}
-<span bind:this={root} class={`ooops-dialog-root ${className}`.trim()} data-ooops-ui data-part="root">
-	<dialog bind:this={dialog} aria-labelledby={`${id}-title`} aria-describedby={description ? `${id}-description` : undefined} data-ooops-ui data-part="dialog" data-tone={tone}>
-		<div data-ooops-ui data-part="surface">
-			<header data-ooops-ui data-part="header"><h2 id={`${id}-title`}>{title}</h2>{#if description}<p id={`${id}-description`}>{description}</p>{/if}</header>
-			{#if children}<div data-ooops-ui data-part="body">{@render children()}</div>{/if}
-			<footer data-ooops-ui data-part="footer">
-				<button bind:this={cancelButton} type="button" onclick={() => controller?.close('cancel')} disabled={state.busy} data-ooops-ui data-part="cancel">{cancelLabel ?? uiMessages.cancel}</button>
-				<button type="button" onclick={() => void controller?.confirm()} disabled={state.busy} data-ooops-ui data-part="confirm">{confirmLabel ?? uiMessages.confirm}</button>
+{#if trigger}<button bind:this={triggerButton} type="button" onclick={() => controller?.open()} aria-haspopup="dialog" data-ooops-ui {...getUiPart(parts, 'trigger')} data-part="trigger">{@render trigger()}</button>{/if}
+<span bind:this={root}  data-ooops-ui {...getUiPart(parts, 'root', `ooops-dialog-root ${className}`.trim(), undefined)} data-part="root">
+	<dialog bind:this={dialog} aria-labelledby={`${id}-title`} aria-describedby={description ? `${id}-description` : undefined} data-ooops-ui {...getUiPart(parts, 'dialog')} data-part="dialog" data-tone={tone}>
+		<div data-ooops-ui {...getUiPart(parts, 'surface')} data-part="surface">
+			<header data-ooops-ui {...getUiPart(parts, 'header')} data-part="header"><h2 id={`${id}-title`} {...getUiPart(parts, 'title')} data-ooops-ui data-part="title">{title}</h2>{#if description}<p id={`${id}-description`} {...getUiPart(parts, 'description')} data-ooops-ui data-part="description">{description}</p>{/if}</header>
+			{#if children}<div data-ooops-ui {...getUiPart(parts, 'body')} data-part="body">{@render children()}</div>{/if}
+			<footer data-ooops-ui {...getUiPart(parts, 'footer')} data-part="footer">
+				<button bind:this={cancelButton} type="button" onclick={() => controller?.close('cancel')} disabled={state.busy} data-ooops-ui {...getUiPart(parts, 'cancel')} data-part="cancel">{cancelLabel ?? uiMessages.cancel}</button>
+				<button type="button" onclick={() => void controller?.confirm()} disabled={state.busy} data-ooops-ui {...getUiPart(parts, 'confirm')} data-part="confirm">{confirmLabel ?? uiMessages.confirm}</button>
 			</footer>
 		</div>
 	</dialog>

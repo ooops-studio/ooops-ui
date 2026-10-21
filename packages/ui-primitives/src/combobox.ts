@@ -255,14 +255,17 @@ export const createComboboxController = <Value extends string = string, Metadata
 		},
 		destroy() {
 			loadAbort?.abort()
+			loadAbort = null
+			loadRun++
 			if (debounceTimer) window.clearTimeout(debounceTimer)
+			debounceTimer = undefined
 			const input = options.getInput()
 			input?.removeEventListener('input', onInput)
 			input?.removeEventListener('focus', onFocus)
 			input?.removeEventListener('keydown', onKey)
 			options.getListbox()?.removeEventListener('pointerdown', onPointer)
 			layer.destroy()
-			store.setState({mounted: false, open: false})
+			store.setState({mounted: false, open: false, loading: false})
 			store.clear()
 		}
 	}

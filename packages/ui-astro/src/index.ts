@@ -5,3 +5,7 @@ export {installCombobox, installMultiSelect} from './runtime/selections'
 export {installAccordion, installTabs} from './runtime/navigation'
 export {installDropdownMenu, installTooltip} from './runtime/overlays'
 export {destroyMountedUi} from './runtime/shared'
+
+export {installButton} from './runtime/actions'
+export {installCalendar} from './runtime/calendar'
+export type {DatePickerProps, DateRangeProps, CalendarFieldProps} from './calendar-types'

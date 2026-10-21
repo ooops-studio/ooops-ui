@@ -1,4 +1,6 @@
 export default [
+	{name: 'button-installer', path: ['dist/runtime/actions.js'], import: '{ installButton }', limit: '2 KB'},
+	{name: 'calendar-installer', path: ['dist/runtime/calendar.js'], import: '{ installCalendar }', limit: '9 KB'},
 	{
 		name: 'input-installer',
 		path: ['dist/runtime/forms.js'],

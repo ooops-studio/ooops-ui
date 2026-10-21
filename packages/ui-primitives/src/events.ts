@@ -1,6 +1,7 @@
 export const UI_EVENTS = {
 	accordionChange: 'ooops:accordion-change',
 	checkboxChange: 'ooops:checkbox-change',
+	dateChange: 'ooops:date-change',
 	comboboxChange: 'ooops:combobox-change',
 	selectChange: 'ooops:select-change',
 	multiSelectChange: 'ooops:multi-select-change',

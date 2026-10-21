@@ -99,3 +99,14 @@ export type {
 export {getFieldControlAttributes, type FieldAttributesOptions} from './field-attributes'
 
 export {connectOverlayTrigger} from './overlay-trigger'
+
+export {createButtonController, getButtonAttributes} from './button'
+export type {ButtonOptions, ButtonState} from './button'
+export {createCalendarController, parseCalendarDate, addCalendarDays, addCalendarMonths, getCalendarDays} from './calendar'
+export type {CalendarOptions, CalendarState, CalendarSelection} from './calendar'
+
+export {getUiPart} from './styling'
+export type {UiPartStyle, UiParts, UiStylingProps} from './styling'
+
+export {calendarTimeMin, calendarDatePart, calendarTimePart, formatCalendarInput, parseCalendarInput, defaultCalendarTime, joinCalendarValue, isCalendarInputValid} from './calendar-input'
+export type {CalendarInputFormat, CalendarInputMode} from './calendar-input'

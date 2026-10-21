@@ -1,19 +1,20 @@
 ---
+import {getUiPart} from '@ooopsstudio/ui-primitives';
 import {resolveUiMessages, type UiMessages} from '@ooopsstudio/ui-primitives'; import {serializeUiConfig} from './index';
-type Props = {id: string; initialFocusId?: string; restoreFocusId?: string; title: string; description?: string; triggerLabel?: string; confirmLabel?: string; cancelLabel?: string; tone?: 'primary' | 'danger'; open?: boolean; busy?: boolean; closeOnBackdrop?: boolean; closeOnEscape?: boolean; messages?: Partial<UiMessages>; class?: string};
-const {id, initialFocusId, restoreFocusId, title, description, triggerLabel, confirmLabel, cancelLabel, tone = 'primary', open = false, busy = false, closeOnBackdrop = true, closeOnEscape = true, messages, class: className = ''} = Astro.props;
+type Props = {parts?: import('@ooopsstudio/ui-primitives').UiParts | undefined; id: string; initialFocusId?: string; restoreFocusId?: string; title: string; description?: string; triggerLabel?: string; confirmLabel?: string; cancelLabel?: string; tone?: 'primary' | 'danger'; open?: boolean; busy?: boolean; closeOnBackdrop?: boolean; closeOnEscape?: boolean; messages?: Partial<UiMessages>; class?: string};
+const {id, initialFocusId, restoreFocusId, title, description, triggerLabel, confirmLabel, cancelLabel, tone = 'primary', open = false, busy = false, closeOnBackdrop = true, closeOnEscape = true, messages, parts, class: className = ''} = Astro.props;
 const uiMessages = resolveUiMessages(messages);
 const config = serializeUiConfig({id, initialFocusId, restoreFocusId, open, busy, closeOnBackdrop, closeOnEscape, type: 'dialog'});
 ---
-{triggerLabel ? <button type="button" data-ooops-dialog-open={id} data-ooops-ui data-part="trigger">{triggerLabel}</button> : null}
-<span class:list={['ooops-dialog-root', className]} data-ooops-dialog-root={id} data-ooops-ui data-part="root">
-  <dialog aria-labelledby={`${id}-title`} aria-describedby={description ? `${id}-description` : undefined} data-ooops-ui data-part="dialog" data-tone={tone}>
-    <div data-ooops-ui data-part="surface">
-      <header data-ooops-ui data-part="header"><h2 id={`${id}-title`}>{title}</h2>{description ? <p id={`${id}-description`}>{description}</p> : null}</header>
-      <div data-ooops-ui data-part="body"><slot /></div>
-      <footer data-ooops-ui data-part="footer">
-        <button type="button" data-dialog-cancel data-initial-focus disabled={busy} data-ooops-ui data-part="cancel">{cancelLabel ?? uiMessages.cancel}</button>
-        <button type="button" data-dialog-confirm disabled={busy} data-ooops-ui data-part="confirm">{confirmLabel ?? uiMessages.confirm}</button>
+{triggerLabel ? <button type="button" data-ooops-dialog-open={id} data-ooops-ui {...getUiPart(parts, 'trigger')} data-part="trigger">{triggerLabel}</button> : null}
+<span  data-ooops-dialog-root={id} data-ooops-ui {...getUiPart(parts, 'root', ['ooops-dialog-root', className], undefined)} data-part="root">
+  <dialog aria-labelledby={`${id}-title`} aria-describedby={description ? `${id}-description` : undefined} data-ooops-ui {...getUiPart(parts, 'dialog')} data-part="dialog" data-tone={tone}>
+    <div data-ooops-ui {...getUiPart(parts, 'surface')} data-part="surface">
+      <header data-ooops-ui {...getUiPart(parts, 'header')} data-part="header"><h2 id={`${id}-title`} {...getUiPart(parts, 'title')} data-ooops-ui data-part="title">{title}</h2>{description ? <p id={`${id}-description`} {...getUiPart(parts, 'description')} data-ooops-ui data-part="description">{description}</p> : null}</header>
+      <div data-ooops-ui {...getUiPart(parts, 'body')} data-part="body"><slot /></div>
+      <footer data-ooops-ui {...getUiPart(parts, 'footer')} data-part="footer">
+        <button type="button" data-dialog-cancel data-initial-focus disabled={busy} data-ooops-ui {...getUiPart(parts, 'cancel')} data-part="cancel">{cancelLabel ?? uiMessages.cancel}</button>
+        <button type="button" data-dialog-confirm disabled={busy} data-ooops-ui {...getUiPart(parts, 'confirm')} data-part="confirm">{confirmLabel ?? uiMessages.confirm}</button>
       </footer>
     </div>
   </dialog>

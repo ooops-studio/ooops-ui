@@ -1,0 +1,11 @@
+---
+import type {ComponentProps} from 'astro/types';
+import Modal from './Modal.astro';
+
+type Props = ComponentProps<typeof Modal> & {side?: 'start' | 'end' | 'top' | 'bottom'};
+const {side = 'end', class: className = '', ...props} = Astro.props;
+---
+<Modal {...props} class={`ooops-drawer-root ooops-drawer-${side} ${className}`.trim()}>
+  <slot />
+  {Astro.slots.has('footer') ? <Fragment slot="footer"><slot name="footer" /></Fragment> : null}
+</Modal>

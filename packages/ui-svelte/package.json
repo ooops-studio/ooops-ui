@@ -119,7 +119,32 @@
 			"svelte": "./dist/Tooltip.svelte",
 			"default": "./dist/Tooltip.svelte"
 		},
-		"./base.css": "./dist/base.css"
+		"./base.css": "./dist/base.css",
+		"./DatePicker.svelte": {
+			"types": "./dist/DatePicker.svelte.d.ts",
+			"svelte": "./dist/DatePicker.svelte",
+			"default": "./dist/DatePicker.svelte"
+		},
+		"./DateRange.svelte": {
+			"types": "./dist/DateRange.svelte.d.ts",
+			"svelte": "./dist/DateRange.svelte",
+			"default": "./dist/DateRange.svelte"
+		},
+		"./Drawer.svelte": {
+			"types": "./dist/Drawer.svelte.d.ts",
+			"svelte": "./dist/Drawer.svelte",
+			"default": "./dist/Drawer.svelte"
+		},
+		"./Button.svelte": {
+			"types": "./dist/Button.svelte.d.ts",
+			"svelte": "./dist/Button.svelte",
+			"default": "./dist/Button.svelte"
+		},
+		"./IconButton.svelte": {
+			"types": "./dist/IconButton.svelte.d.ts",
+			"svelte": "./dist/IconButton.svelte",
+			"default": "./dist/IconButton.svelte"
+		}
 	},
 	"sideEffects": [
 		"**/*.css"

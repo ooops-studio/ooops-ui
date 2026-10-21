@@ -1,0 +1,22 @@
+---
+import {getUiPart} from '@ooopsstudio/ui-primitives';
+import type {HTMLAttributes} from 'astro/types';
+import {getButtonAttributes} from '@ooopsstudio/ui-primitives';
+export type Props = Omit<HTMLAttributes<'button'>, 'type' | 'disabled'> &
+  Pick<HTMLAttributes<'a'>, 'href' | 'target' | 'rel' | 'download' | 'hreflang' | 'referrerpolicy'> & {
+  parts?: import('@ooopsstudio/ui-primitives').UiParts | undefined; type?: 'button' | 'submit' | 'reset'; disabled?: boolean; loading?: boolean; ariaLabel?: string;
+};
+const {parts, href, disabled = false, loading = false, type = 'button', ariaLabel, ...native} = Astro.props;
+const targetHref = href == null ? href : String(href);
+const Tag = targetHref != null ? 'a' : 'button';
+const attributes = getButtonAttributes({href: targetHref, disabled, loading, type,
+  ariaBusy: native['aria-busy'], ariaDisabled: native['aria-disabled'],
+  tabindex: native.tabindex == null ? undefined : Number(native.tabindex)});
+---
+<Tag {...native} {...attributes} role={native.role ?? attributes.role} aria-label={ariaLabel ?? native['aria-label']}
+  data-ooops-ui {...getUiPart(parts, 'button', native.class, typeof native.style === 'string' ? native.style : undefined)} style={getUiPart(parts, 'button', undefined, typeof native.style === 'string' ? native.style : undefined).style ?? native.style} data-part="button" data-ooops-astro-button data-ooops-href={targetHref}
+  data-ooops-aria-busy={native['aria-busy']} data-ooops-aria-disabled={native['aria-disabled']}>
+  {loading && Astro.slots.has('loading') ? <span data-ooops-ui {...getUiPart(parts, 'loading-indicator')} data-part="loading-indicator" aria-hidden="true"><slot name="loading" /></span> : null}
+  <slot />
+</Tag>
+<script>import {installButton} from '@ooopsstudio/ui-astro/runtime/actions'; installButton();</script>

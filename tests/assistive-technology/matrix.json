@@ -6,6 +6,9 @@
     {"id": "nvda-chrome", "os": "Windows", "assistiveTechnology": "NVDA", "browser": "Chrome"}
   ],
   "scenarios": [
+    {"id": "action-buttons", "components": ["Button", "IconButton"], "expect": ["icon-only controls have a meaningful announced name", "loading and disabled states are understandable", "unavailable links cannot activate"]},
+    {"id": "calendar-selection", "components": ["DatePicker", "DateRange"], "expect": ["date inputs and range endpoints have distinct names", "month changes and focused dates are understandable", "selection, unavailable dates and range errors are announced", "Escape restores focus to the calendar trigger"]},
+    {"id": "drawer-context", "components": ["Drawer"], "expect": ["drawer title and modal context are announced", "focus remains inside the drawer", "guarded or busy dismissal preserves context", "closing restores the opener"]},
     {"id": "field-errors", "components": ["Input", "Textarea"], "expect": ["label and description are announced", "required and invalid states are announced", "error is announced once"]},
     {"id": "checkbox-state", "components": ["Checkbox", "Switch", "RadioGroup"], "expect": ["name, role and checked state are announced", "mixed and disabled transitions are announced"]},
     {"id": "collection-selection", "components": ["Select", "Combobox", "MultiSelect"], "expect": ["expanded state and active option are announced", "selection count and removals remain understandable", "loading, empty and error states are announced"]},

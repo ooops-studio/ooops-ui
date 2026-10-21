@@ -1,0 +1,63 @@
+---
+import {createCalendarController, calendarDatePart, calendarTimePart, formatCalendarInput, getUiPart} from '@ooopsstudio/ui-primitives';
+import {serializeUiConfig} from './index';
+import DropdownMenu from './DropdownMenu.astro';
+import type {CalendarFieldProps} from './index';
+type Props = CalendarFieldProps & {range?: boolean};
+const {parts, monthParts, mode = 'date', dateFormat = 'native', spacedSeparators = false, timeStepMinutes = 15, defaultTime, timeLabel = 'Time', clearable = true, clearLabel = 'Clear date', placeholder, monthLabel: monthInputLabel = 'Month', yearLabel = 'Year', minYear = 1, maxYear = 9999, id, name, startName, endName, form, label, startLabel = 'Start date', endLabel = 'End date', value = {start: '', end: ''}, range = false,
+  min, max, today, locale = 'en', firstDayOfWeek = 1, dir, disabled = false, readOnly = false, required = false, describedBy, disabledDates = [],
+  errorMessage = 'Choose an available date or complete date range.', calendarLabel = 'Choose date', previousMonthLabel = 'Previous month',
+  nextMonthLabel = 'Next month', closeLabel = 'Close calendar', keyboardHelp = 'Arrow keys move by day or week. Home and End move within the week. Page Up and Page Down change month. Hold Shift to change year.',
+  class: className = ''} = Astro.props;
+const calendar = createCalendarController({value: {start: calendarDatePart(value.start), end: calendarDatePart(value.end)}, range, ...(min ? {min: calendarDatePart(min)} : {}), ...(max ? {max: calendarDatePart(max)} : {}), ...(today ? {today} : {}), locale, firstDayOfWeek,
+  disabled: disabled || readOnly, isDateDisabled: date => disabledDates.includes(date)});
+const state = calendar.getState(), days = calendar.getDays(), weekdays = calendar.getWeekdays();
+const config = serializeUiConfig({parts, mode, dateFormat, spacedSeparators, timeStepMinutes, defaultTime, minYear, maxYear, monthInputLabel, value, range, min, max, today, locale, firstDayOfWeek, dir, disabled: disabled || readOnly, disabledDates, errorMessage, calendarLabel});
+const slotMarkup = Object.fromEntries(await Promise.all(['calendar-icon', 'previous-icon', 'next-icon', 'clear-icon', 'close-icon', 'day'].map(async name => [name, (await Astro.slots.render(name))?.trim() ?? ''])));
+const selected = (date: string) => date === state.start || Boolean(state.end && date >= state.start && date <= state.end);
+const invalid = !calendar.isValid();
+const description = [describedBy, invalid && `${id}-error`].filter(Boolean).join(' ') || undefined;
+---
+<div  data-ooops-astro-calendar data-ooops-ui {...getUiPart(parts, 'root', ['ooops-calendar-field', className])}  data-part="root" {dir} role={range ? 'group' : undefined} aria-labelledby={range ? `${id}-label` : undefined}>
+  {range ? <span id={`${id}-label`} {...getUiPart(parts, 'label', undefined)} data-ooops-ui data-part="label">{label}</span> : null}
+  <label {...getUiPart(parts, 'input-label', undefined)} data-ooops-ui data-part="input-label" for={id}>{range ? startLabel : label}</label>
+  <input id={id} type={mode === 'datetime' ? 'datetime-local' : 'date'} step={mode === 'datetime' ? timeStepMinutes * 60 : undefined} name={range ? startName ?? (name ? `${name}-start` : undefined) : name} {form} {min} {max} {disabled} readonly={readOnly} {required}
+    value={value.start} aria-describedby={description} aria-invalid={!range && invalid || undefined} data-ooops-ui {...getUiPart(parts, 'date-input', undefined)}  data-part="date-input" data-date-start />
+  {dateFormat !== 'native' ? <>
+    <input id={`${id}-display`} type="text" {form} {...getUiPart(parts, 'display-input', undefined)} data-ooops-ui data-part="display-input" data-display-start hidden disabled={disabled} readonly={readOnly} placeholder={placeholder ?? dateFormat} value={formatCalendarInput(value.start, dateFormat, spacedSeparators)} />
+    {mode === 'datetime' ? <input type="time" {form} {...getUiPart(parts, 'time-input', undefined)} data-ooops-ui data-part="time-input" data-time-start hidden aria-label={`${range ? startLabel : label} ${timeLabel}`} value={calendarTimePart(value.start)} step={timeStepMinutes * 60} disabled={disabled} readonly={readOnly} /> : null}
+  </> : null}
+  {range ? <><label {...getUiPart(parts, 'input-label', undefined)} data-ooops-ui data-part="input-label" for={`${id}-end`}>{endLabel}</label>
+    <input id={`${id}-end`} type={mode === 'datetime' ? 'datetime-local' : 'date'} step={mode === 'datetime' ? timeStepMinutes * 60 : undefined} name={endName ?? (name ? `${name}-end` : undefined)} {form} {min} {max} {disabled} readonly={readOnly} {required}
+      value={value.end} aria-describedby={description} aria-invalid={invalid || undefined} data-ooops-ui {...getUiPart(parts, 'date-input', undefined)}  data-part="date-input" data-date-end />
+    {dateFormat !== 'native' ? <>
+      <input id={`${id}-end-display`} type="text" {form} {...getUiPart(parts, 'display-input', undefined)} data-ooops-ui data-part="display-input" data-display-end hidden disabled={disabled} readonly={readOnly} placeholder={placeholder ?? dateFormat} value={formatCalendarInput(value.end, dateFormat, spacedSeparators)} />
+      {mode === 'datetime' ? <input type="time" {form} {...getUiPart(parts, 'time-input', undefined)} data-ooops-ui data-part="time-input" data-time-end hidden aria-label={`${endLabel} ${timeLabel}`} value={calendarTimePart(value.end)} step={timeStepMinutes * 60} disabled={disabled} readonly={readOnly} /> : null}
+    </> : null}</> : null}
+  {clearable ? <button type="button" {...getUiPart(parts, 'clear', undefined)} data-ooops-ui data-part="clear" hidden disabled={disabled || readOnly || (!value.start && !value.end)} aria-label={clearLabel}>{slotMarkup['clear-icon'] ? <Fragment set:html={slotMarkup['clear-icon']} /> : clearLabel}</button> : null}
+  <p {...getUiPart(parts, 'error', undefined)} data-ooops-ui data-part="error" id={`${id}-error`} role="alert" hidden={!invalid} data-calendar-error>{errorMessage}</p>
+  <button type="button" hidden disabled={disabled || readOnly} aria-haspopup="dialog" aria-controls={`${id}-calendar`}
+    aria-label={`${calendarLabel}${value.start ? `, ${value.start}${range && value.end ? ` – ${value.end}` : ''}` : ''}`} data-ooops-ui {...getUiPart(parts, 'trigger', undefined)}  data-part="trigger">{slotMarkup['calendar-icon'] ? <Fragment set:html={slotMarkup['calendar-icon']} /> : calendarLabel}</button>
+  <dialog id={`${id}-calendar`} aria-labelledby={`${id}-month`} aria-describedby={`${id}-help`} data-ooops-ui {...getUiPart(parts, 'calendar-dialog', undefined)}  data-part="calendar-dialog">
+    <div data-ooops-ui {...getUiPart(parts, 'surface', undefined)}  data-part="surface">
+      <h2 {...getUiPart(parts, 'month-title', undefined, 'position:absolute;inline-size:1px;block-size:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0')} data-ooops-ui data-part="month-title" id={`${id}-month`} aria-live="polite">{calendar.formatMonth()}</h2>
+      <header {...getUiPart(parts, 'calendar-header', undefined)} data-ooops-ui data-part="calendar-header"><button type="button" {...getUiPart(parts, 'previous', undefined)} data-ooops-ui data-part="previous" aria-label={previousMonthLabel} data-calendar-previous>{slotMarkup['previous-icon'] ? <Fragment set:html={slotMarkup['previous-icon']} /> : '‹'}</button>
+        <div {...getUiPart(parts, 'month-controls', undefined)} data-ooops-ui data-part="month-controls">
+        <DropdownMenu id={`${id}-month-picker`} parts={monthParts} portal={false} ariaLabel={monthInputLabel} triggerLabel={`${monthInputLabel}: ${new Intl.DateTimeFormat(locale, {month: 'long', timeZone: 'UTC'}).format(new Date(`${state.visibleMonth}-01T12:00:00Z`))}`} items={Array.from({length: 12}, (_, i) => ({id: String(i + 1), value: String(i + 1), type: 'radio' as const, group: 'month', checked: i + 1 === Number(state.visibleMonth.slice(5)), label: new Intl.DateTimeFormat(locale, {month: 'long', timeZone: 'UTC'}).format(new Date(Date.UTC(2026, i, 1)))}))} />
+        <input {...getUiPart(parts, 'year-input', undefined)} data-ooops-ui data-part="year-input" type="number" form="" aria-label={yearLabel} min={minYear} max={maxYear} value={Number(state.visibleMonth.slice(0, 4))} />
+      </div>
+        <button type="button" {...getUiPart(parts, 'next', undefined)} data-ooops-ui data-part="next" aria-label={nextMonthLabel} data-calendar-next>{slotMarkup['next-icon'] ? <Fragment set:html={slotMarkup['next-icon']} /> : '›'}</button></header>
+
+      <table {...getUiPart(parts, 'grid', undefined)} data-ooops-ui data-part="grid" role="grid" aria-labelledby={`${id}-month`} aria-multiselectable={range || undefined}>
+        <thead {...getUiPart(parts, 'weekdays', undefined)} data-ooops-ui data-part="weekdays"><tr {...getUiPart(parts, 'week', undefined)} data-ooops-ui data-part="week">{weekdays.map(day => <th {...getUiPart(parts, 'weekday', undefined)} data-ooops-ui data-part="weekday" scope="col" abbr={day.long}>{day.short}</th>)}</tr></thead>
+        <tbody {...getUiPart(parts, 'weeks', undefined)} data-ooops-ui data-part="weeks">{[0, 1, 2, 3, 4, 5].map(week => <tr {...getUiPart(parts, 'week', undefined)} data-ooops-ui data-part="week">{days.slice(week * 7, week * 7 + 7).map(date =>
+          <td {...getUiPart(parts, 'day-cell', undefined)} data-ooops-ui data-part="day-cell" aria-selected={Boolean(date && selected(date))}>{date ? <button type="button" {...getUiPart(parts, 'day', undefined)} data-ooops-ui data-part="day" data-date={date} data-outside-month={date.slice(0, 7) !== state.visibleMonth}
+            aria-label={calendar.formatDate(date)} aria-disabled={!calendar.isSelectable(date)} tabindex={date === state.focusedDate ? 0 : -1}>{Boolean(slotMarkup.day) ? <Fragment set:html={slotMarkup.day} /> : Number(date.slice(-2))}</button> : null}</td>)}</tr>)}</tbody>
+      </table>
+      <p {...getUiPart(parts, 'help', undefined)} data-ooops-ui data-part="help" id={`${id}-help`}>{keyboardHelp}</p><button {...getUiPart(parts, 'close', undefined)} data-ooops-ui data-part="close" type="button" data-calendar-close aria-label={closeLabel}>{slotMarkup['close-icon'] ? <Fragment set:html={slotMarkup['close-icon']} /> : closeLabel}</button>
+    </div>
+  </dialog>
+  {Boolean(slotMarkup.day) ? <template data-calendar-day-template><Fragment set:html={slotMarkup.day} /></template> : null}
+  <script is:inline type="application/json" data-ooops-ui-config set:html={config} />
+</div>
+<script>import {installCalendar} from '@ooopsstudio/ui-astro/runtime/calendar'; installCalendar();</script>

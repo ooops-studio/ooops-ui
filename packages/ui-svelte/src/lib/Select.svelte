@@ -1,10 +1,11 @@
 <script lang="ts">
+	import {getUiPart} from '@ooopsstudio/ui-primitives'
 	import {createSelectController, resolveUiMessages, type SelectOption, type SelectState, type UiMessages} from '@ooopsstudio/ui-primitives'
 	import {onDestroy, onMount, type Snippet} from 'svelte'
 
 	import {portal} from './portal'
 
-	type Props = {
+	type Props = {parts?: import('@ooopsstudio/ui-primitives').UiParts | undefined;
 		id?: string
 		name?: string
 		label?: string
@@ -42,7 +43,7 @@
 		allowEmpty = true,
 		portal: usePortal = true,
 		messages,
-		class: className = '',
+		parts, class: className = '',
 		trigger,
 		option,
 		onChange
@@ -101,9 +102,9 @@
 	onDestroy(() => controller?.destroy())
 </script>
 
-<div bind:this={root} class={`ooops-select ${className}`.trim()} data-ooops-ui data-part="root" data-state={state.open ? 'open' : 'closed'}>
-	{#if label}<label id={labelId} for={`${id}-trigger`} data-ooops-ui data-part="label">{label}</label>{/if}
-	{#if description}<span id={descriptionId} data-ooops-ui data-part="description">{description}</span>{/if}
+<div bind:this={root}  data-ooops-ui {...getUiPart(parts, 'root', `ooops-select ${className}`.trim(), undefined)} data-part="root" data-state={state.open ? 'open' : 'closed'}>
+	{#if label}<label id={labelId} for={`${id}-trigger`} data-ooops-ui {...getUiPart(parts, 'label')} data-part="label">{label}</label>{/if}
+	{#if description}<span id={descriptionId} data-ooops-ui {...getUiPart(parts, 'description')} data-part="description">{description}</span>{/if}
 	<button
 		bind:this={triggerElement}
 		id={`${id}-trigger`}
@@ -116,20 +117,20 @@
 		aria-describedby={[ariaDescribedby, descriptionId, errorId].filter(Boolean).join(' ') || undefined}
 		aria-invalid={error ? 'true' : undefined}
 		{disabled}
-		data-part="trigger"
+		{...getUiPart(parts, 'trigger')} data-part="trigger"
 	>
 		{#if trigger}
 			{@render trigger(selectedOption)}
 		{:else}
-			<span data-ooops-ui data-part="value">{selectedOption?.label ?? resolvedPlaceholder}</span>
+			<span data-ooops-ui {...getUiPart(parts, 'value')} data-part="value">{selectedOption?.label ?? resolvedPlaceholder}</span>
 		{/if}
-		<span data-ooops-ui data-part="indicator" aria-hidden="true"></span>
+		<span data-ooops-ui {...getUiPart(parts, 'indicator')} data-part="indicator" aria-hidden="true"></span>
 	</button>
-	<select bind:this={nativeSelect} bind:value {name} {required} {disabled} tabindex="-1" aria-hidden="true" data-ooops-ui data-part="native-select">
+	<select bind:this={nativeSelect} bind:value {name} {required} {disabled} tabindex="-1" aria-hidden="true" data-ooops-ui {...getUiPart(parts, 'native-select')} data-part="native-select">
 		{#if allowEmpty}<option value="">{resolvedPlaceholder}</option>{/if}
 		{#each options as entry}<option value={entry.value} disabled={entry.disabled}>{entry.label}</option>{/each}
 	</select>
-	{#if error}<span id={errorId} data-ooops-ui data-part="error">{error}</span>{/if}
+	{#if error}<span id={errorId} data-ooops-ui {...getUiPart(parts, 'error')} data-part="error">{error}</span>{/if}
 </div>
 
 <div
@@ -138,13 +139,13 @@
 	id={listboxId}
 	role="listbox"
 	aria-label={ariaLabel} aria-labelledby={ariaLabelledby ?? labelId}
-	class="ooops-select-listbox"
-	data-part="listbox"
+
+	{...getUiPart(parts, 'listbox', 'ooops-select-listbox', undefined)} data-part="listbox"
 	hidden={!state.open}
 >
 	{#each options as entry, index (entry.value)}
 		{#if index === 0 || entry.group !== options[index - 1]?.group}
-			{#if entry.group}<div role="presentation" data-ooops-ui data-part="group-label">{entry.group}</div>{/if}
+			{#if entry.group}<div role="presentation" data-ooops-ui {...getUiPart(parts, 'group-label')} data-part="group-label">{entry.group}</div>{/if}
 		{/if}
 		<div
 			id={`${id}-option-${index}`}
@@ -153,16 +154,16 @@
 			aria-disabled={entry.disabled ? 'true' : undefined}
 			data-ooops-select-option
 			data-option-index={index}
-			data-part="option"
+			{...getUiPart(parts, 'option')} data-part="option"
 			data-selected={entry.value === value ? 'true' : 'false'}
 			data-disabled={entry.disabled ? 'true' : 'false'}
 		>
 			{#if option}
 				{@render option(entry, {selected: entry.value === value, active: state.activeIndex === index})}
 			{:else}
-				{#if entry.icon}<span data-ooops-ui data-part="option-icon" aria-hidden="true">{entry.icon}</span>{/if}
-				{#if entry.iconUrl}<img data-ooops-ui data-part="option-image" src={entry.iconUrl} alt="" loading="lazy" />{/if}
-				<span data-ooops-ui data-part="option-copy"><span>{entry.label}</span>{#if entry.description}<small>{entry.description}</small>{/if}</span>
+				{#if entry.icon}<span data-ooops-ui {...getUiPart(parts, 'option-icon')} data-part="option-icon" aria-hidden="true">{entry.icon}</span>{/if}
+				{#if entry.iconUrl}<img data-ooops-ui {...getUiPart(parts, 'option-image')} data-part="option-image" src={entry.iconUrl} alt="" loading="lazy" />{/if}
+				<span data-ooops-ui {...getUiPart(parts, 'option-copy')} data-part="option-copy"><span {...getUiPart(parts, 'text')} data-ooops-ui data-part="text">{entry.label}</span>{#if entry.description}<small {...getUiPart(parts, 'small')} data-ooops-ui data-part="small">{entry.description}</small>{/if}</span>
 			{/if}
 		</div>
 	{/each}

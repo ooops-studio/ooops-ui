@@ -69,7 +69,8 @@ export const createNumberInputController = (options: NumberInputControllerOption
 		const input = event.currentTarget as HTMLInputElement
 		const text = input.value
 		const value = text.trim() === '' ? null : Number(text)
-		const valid = value === null || (Number.isFinite(value) && value >= min && value <= max)
+		const valid = !input.validity.badInput &&
+			(value === null || (Number.isFinite(value) && value >= min && value <= max))
 		store.setState({text, value: Number.isFinite(value) ? value : null, valid})
 		input.setAttribute('aria-invalid', String(!valid))
 		options.onChange?.(Number.isFinite(value) ? value : null)

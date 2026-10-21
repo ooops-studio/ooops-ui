@@ -157,7 +157,7 @@ class UnmountCommand implements fc.Command<SelectionModel, SelectionReal> {
 }
 
 describe('model-based controller lifecycle', () => {
-	it('[FM-ASYNC-UNMOUNT] preserves multi-select invariants across random mount/open/select/reset/unmount sequences', () => {
+	it('preserves multi-select invariants across random mount/open/select/reset/unmount sequences', () => {
 		fc.assert(
 			fc.property(
 				fc.commands(

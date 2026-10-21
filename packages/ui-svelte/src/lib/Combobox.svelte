@@ -1,10 +1,11 @@
 <script lang="ts">
+	import {getUiPart} from '@ooopsstudio/ui-primitives'
 	import {createComboboxController, resolveUiMessages, type ComboboxLoadOptions, type ComboboxState, type SelectOption, type UiMessages} from '@ooopsstudio/ui-primitives'
 	import {onMount, type Snippet} from 'svelte'
 	import {portal} from './portal'
-	type Props = {id?: string; name?: string; label?: string; ariaLabel?: string; ariaLabelledby?: string; ariaDescribedby?: string; description?: string; value?: string; options?: SelectOption[]; placeholder?: string; allowCustomValue?: boolean; disabled?: boolean; required?: boolean; clearable?: boolean; portal?: boolean; loadOptions?: ComboboxLoadOptions; debounceMs?: number; messages?: Partial<UiMessages>; class?: string; option?: Snippet<[SelectOption, {selected: boolean; active: boolean}]>; onChange?: (detail: {value: string; option: SelectOption | null; custom: boolean}) => void}
+	type Props = {parts?: import('@ooopsstudio/ui-primitives').UiParts | undefined; id?: string; name?: string; label?: string; ariaLabel?: string; ariaLabelledby?: string; ariaDescribedby?: string; description?: string; value?: string; options?: SelectOption[]; placeholder?: string; allowCustomValue?: boolean; disabled?: boolean; required?: boolean; clearable?: boolean; portal?: boolean; loadOptions?: ComboboxLoadOptions; debounceMs?: number; messages?: Partial<UiMessages>; class?: string; option?: Snippet<[SelectOption, {selected: boolean; active: boolean}]>; onChange?: (detail: {value: string; option: SelectOption | null; custom: boolean}) => void}
 	const generatedId = $props.id()
-	let {id = generatedId, name, label, ariaLabel, ariaLabelledby, ariaDescribedby, description, value = $bindable(''), options = [], placeholder, allowCustomValue = false, disabled = false, required = false, clearable = true, portal: usePortal = true, loadOptions, debounceMs = 150, messages, class: className = '', option, onChange}: Props = $props()
+	let {id = generatedId, name, label, ariaLabel, ariaLabelledby, ariaDescribedby, description, value = $bindable(''), options = [], placeholder, allowCustomValue = false, disabled = false, required = false, clearable = true, portal: usePortal = true, loadOptions, debounceMs = 150, messages, parts, class: className = '', option, onChange}: Props = $props()
 	const uiMessages = $derived(resolveUiMessages(messages))
 	let root: HTMLElement | null = $state(null), input: HTMLInputElement | null = $state(null), listbox: HTMLElement | null = $state(null), nativeInput: HTMLInputElement | null = $state(null)
 	let state: ComboboxState = $state({open: false, query: '', value, activeIndex: -1, options: [], loading: false, error: null, mounted: false})
@@ -28,24 +29,24 @@
 	$effect(() => { if (controller && controller.getState().value !== value) controller.setValue(value) })
 </script>
 
-<div bind:this={root} class={`ooops-combobox ${className}`.trim()} data-ooops-ui data-part="root" data-state={state.open ? 'open' : 'closed'} data-loading={state.loading ? 'true' : 'false'}>
-	{#if label}<label id={`${id}-label`} for={`${id}-input`} data-ooops-ui data-part="label">{label}</label>{/if}
-	{#if description}<p id={`${id}-description`} data-ooops-ui data-part="description">{description}</p>{/if}
-	<div data-ooops-ui data-part="control">
-		<input bind:this={input} id={`${id}-input`} role="combobox" aria-autocomplete="list" aria-controls={`${id}-listbox`} aria-expanded={state.open} aria-label={ariaLabel} aria-labelledby={ariaLabelledby ?? (label ? `${id}-label` : undefined)} aria-describedby={[ariaDescribedby, description ? `${id}-description` : undefined].filter(Boolean).join(' ') || undefined} placeholder={placeholder ?? uiMessages.searchOptions} {disabled} {required} data-ooops-ui data-part="input" />
-		{#if clearable}<button type="button" aria-label={uiMessages.clearSelection} data-ooops-ui data-part="clear" disabled={disabled || !state.value} onclick={() => controller?.setValue('', true)}>×</button>{/if}
-		<span aria-hidden="true" data-ooops-ui data-part="indicator"></span>
+<div bind:this={root}  data-ooops-ui {...getUiPart(parts, 'root', `ooops-combobox ${className}`.trim(), undefined)} data-part="root" data-state={state.open ? 'open' : 'closed'} data-loading={state.loading ? 'true' : 'false'}>
+	{#if label}<label id={`${id}-label`} for={`${id}-input`} data-ooops-ui {...getUiPart(parts, 'label')} data-part="label">{label}</label>{/if}
+	{#if description}<p id={`${id}-description`} data-ooops-ui {...getUiPart(parts, 'description')} data-part="description">{description}</p>{/if}
+	<div data-ooops-ui {...getUiPart(parts, 'control')} data-part="control">
+		<input bind:this={input} id={`${id}-input`} role="combobox" aria-autocomplete="list" aria-controls={`${id}-listbox`} aria-expanded={state.open} aria-label={ariaLabel} aria-labelledby={ariaLabelledby ?? (label ? `${id}-label` : undefined)} aria-describedby={[ariaDescribedby, description ? `${id}-description` : undefined].filter(Boolean).join(' ') || undefined} placeholder={placeholder ?? uiMessages.searchOptions} {disabled} {required} data-ooops-ui {...getUiPart(parts, 'input')} data-part="input" />
+		{#if clearable}<button type="button" aria-label={uiMessages.clearSelection} data-ooops-ui {...getUiPart(parts, 'clear')} data-part="clear" disabled={disabled || !state.value} onclick={() => controller?.setValue('', true)}>×</button>{/if}
+		<span aria-hidden="true" data-ooops-ui {...getUiPart(parts, 'indicator')} data-part="indicator"></span>
 	</div>
-	<input bind:this={nativeInput} type="hidden" {disabled} {name} value={state.value} data-ooops-ui data-part="native-input" />
+	<input bind:this={nativeInput} type="hidden" {disabled} {name} value={state.value} data-ooops-ui {...getUiPart(parts, 'native-input')} data-part="native-input" />
 </div>
 
-<div use:portal={usePortal} bind:this={listbox} id={`${id}-listbox`} role="listbox" aria-label={ariaLabel} aria-labelledby={ariaLabelledby ?? (label ? `${id}-label` : undefined)} hidden={!state.open} data-ooops-ui data-part="listbox">
-	{#if state.loading}<div role="status" data-ooops-ui data-part="loading">{uiMessages.loading}</div>{/if}
-	{#if state.error}<div role="alert" data-ooops-ui data-part="error">{state.error}</div>{/if}
-	{#if !state.loading && !state.error && state.options.length === 0}<div data-ooops-ui data-part="empty">{uiMessages.noOptions}</div>{/if}
+<div use:portal={usePortal} bind:this={listbox} id={`${id}-listbox`} role="listbox" aria-label={ariaLabel} aria-labelledby={ariaLabelledby ?? (label ? `${id}-label` : undefined)} hidden={!state.open} data-ooops-ui {...getUiPart(parts, 'listbox')} data-part="listbox">
+	{#if state.loading}<div role="status" data-ooops-ui {...getUiPart(parts, 'loading')} data-part="loading">{uiMessages.loading}</div>{/if}
+	{#if state.error}<div role="alert" data-ooops-ui {...getUiPart(parts, 'error')} data-part="error">{state.error}</div>{/if}
+	{#if !state.loading && !state.error && state.options.length === 0}<div data-ooops-ui {...getUiPart(parts, 'empty')} data-part="empty">{uiMessages.noOptions}</div>{/if}
 	{#each state.options as entry, index (entry.value)}
-		<div id={`${id}-option-${index}`} role="option" aria-selected={entry.value === state.value} aria-disabled={entry.disabled ? 'true' : undefined} data-option-index={index} data-ooops-ui data-part="option" data-selected={entry.value === state.value ? 'true' : 'false'} data-active={state.activeIndex === index ? 'true' : 'false'}>
-			{#if option}{@render option(entry, {selected: entry.value === state.value, active: state.activeIndex === index})}{:else}<span data-ooops-ui data-part="option-label">{entry.label}</span>{#if entry.description}<small data-ooops-ui data-part="option-description">{entry.description}</small>{/if}{/if}
+		<div id={`${id}-option-${index}`} role="option" aria-selected={entry.value === state.value} aria-disabled={entry.disabled ? 'true' : undefined} data-option-index={index} data-ooops-ui {...getUiPart(parts, 'option')} data-part="option" data-selected={entry.value === state.value ? 'true' : 'false'} data-active={state.activeIndex === index ? 'true' : 'false'}>
+			{#if option}{@render option(entry, {selected: entry.value === state.value, active: state.activeIndex === index})}{:else}<span data-ooops-ui {...getUiPart(parts, 'option-label')} data-part="option-label">{entry.label}</span>{#if entry.description}<small data-ooops-ui {...getUiPart(parts, 'option-description')} data-part="option-description">{entry.description}</small>{/if}{/if}
 		</div>
 	{/each}
 </div>

@@ -6,7 +6,8 @@ const requiredEnvironments = new Set(['voiceover-safari', 'nvda-firefox', 'nvda-
 const requiredComponents = new Set([
 	'Input', 'Textarea', 'Checkbox', 'Switch', 'RadioGroup', 'Select', 'Combobox',
 	'MultiSelect', 'DropdownMenu', 'Tooltip', 'Popover', 'Dialog', 'Modal', 'Tabs',
-	'Accordion', 'Slider', 'NumberInput', 'SegmentedControl'
+	'Accordion', 'Slider', 'NumberInput', 'SegmentedControl', 'Button', 'IconButton',
+	'DatePicker', 'DateRange', 'Drawer'
 ])
 
 if (matrix.version !== 1)

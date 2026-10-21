@@ -1,10 +1,11 @@
 ---
-type Props = {id: string; controlId?: string; label?: string; description?: string; hint?: string; error?: string; required?: boolean; disabled?: boolean; pending?: boolean; class?: string};
-const {id, controlId = `${id}-control`, label, description, hint, error, required = false, disabled = false, pending = false, class: className = ''} = Astro.props;
+import {getUiPart} from '@ooopsstudio/ui-primitives';
+type Props = {parts?: import('@ooopsstudio/ui-primitives').UiParts | undefined; id: string; controlId?: string; label?: string; description?: string; hint?: string; error?: string; required?: boolean; disabled?: boolean; pending?: boolean; class?: string};
+const {id, controlId = `${id}-control`, label, description, hint, error, required = false, disabled = false, pending = false, parts, class: className = ''} = Astro.props;
 ---
-<div id={id} class:list={['ooops-field', className]} data-control-id={controlId} data-ooops-ui data-part="root" data-disabled={String(disabled)} data-invalid={String(Boolean(error))} data-pending={String(pending)}>
-  {label ? <label for={controlId} data-ooops-ui data-part="label">{label}{required ? <span aria-hidden="true" data-ooops-ui data-part="required">*</span> : null}</label> : null}
-  {description ? <span id={`${id}-description`} data-ooops-ui data-part="description">{description}</span> : null}
-  <div data-ooops-ui data-part="control"><slot /></div>
-  {error ? <span id={`${id}-error`} data-ooops-ui data-part="error" aria-live="polite">{error}</span> : hint ? <span id={`${id}-hint`} data-ooops-ui data-part="hint">{hint}</span> : null}
+<div id={id}  data-control-id={controlId} data-ooops-ui {...getUiPart(parts, 'root', ['ooops-field', className], undefined)} data-part="root" data-disabled={String(disabled)} data-invalid={String(Boolean(error))} data-pending={String(pending)}>
+  {label ? <label for={controlId} data-ooops-ui {...getUiPart(parts, 'label')} data-part="label">{label}{required ? <span aria-hidden="true" data-ooops-ui {...getUiPart(parts, 'required')} data-part="required">*</span> : null}</label> : null}
+  {description ? <span id={`${id}-description`} data-ooops-ui {...getUiPart(parts, 'description')} data-part="description">{description}</span> : null}
+  <div data-ooops-ui {...getUiPart(parts, 'control')} data-part="control"><slot /></div>
+  {error ? <span id={`${id}-error`} data-ooops-ui {...getUiPart(parts, 'error')} data-part="error" aria-live="polite">{error}</span> : hint ? <span id={`${id}-hint`} data-ooops-ui {...getUiPart(parts, 'hint')} data-part="hint">{hint}</span> : null}
 </div>

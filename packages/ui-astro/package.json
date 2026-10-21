@@ -40,6 +40,19 @@
 		"./Modal.astro": {
 			"default": "./dist/Modal.astro"
 		},
+		"./Drawer.astro": {
+			"default": "./dist/Drawer.astro"
+		},
+		"./DatePicker.astro": {
+			"default": "./dist/DatePicker.astro"
+		},
+		"./DateRange.astro": {
+			"default": "./dist/DateRange.astro"
+		},
+		"./runtime/calendar": {
+			"types": "./dist/runtime/calendar.d.ts",
+			"import": "./dist/runtime/calendar.js"
+		},
 		"./Popover.astro": {
 			"default": "./dist/Popover.astro"
 		},
@@ -91,7 +104,17 @@
 		"./Part.astro": {
 			"default": "./dist/Part.astro"
 		},
-		"./base.css": "./dist/base.css"
+		"./base.css": "./dist/base.css",
+		"./runtime/actions": {
+			"types": "./dist/runtime/actions.d.ts",
+			"import": "./dist/runtime/actions.js"
+		},
+		"./Button.astro": {
+			"default": "./dist/Button.astro"
+		},
+		"./IconButton.astro": {
+			"default": "./dist/IconButton.astro"
+		}
 	},
 	"sideEffects": [
 		"**/*.css"

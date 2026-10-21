@@ -1,0 +1,43 @@
+---
+import Button from '@ooopsstudio/ui-astro/Button.astro';
+import IconButton from '@ooopsstudio/ui-astro/IconButton.astro';
+import Layout from '../layouts/Layout.astro';
+type Props = {disabled?: boolean};
+const {disabled = true} = Astro.props;
+---
+<Layout title="Astro button contracts">
+  <h1>Button contracts</h1>
+  <Button id="passive-busy" aria-busy="true" aria-disabled="true">Background task</Button>
+  <form id="button-form">
+    <label>Email<input id="email" name="email" type="email" required /></label>
+    <Button id="plain" data-count-click>Plain action</Button>
+  </form>
+  <Button id="submit" type="submit" form="button-form" name="action" value="save">Submit record</Button>
+  <Button id="disabled" {disabled} data-count-click>Disabled action</Button>
+  <Button id="busy" loading={disabled} data-count-click>Saving record</Button>
+  <Button id="blocked-link" href="/transition" {disabled} data-count-click>Blocked link</Button>
+  <Button id="busy-link" href="/transition" loading={disabled} data-count-click>Busy link</Button>
+  <IconButton id="refresh" label="Refresh results" data-count-click><span>↻</span></IconButton>
+  <a id="unlock" href="/buttons-enabled">Unlock buttons</a>
+  <p id="ready">server</p><p id="clicks">0</p><p id="submits">0</p><p id="submitted"></p>
+</Layout>
+<script>
+  document.addEventListener('astro:page-load', () => {
+    const ready = document.querySelector('#ready');
+    if (!ready) return;
+    ready.textContent = 'ready';
+    for (const element of document.querySelectorAll('[data-count-click]')) {
+      element.addEventListener('click', () => {
+        const count = document.querySelector('#clicks')!;
+        count.textContent = String(Number(count.textContent) + 1);
+      });
+    }
+    document.querySelector('#button-form')?.addEventListener('submit', event => {
+      event.preventDefault();
+      const form = event.currentTarget as HTMLFormElement;
+      const count = document.querySelector('#submits')!;
+      count.textContent = String(Number(count.textContent) + 1);
+      document.querySelector('#submitted')!.textContent = new FormData(form, (event as SubmitEvent).submitter).get('action')?.toString() ?? '';
+    });
+  });
+</script>

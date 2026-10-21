@@ -1,10 +1,11 @@
 <script lang="ts">
+	import {getUiPart} from '@ooopsstudio/ui-primitives'
 	import {connectOverlayTrigger, createPopoverController, resolveUiMessages, type PopoverAlign, type PopoverPlacement, type PopoverState, type UiMessages} from '@ooopsstudio/ui-primitives'
 	import {onMount, type Snippet} from 'svelte'
 
 	import {portal} from './portal'
 
-	type Props = {
+	type Props = {parts?: import('@ooopsstudio/ui-primitives').UiParts | undefined;
 		anchorEl?: HTMLElement | null
 		portalTarget?: HTMLElement | null
 		offset?: number
@@ -35,7 +36,7 @@
 	let {
 		anchorEl, portalTarget, offset = 8, zIndex = 1000, matchAnchorWidth = false, beforeClose, id = generatedId, open = $bindable(false), placement = 'bottom', align = 'start', role = 'dialog',
 		ariaLabel, closeOnOutside = true, closeOnOutsideFocus = false, closeOnEscape = true, focusOnOpen = false,
-		trapFocus = false, portal: usePortal = true, messages, class: className = '', triggerLabel, trigger, children, onClose
+		trapFocus = false, portal: usePortal = true, messages, parts, class: className = '', triggerLabel, trigger, children, onClose
 	}: Props = $props()
 	const uiMessages = $derived(resolveUiMessages(messages))
 	let root: HTMLElement | null = $state(null)
@@ -63,11 +64,11 @@
 	})
 </script>
 
-<span bind:this={root} class={`ooops-popover-root ${className}`.trim()} data-ooops-ui data-part="root">
-	{#if !anchorEl}<button bind:this={anchor} type="button" aria-haspopup={role} aria-controls={`${id}-panel`} aria-expanded={state.open} onclick={() => controller?.toggle()} data-ooops-ui data-part="trigger">
+<span bind:this={root}  data-ooops-ui {...getUiPart(parts, 'root', `ooops-popover-root ${className}`.trim(), undefined)} data-part="root">
+	{#if !anchorEl}<button bind:this={anchor} type="button" aria-haspopup={role} aria-controls={`${id}-panel`} aria-expanded={state.open} onclick={() => controller?.toggle()} data-ooops-ui {...getUiPart(parts, 'trigger')} data-part="trigger">
 		{#if trigger}{@render trigger(state.open)}{:else}{triggerLabel ?? uiMessages.open}{/if}
 	</button>{/if}
 </span>
-<div use:portal={{enabled: usePortal, target: portalTarget}} bind:this={panel} id={`${id}-panel`} {role} aria-label={ariaLabel ?? uiMessages.popover} data-ooops-ui data-part="panel" hidden={!state.open}>
+<div use:portal={{enabled: usePortal, target: portalTarget}} bind:this={panel} id={`${id}-panel`} {role} aria-label={ariaLabel ?? uiMessages.popover} data-ooops-ui {...getUiPart(parts, 'panel')} data-part="panel" hidden={!state.open}>
 	{#if children}{@render children()}{/if}
 </div>

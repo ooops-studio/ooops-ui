@@ -1,0 +1,14 @@
+---
+import CalendarField from './CalendarField.astro';
+import type {DatePickerProps} from './index';
+type Props = DatePickerProps;
+const {value = '', ...props} = Astro.props;
+---
+<CalendarField {...props} value={{start: value, end: value}}>
+  {Astro.slots.has('calendar-icon') ? <Fragment slot="calendar-icon"><slot name="calendar-icon" /></Fragment> : null}
+  {Astro.slots.has('previous-icon') ? <Fragment slot="previous-icon"><slot name="previous-icon" /></Fragment> : null}
+  {Astro.slots.has('next-icon') ? <Fragment slot="next-icon"><slot name="next-icon" /></Fragment> : null}
+  {Astro.slots.has('clear-icon') ? <Fragment slot="clear-icon"><slot name="clear-icon" /></Fragment> : null}
+  {Astro.slots.has('close-icon') ? <Fragment slot="close-icon"><slot name="close-icon" /></Fragment> : null}
+  {Astro.slots.has('day') ? <Fragment slot="day"><slot name="day" /></Fragment> : null}
+</CalendarField>

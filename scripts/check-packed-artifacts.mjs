@@ -163,15 +163,26 @@ async function verifyPackedAstroConsumer(consumerDir) {
 	await writeFile(path.join(appDir, 'astro.config.mjs'), "import {defineConfig} from 'astro/config'\nexport default defineConfig({output: 'static'})\n")
 	await writeFile(path.join(appDir, 'src/pages/index.astro'), `---
 import Checkbox from '@ooopsstudio/ui-astro/Checkbox.astro'
+import Button from '@ooopsstudio/ui-astro/Button.astro'
+import IconButton from '@ooopsstudio/ui-astro/IconButton.astro'
+import Drawer from '@ooopsstudio/ui-astro/Drawer.astro'
+import DatePicker from '@ooopsstudio/ui-astro/DatePicker.astro'
+import DateRange from '@ooopsstudio/ui-astro/DateRange.astro'
 import Select from '@ooopsstudio/ui-astro/Select.astro'
 import Slider from '@ooopsstudio/ui-astro/Slider.astro'
 ---
+<Button>Packaged button</Button>
+<IconButton label="Packaged icon">↻</IconButton>
+<Drawer id="packed-drawer" title="Packed drawer" triggerLabel="Open packed drawer"><p>Drawer body</p></Drawer>
+<DatePicker id="packed-date" label="Packed date" name="date" value="2026-10-21" />
+<DateRange id="packed-range" label="Packed range" name="trip" />
 <Checkbox id="packed-checkbox" label="Packed checkbox" />
 <Select id="packed-select" label="Packed select" options={[{value: 'a', label: 'Alpha'}]} />
 <Slider id="packed-slider" label="Packed slider" value={20} />
 `)
 	await run('pnpm', ['exec', 'astro', 'build', '--root', appDir], {cwd: consumerDir})
 	const html = await readFile(path.join(appDir, 'dist/index.html'), 'utf8')
+	assert(html.includes('Packaged button') && html.includes('Packaged icon'), 'Packed Astro buttons did not render.')
 	assert(html.includes('Packed checkbox'), 'Packed Astro consumer did not render Checkbox.')
 	assert(html.includes('data-ooops-slider-root'), 'Packed Astro consumer did not render Slider.')
 }
@@ -196,8 +207,13 @@ import App from './App.svelte'
 mount(App, {target: document.querySelector('#app')})
 `)
 	await writeFile(path.join(appDir, 'src/App.svelte'), `<script>
-	import {Checkbox, Select, Slider} from '@ooopsstudio/ui-svelte'
+	import {Button, IconButton, Drawer, DatePicker, DateRange, Checkbox, Select, Slider} from '@ooopsstudio/ui-svelte'
 </script>
+<Button>Packaged button</Button>
+<IconButton label="Packaged icon">↻</IconButton>
+<Drawer title="Packed drawer"><p>Drawer body</p></Drawer>
+<DatePicker label="Packed date" name="date" value="2026-10-21" />
+<DateRange label="Packed range" name="trip" />
 <Checkbox id="packed-checkbox" label="Packed checkbox" />
 <Select id="packed-select" label="Packed select" options={[{value: 'a', label: 'Alpha'}]} />
 <Slider id="packed-slider" label="Packed slider" value={20} />

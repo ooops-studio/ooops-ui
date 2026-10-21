@@ -1,17 +1,18 @@
 ---
+import {getUiPart} from '@ooopsstudio/ui-primitives';
 import {resolveUiMessages, type UiMessages} from '@ooopsstudio/ui-primitives'; import {serializeUiConfig} from './index';
-type Props = {id: string; initialFocusId?: string; restoreFocusId?: string; title?: string; description?: string; triggerLabel?: string; ariaLabel?: string; size?: 'sm' | 'md' | 'lg' | 'xl'; open?: boolean; busy?: boolean; closeLabel?: string; closeOnBackdrop?: boolean; closeOnEscape?: boolean; showCloseButton?: boolean; messages?: Partial<UiMessages>; class?: string};
-const {id, initialFocusId, restoreFocusId, title, description, triggerLabel, ariaLabel, size = 'md', open = false, busy = false, closeLabel, closeOnBackdrop = true, closeOnEscape = true, showCloseButton = true, messages, class: className = ''} = Astro.props;
+type Props = {parts?: import('@ooopsstudio/ui-primitives').UiParts | undefined; id: string; initialFocusId?: string; restoreFocusId?: string; title?: string; description?: string; triggerLabel?: string; ariaLabel?: string; size?: 'sm' | 'md' | 'lg' | 'xl'; open?: boolean; busy?: boolean; closeLabel?: string; closeOnBackdrop?: boolean; closeOnEscape?: boolean; showCloseButton?: boolean; messages?: Partial<UiMessages>; class?: string};
+const {id, initialFocusId, restoreFocusId, title, description, triggerLabel, ariaLabel, size = 'md', open = false, busy = false, closeLabel, closeOnBackdrop = true, closeOnEscape = true, showCloseButton = true, messages, parts, class: className = ''} = Astro.props;
 const uiMessages = resolveUiMessages(messages);
 const config = serializeUiConfig({busy, id, initialFocusId, restoreFocusId, open, closeOnBackdrop, closeOnEscape, type: 'modal'});
 ---
-{triggerLabel ? <button type="button" data-ooops-modal-open={id} data-ooops-ui data-part="trigger">{triggerLabel}</button> : null}
-<span class:list={['ooops-modal-root', className]} data-ooops-modal-root={id} data-ooops-ui data-part="root" data-size={size}>
-  <dialog aria-label={!title ? ariaLabel ?? uiMessages.dialog : undefined} aria-labelledby={title ? `${id}-title` : undefined} aria-describedby={description ? `${id}-description` : undefined} data-ooops-ui data-part="dialog">
-    <article data-ooops-ui data-part="surface">
-      {showCloseButton ? <button type="button" data-modal-close data-initial-focus aria-label={closeLabel ?? uiMessages.closeDialog} data-ooops-ui data-part="close">×</button> : null}
-      {title || description ? <header data-ooops-ui data-part="header">{title ? <h2 id={`${id}-title`}>{title}</h2> : null}{description ? <p id={`${id}-description`}>{description}</p> : null}</header> : null}
-      <div data-ooops-ui data-part="body"><slot /></div>
+{triggerLabel ? <button type="button" data-ooops-modal-open={id} data-ooops-ui {...getUiPart(parts, 'trigger')} data-part="trigger">{triggerLabel}</button> : null}
+<span  data-ooops-modal-root={id} data-ooops-ui {...getUiPart(parts, 'root', ['ooops-modal-root', className], undefined)} data-part="root" data-size={size}>
+  <dialog aria-label={!title ? ariaLabel ?? uiMessages.dialog : undefined} aria-labelledby={title ? `${id}-title` : undefined} aria-describedby={description ? `${id}-description` : undefined} data-ooops-ui {...getUiPart(parts, 'dialog')} data-part="dialog">
+    <article data-ooops-ui {...getUiPart(parts, 'surface')} data-part="surface">
+      {showCloseButton ? <button type="button" disabled={busy} data-modal-close data-initial-focus aria-label={closeLabel ?? uiMessages.closeDialog} data-ooops-ui {...getUiPart(parts, 'close')} data-part="close">×</button> : null}
+      {title || description ? <header data-ooops-ui {...getUiPart(parts, 'header')} data-part="header">{title ? <h2 id={`${id}-title`} {...getUiPart(parts, 'title')} data-ooops-ui data-part="title">{title}</h2> : null}{description ? <p id={`${id}-description`} {...getUiPart(parts, 'description')} data-ooops-ui data-part="description">{description}</p> : null}</header> : null}
+      <div data-ooops-ui {...getUiPart(parts, 'body')} data-part="body"><slot /></div>
       <slot name="footer" />
     </article>
   </dialog>
