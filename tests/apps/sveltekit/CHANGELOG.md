@@ -1,5 +1,13 @@
 # @ooopsstudio/ui-e2e-sveltekit
 
+## 0.0.4
+
+### Patch Changes
+
+- Updated dependencies [[`4a2a3d1`](https://github.com/ooops-studio/ooops-ui/commit/4a2a3d1ffce236638d194e17096f9312d1f2df01), [`4a2a3d1`](https://github.com/ooops-studio/ooops-ui/commit/4a2a3d1ffce236638d194e17096f9312d1f2df01), [`4a2a3d1`](https://github.com/ooops-studio/ooops-ui/commit/4a2a3d1ffce236638d194e17096f9312d1f2df01), [`4a2a3d1`](https://github.com/ooops-studio/ooops-ui/commit/4a2a3d1ffce236638d194e17096f9312d1f2df01), [`4a2a3d1`](https://github.com/ooops-studio/ooops-ui/commit/4a2a3d1ffce236638d194e17096f9312d1f2df01)]:
+  - @ooopsstudio/ui-primitives@0.5.0
+  - @ooopsstudio/ui-svelte@0.4.0
+
 ## 0.0.3
 
 ### Patch Changes
