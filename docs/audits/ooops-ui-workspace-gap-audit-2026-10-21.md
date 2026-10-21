@@ -374,6 +374,8 @@ External anchors, portal/focus ownership, Dialog/Modal close lifecycle, Tabs ada
 
 ### Περιορισμένες development εξαιρέσεις
 
+**Ιστορικό του αρχικού release: οι παρακάτω εξαιρέσεις καταργήθηκαν στη συνέχεια με την αναβάθμιση της ενότητας 15.**
+
 Το `config/dependency-audit-policy.json` περιέχει δύο ακριβείς, προσωρινές εξαιρέσεις:
 
 - `braces 3.0.3`, [GHSA-vfj7-8cjw-p6xm](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm): glob patterns εργαλείων Changesets/Stryker που ορίζονται από το repository. Δεν δέχονται εξωτερικά runtime patterns.
@@ -391,3 +393,16 @@ External anchors, portal/focus ownership, Dialog/Modal close lifecycle, Tabs ada
 Για τη rendered επαλήθευση χρησιμοποιήθηκε το Playwright workflow του repo: Browser plugin/skill δεν υπήρχε στον διαθέσιμο κατάλογο. Το release παραμένει gated από τα audits και ολόκληρο το `validate:release` στο GitHub Actions πριν από τη δημοσίευση.
 
 Το CI/release toolchain ενημερώθηκε σε Node >=22.22.0, την ελάχιστη έκδοση του Astro 7.4. Το τοπικό πλήρες gate είχε εκτελεστεί με Node 22.22.1· το παλιό hardcoded 22.14 του GitHub workflow διορθώθηκε χωρίς αλλαγή στα tests ή στα thresholds.
+
+
+## 15. Κατάργηση των dependency audit εξαιρέσεων
+
+Οι δύο εξαρτήσεις εισάγονταν από το Changesets 2: το `braces` μέσω micromatch/globby και το `sprintf-js` μέσω read-yaml-file/js-yaml 3/argparse. Η αναβάθμιση του `@changesets/cli` από 2.31.1 σε 3.0.3 και του `@changesets/changelog-github` από 0.5.2 σε 1.0.1 αφαίρεσε και τις δύο διαδρομές από το workspace dependency graph. Δεν χρησιμοποιήθηκαν aliases, πλασματικές patched εκδόσεις ή suppressions. Αφαιρέθηκε και το πλέον αχρησιμοποίητο override για js-yaml 3.
+
+Διαγράφηκε το `config/dependency-audit-policy.json` και αφαιρέθηκε όλη η λογική αποδοχής εξαιρέσεων από το audit script. Κάθε moderate/high/critical finding μπλοκάρει και στα δύο modes, συμπεριλαμβανομένων των δύο προηγούμενων advisories. Μη έγκυρα service responses ή μη αναγνωρίσιμες severity τιμές μπλοκάρουν τον έλεγχο. Το επίπεδο ελέγχου παραμένει moderate.
+
+Το Changesets 3 έχει διαφορετικά defaults για private packages. Το `privatePackages: {version: true, tag: false}` ορίστηκε ρητά ώστε να διατηρηθεί η προηγούμενη συμπεριφορά των ιδιωτικών fixtures. Το schema ενημερώθηκε σε config 4.0.1. Τα ήδη χρησιμοποιούμενα Node 22.22 και pnpm 11 καλύπτουν τις νέες απαιτήσεις.
+
+Τα τέσσερα audit regression tests καλύπτουν το αυστηρό severity gate χωρίς εξαιρέσεις, νέα advisories, ελλιπή findings και μη έγκυρες απαντήσεις. Δύο επιπλέον integration tests στο `scripts/release-toolchain.test.mjs` ελέγχουν ότι τα ευάλωτα packages απουσιάζουν από το εγκατεστημένο graph και εκτελούν το πραγματικό CLI σε προσωρινό pnpm/Git repository: package discovery, release plan, μεταβατικές εκδόσεις εξαρτήσεων, διατήρηση workspace protocol, GitHub changelog rendering, private-package versioning χωρίς tags, επαναληπτικό tagging και το νέο nonzero exit του άδειου `version`. Δεν δημοσιεύουν πακέτα και δεν γράφουν tags στο πραγματικό repository. Εκτελούνται από το κανονικό `validate`.
+
+**Τελική τοπική επαλήθευση:** πέρασαν `pnpm install --frozen-lockfile`, τα τέσσερα audit tests και τα δύο νέα integration tests, `pnpm peers check`, τα απευθείας production/development audits (No known vulnerabilities found) και το πλήρες `pnpm -w validate` με exit 0. Το τελευταίο περιλαμβάνει 132 package unit tests, αμετάβλητα coverage thresholds, lint/typechecks/builds, publint/attw και πραγματικά packed-consumer builds. Δεν αλλάζουν οι δημοσιευμένες εκδόσεις των UI packages, καθώς η αλλαγή αφορά αποκλειστικά το maintainer toolchain.
