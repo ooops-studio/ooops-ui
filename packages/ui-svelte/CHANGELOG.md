@@ -1,5 +1,24 @@
 # @ooopsstudio/ui-svelte
 
+## 0.4.0
+
+### Minor Changes
+
+- [`4a2a3d1`](https://github.com/ooops-studio/ooops-ui/commit/4a2a3d1ffce236638d194e17096f9312d1f2df01) Thanks [@italiour](https://github.com/italiour)! - Add shared Button and IconButton adapters with safe native form defaults, button/link semantics, disabled and loading guards, native attributes/events, accessible icon labels, progressive enhancement and Svelte element refs. Add branch execution evidence, SSR/no-JavaScript, keyboard and form regression coverage.
+
+- [`4a2a3d1`](https://github.com/ooops-studio/ooops-ui/commit/4a2a3d1ffce236638d194e17096f9312d1f2df01) Thanks [@italiour](https://github.com/italiour)! - Add a shared Gregorian calendar controller and DatePicker/DateRange adapters with ISO date values, native form fallback, bounds, unavailable dates, range validation, keyboard navigation and modal focus restoration.
+
+- [`4a2a3d1`](https://github.com/ooops-studio/ooops-ui/commit/4a2a3d1ffce236638d194e17096f9312d1f2df01) Thanks [@italiour](https://github.com/italiour)! - Add Workspace-compatible date formats, local datetime values with time steps, clear controls, direct month/year navigation and customizable calendar content. Provide a consistent consumer-owned parts class/style API across all UI components, including portals and dynamically rendered options/chips. Place optional structural CSS in a low-priority cascade layer.
+  
+  Fix nested layer Escape handling so a menu inside a dialog closes alone regardless of controller mount order, with permanent regression tests.
+
+- [`4a2a3d1`](https://github.com/ooops-studio/ooops-ui/commit/4a2a3d1ffce236638d194e17096f9312d1f2df01) Thanks [@italiour](https://github.com/italiour)! - Add a Drawer with logical edge placement, a scrolling body and persistent footer, using the shared modal focus, dismissal and busy-state behavior.
+
+### Patch Changes
+
+- Updated dependencies [[`4a2a3d1`](https://github.com/ooops-studio/ooops-ui/commit/4a2a3d1ffce236638d194e17096f9312d1f2df01), [`4a2a3d1`](https://github.com/ooops-studio/ooops-ui/commit/4a2a3d1ffce236638d194e17096f9312d1f2df01), [`4a2a3d1`](https://github.com/ooops-studio/ooops-ui/commit/4a2a3d1ffce236638d194e17096f9312d1f2df01), [`4a2a3d1`](https://github.com/ooops-studio/ooops-ui/commit/4a2a3d1ffce236638d194e17096f9312d1f2df01)]:
+  - @ooopsstudio/ui-primitives@0.5.0
+
 ## 0.3.0
 
 ### Minor Changes
