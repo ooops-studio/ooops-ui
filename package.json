@@ -64,13 +64,14 @@
 		"release:preflight": "node ./scripts/release-preflight.mjs",
 		"publish:packages": "node ./scripts/publish-packages.mjs",
 		"changeset": "changeset",
-		"validate": "pnpm audit:policy:test && pnpm test:release-toolchain && pnpm guard:template && pnpm check:agents && pnpm check:manifests && pnpm check:optional-modules && pnpm check:licenses && pnpm check:feature-matrix && pnpm test:feature-gate && pnpm check:at-protocol && pnpm lint && pnpm typecheck && pnpm build && pnpm test && pnpm test:coverage && pnpm size && pnpm depcruise && pnpm publint && pnpm attw && pnpm check:packed-artifacts && pnpm readiness:strict && pnpm smoke:package-tools",
+		"validate": "pnpm audit:policy:test && pnpm test:release-toolchain && pnpm guard:template && pnpm check:agents && pnpm check:manifests && pnpm check:optional-modules && pnpm check:licenses && pnpm check:feature-matrix && pnpm test:feature-gate && pnpm check:at-protocol && pnpm lint && pnpm typecheck && pnpm build && pnpm test && pnpm test:coverage && pnpm size && pnpm depcruise && pnpm publint && pnpm attw && pnpm check:packed-artifacts && pnpm check:rich-text-standalone && pnpm readiness:strict && pnpm smoke:package-tools",
 		"validate:release": "pnpm audit:prod && pnpm audit:dev && pnpm validate && pnpm test:e2e && pnpm test:e2e:visual && pnpm test:e2e:stress && pnpm test:feature-coverage",
 		"audit:policy:test": "node --test scripts/audit-dependencies.test.mjs",
 		"test:release-toolchain": "node --test scripts/release-toolchain.test.mjs",
 		"test:feature-coverage": "pnpm check:feature-coverage",
 		"test:feature-gate": "node --test scripts/feature-coverage.test.mjs",
-		"check:feature-matrix": "node scripts/check-feature-matrix.mjs"
+		"check:feature-matrix": "node scripts/check-feature-matrix.mjs",
+		"check:rich-text-standalone": "node scripts/check-rich-text-standalone.mjs"
 	},
 	"devDependencies": {
 		"@arethetypeswrong/cli": "^0.18.5",

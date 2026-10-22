@@ -1,4 +1,5 @@
 import {spawn} from 'node:child_process'
+import {existsSync, readFileSync} from 'node:fs'
 import {mkdtemp, readFile, readdir, realpath, rm, writeFile} from 'node:fs/promises'
 import {createRequire} from 'node:module'
 import os from 'node:os'
@@ -228,7 +229,15 @@ function testedPeerVersion(packageInfo, name, fallbackRange) {
 	if (typeof testedVersion !== 'string' || /^(?:file|link|workspace):/u.test(testedVersion)) return fallbackRange
 	// Exercise the locked toolchain, rather than resolving a newer semver match at each run.
 	const require = createRequire(path.join(packageInfo.dir, 'package.json'))
-	return require(`${name}/package.json`).version
+	// Resolve the manifest through Node's package search paths: peers may expose
+	// neither their package.json nor a root runtime entry (for example @tiptap/pm).
+	for (const directory of require.resolve.paths(name) ?? []) {
+		const manifestPath = path.join(directory, name, 'package.json')
+		if (!existsSync(manifestPath)) continue
+		const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'))
+		if (manifest.name === name) return manifest.version
+	}
+	throw new Error(`Cannot find installed peer manifest for ${name}`)
 }
 
 async function writeConsumerChecks(consumerDir, pkgInfo, exportEntries) {
