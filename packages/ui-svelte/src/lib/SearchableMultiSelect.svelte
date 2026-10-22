@@ -30,6 +30,12 @@
 		untrack(() => controller.configure(next))
 	})
 	$effect(() => {
+		const element = root
+		element?.addEventListener('pointerdown', controller.onPointerDown)
+		return () => element?.removeEventListener('pointerdown', controller.onPointerDown)
+	})
+
+	$effect(() => {
 		const form = input?.form
 		if (!form) return
 		let active = true

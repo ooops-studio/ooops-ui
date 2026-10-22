@@ -39,6 +39,8 @@ export function createSearchableMultiSelectController(config: SearchableMultiSel
 	let destroyed = false
 	let focusRevision = 0
 	let blurTimer: ReturnType<typeof setTimeout> | undefined
+	let pointerPending = false
+	let releasePointer: (() => void) | undefined
 	const checkLimit = (value: number) => {
 		if (!Number.isInteger(value) || value < 0) throw new RangeError('limit must be a non-negative integer')
 	}
@@ -101,6 +103,10 @@ export function createSearchableMultiSelectController(config: SearchableMultiSel
 		const entries = (config.getOptions?.() ?? []).filter((entry) => entry.getAttribute('aria-disabled') !== 'true' && !entry.hasAttribute('disabled'))
 		entries[last ? entries.length - 1 : 0]?.focus()
 	}
+	const checkFocus = () => {
+		const root = config.getRoot?.()
+		if (!destroyed && !root?.contains(root.ownerDocument.activeElement)) close()
+	}
 	refresh()
 	return {
 		getState: store.getState,
@@ -125,13 +131,31 @@ export function createSearchableMultiSelectController(config: SearchableMultiSel
 			setValues(next.values ?? [])
 			if (disabled) close()
 		},
+		onPointerDown() {
+			releasePointer?.()
+			const document = config.getRoot?.()?.ownerDocument
+			if (!document || disabled) return
+			pointerPending = true
+			const finish = () => {
+				releasePointer?.()
+				clearTimeout(blurTimer)
+				blurTimer = setTimeout(checkFocus, 0)
+			}
+			releasePointer = () => {
+				pointerPending = false
+				document.removeEventListener('pointerup', finish)
+				document.removeEventListener('pointercancel', finish)
+				releasePointer = undefined
+			}
+			document.addEventListener('pointerup', finish, {once: true})
+			document.addEventListener('pointercancel', finish, {once: true})
+		},
 		onFocusOut() {
+			if (pointerPending) return
 			const revision = ++focusRevision
 			clearTimeout(blurTimer)
 			blurTimer = setTimeout(() => {
-				const root = config.getRoot?.()
-				if (!destroyed && revision === focusRevision
-						&& !root?.contains(root.ownerDocument.activeElement)) close()
+				if (revision === focusRevision) checkFocus()
 			})
 		},
 		onInputKeydown(event: KeyboardEvent) {
@@ -156,7 +180,10 @@ export function createSearchableMultiSelectController(config: SearchableMultiSel
 			const next = event.key === 'Home' ? 0 : event.key === 'End' ? entries.length - 1 : event.key === 'ArrowDown' ? (index + 1) % entries.length : event.key === 'ArrowUp' ? (index - 1 + entries.length) % entries.length : -1
 			if (next >= 0 && entries.length) { event.preventDefault(); entries[next]?.focus() }
 		},
-		destroy() { destroyed = true; focusRevision++; clearTimeout(blurTimer); store.clear() }
+		destroy() {
+			destroyed = true; focusRevision++; clearTimeout(blurTimer)
+			releasePointer?.(); store.setState({open: false}); store.clear()
+		}
 	}
 }
 export type SearchableMultiSelectController = ReturnType<

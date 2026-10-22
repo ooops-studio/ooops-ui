@@ -158,3 +158,19 @@ it('supports persistent inline query results while still closing when cleared or
 	expect(picker.getState().open).toBe(false)
 	picker.destroy()
 })
+
+it('does not dismiss during an internal pointer press and cleans document listeners on teardown', async() => {
+	document.body.innerHTML = '<div><input><button>Create</button></div>'
+	const root = document.querySelector('div')!, input = root.querySelector('input')!
+	const picker = createSearchableMultiSelectController({options, getRoot: () => root})
+	picker.open(); input.focus(); picker.onPointerDown(); input.blur(); picker.onFocusOut()
+	await new Promise((resolve) => setTimeout(resolve, 1))
+	expect(picker.getState().open).toBe(true)
+	document.dispatchEvent(new Event('pointerup'))
+	await new Promise((resolve) => setTimeout(resolve, 1))
+	expect(picker.getState().open).toBe(false)
+	picker.open(); picker.onPointerDown(); picker.destroy()
+	document.dispatchEvent(new Event('pointercancel'))
+	await new Promise((resolve) => setTimeout(resolve, 1))
+	expect(picker.getState().open).toBe(false)
+})
