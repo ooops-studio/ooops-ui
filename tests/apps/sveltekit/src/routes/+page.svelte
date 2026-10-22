@@ -9,7 +9,6 @@
     Input,
     Modal,
     MultiSelect,
-    SearchableMultiSelect,
     NumberInput,
     Part,
     Popover,
@@ -61,8 +60,6 @@
   let comboValue = $state('')
   let asyncComboValue = $state('')
   let tags = $state<string[]>([])
-  let pickerValues = $state<string[]>([])
-  let pickerCreated = $state('')
   let menuOpen = $state(false)
   let menuSelections = $state(0)
   let dialogOpen = $state(false)
@@ -154,11 +151,6 @@
 {#snippet thumb(value: number, index: number)}<span data-testid="slider-thumb-snippet">{index}:{value}</span>{/snippet}
 {#snippet partChild()}Custom part{/snippet}
 
-<section aria-label="Searchable members">
-  <SearchableMultiSelect id="svelte-searchable-multi" name="members" ariaLabel="Members" options={tagOptions} bind:values={pickerValues} hideSelected onCreate={query => { pickerCreated = query }} />
-  <output aria-label="Selected members">{pickerValues.join(',')}</output>
-  <output aria-label="Created member">{pickerCreated}</output>
-</section>
 <h1>Svelte component laboratory</h1>
 <p id="hydration-status" data-hydrated={hydrated}>{hydrated ? 'hydrated' : 'server-rendered'}</p>
 <p id="mount-count">mounts:{mountCount}</p>

@@ -4,7 +4,7 @@ test('@critical searchable multi select keyboard, creation and accessible result
 	await test.step('[FM-SEARCHABLE-MULTI/keyboard-create]', async() => {
 		const errors: string[] = []
 		page.on('pageerror', (error) => errors.push(error.message))
-		await page.goto('/')
+		await page.goto('/searchable-multi')
 		const region = page.getByRole('region', {name: 'Searchable members'})
 		const input = region.getByRole('combobox', {name: 'Members'})
 		await input.fill('code')
