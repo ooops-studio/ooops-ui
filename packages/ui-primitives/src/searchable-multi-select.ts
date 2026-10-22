@@ -14,6 +14,7 @@ export type SearchableMultiSelectOptions = {
 	hideSelected?: boolean
 	restoreFocusOnRemove?: boolean
 	clearQueryOnEscape?: boolean
+	persistentQueryResults?: boolean
 	limit?: number
 	filter?: (option: SelectOption, query: string) => boolean
 	getRoot?: () => HTMLElement | null | undefined
@@ -32,6 +33,7 @@ export function createSearchableMultiSelectController(config: SearchableMultiSel
 	let hideSelected = config.hideSelected ?? false
 	let restoreFocusOnRemove = config.restoreFocusOnRemove ?? true
 	let clearQueryOnEscape = config.clearQueryOnEscape ?? false
+	let persistentQueryResults = config.persistentQueryResults ?? false
 	let match = config.filter
 	let limit = config.limit ?? Number.MAX_SAFE_INTEGER
 	let destroyed = false
@@ -55,7 +57,9 @@ export function createSearchableMultiSelectController(config: SearchableMultiSel
 	const close = (restoreFocus = false) => {
 		focusRevision++
 		if (restoreFocus) config.getInput?.()?.focus()
-		store.setState({open: false})
+		store.setState({
+			open: !disabled && persistentQueryResults && Boolean(store.getState().query.trim())
+		})
 	}
 	const clearQuery = () => { store.setState({query: ''}); refresh() }
 	const setValues = (values: readonly string[]) => {
@@ -107,7 +111,7 @@ export function createSearchableMultiSelectController(config: SearchableMultiSel
 			store.setState({query, open: true}); refresh()
 		},
 		open() { if (!disabled) store.setState({open: true}) },
-		configure(next: Pick<SearchableMultiSelectOptions, 'options' | 'values' | 'disabled' | 'hideSelected' | 'restoreFocusOnRemove' | 'clearQueryOnEscape' | 'filter' | 'limit'>) {
+		configure(next: Pick<SearchableMultiSelectOptions, 'options' | 'values' | 'disabled' | 'hideSelected' | 'restoreFocusOnRemove' | 'clearQueryOnEscape' | 'persistentQueryResults' | 'filter' | 'limit'>) {
 			const nextLimit = next.limit ?? Number.MAX_SAFE_INTEGER
 			checkLimit(nextLimit)
 			source = snapshotSelectOptions(next.options)
@@ -115,6 +119,7 @@ export function createSearchableMultiSelectController(config: SearchableMultiSel
 			hideSelected = next.hideSelected ?? false
 			restoreFocusOnRemove = next.restoreFocusOnRemove ?? true
 			clearQueryOnEscape = next.clearQueryOnEscape ?? false
+			persistentQueryResults = next.persistentQueryResults ?? false
 			match = next.filter
 			limit = nextLimit
 			setValues(next.values ?? [])

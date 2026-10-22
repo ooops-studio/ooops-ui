@@ -2,7 +2,7 @@
 	import {createSearchableMultiSelectController, getUiPart, type SearchableMultiSelectController, type SearchableMultiSelectOptions, type SearchableMultiSelectState, type UiParts, type SelectOption} from '@ooopsstudio/ui-primitives'
 	import {onDestroy, untrack, type Snippet} from 'svelte'
 	type Props = {
-		options: SelectOption[]; values?: string[]; disabled?: boolean; hideSelected?: boolean; restoreFocusOnRemove?: boolean; clearQueryOnEscape?: boolean; limit?: number
+		options: SelectOption[]; values?: string[]; disabled?: boolean; hideSelected?: boolean; restoreFocusOnRemove?: boolean; clearQueryOnEscape?: boolean; persistentQueryResults?: boolean; limit?: number
 		filter?: SearchableMultiSelectOptions['filter']; onChange?: SearchableMultiSelectOptions['onChange']
 		onAdd?: (value: string) => void; onRemove?: (value: string) => void; onCreate?: (query: string) => void
 		root?: HTMLElement | null; input?: HTMLInputElement | null; listbox?: HTMLElement | null
@@ -12,11 +12,11 @@
 		option?: Snippet<[SelectOption, boolean]>
 	}
 	const generatedId = $props.id()
-	let {options, values = $bindable([]), disabled = false, hideSelected = false, restoreFocusOnRemove = true, clearQueryOnEscape = false, limit, filter, onChange, onAdd, onRemove, onCreate,
+	let {options, values = $bindable([]), disabled = false, hideSelected = false, restoreFocusOnRemove = true, clearQueryOnEscape = false, persistentQueryResults = false, limit, filter, onChange, onAdd, onRemove, onCreate,
 		root = $bindable(null), input = $bindable(null), listbox = $bindable(null), id = generatedId, name, ariaLabel = 'Choose options', placeholder = 'Search', emptyLabel = 'No matching options', createLabel = 'Create', parts, class: className = '', children, option}: Props = $props()
 	const initialValues = untrack(() => [...values])
 	let state: SearchableMultiSelectState = $state(untrack(() => ({query: '', open: false, values: [...values], options})))
-	const controller = untrack(() => createSearchableMultiSelectController({options, values, disabled, hideSelected, restoreFocusOnRemove, clearQueryOnEscape, ...(limit === undefined ? {} : {limit}),
+	const controller = untrack(() => createSearchableMultiSelectController({options, values, disabled, hideSelected, restoreFocusOnRemove, clearQueryOnEscape, persistentQueryResults, ...(limit === undefined ? {} : {limit}),
 		filter: (entry, query) => filter ? filter(entry, query) : entry.label.toLocaleLowerCase().includes(query),
 		getRoot: () => root, getInput: () => input, getOptions: () => Array.from(listbox?.querySelectorAll<HTMLElement>('[role="option"]') ?? []),
 		onChange: next => { values = [...next]; onChange?.(next) }, onAdd: value => onAdd?.(value), onRemove: value => onRemove?.(value),
@@ -26,7 +26,7 @@
 	const unsubscribe = controller.subscribe(next => { state = next })
 	onDestroy(() => { unsubscribe(); controller.destroy() })
 	$effect(() => {
-		const next = {options: options.map(entry => ({...entry})), values: [...values], disabled, hideSelected, restoreFocusOnRemove, clearQueryOnEscape, filter, ...(limit === undefined ? {} : {limit})}
+		const next = {options: options.map(entry => ({...entry})), values: [...values], disabled, hideSelected, restoreFocusOnRemove, clearQueryOnEscape, persistentQueryResults, filter, ...(limit === undefined ? {} : {limit})}
 		untrack(() => controller.configure(next))
 	})
 	$effect(() => {

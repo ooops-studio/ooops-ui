@@ -146,3 +146,15 @@ it('optionally clears the search on input Escape without changing stored selecti
 	expect(picker.getState().query).toBe('beta')
 	picker.destroy()
 })
+
+it('supports persistent inline query results while still closing when cleared or disabled', () => {
+	const picker = createSearchableMultiSelectController({options, persistentQueryResults: true,
+		clearQueryOnEscape: true})
+	picker.setQuery('beta'); picker.close()
+	expect(picker.getState().open).toBe(true)
+	picker.onInputKeydown(new KeyboardEvent('keydown', {key: 'Escape'}))
+	expect(picker.getState()).toMatchObject({open: false, query: ''})
+	picker.setQuery('beta'); picker.configure({options, disabled: true, persistentQueryResults: true})
+	expect(picker.getState().open).toBe(false)
+	picker.destroy()
+})
