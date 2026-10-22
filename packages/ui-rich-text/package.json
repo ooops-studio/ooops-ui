@@ -1,0 +1,137 @@
+{
+  "name": "@ooopsstudio/ui-rich-text",
+  "version": "0.1.0",
+  "private": false,
+  "type": "module",
+  "description": "Tiptap rich text for Svelte, with optional Yjs collaboration and host-owned persistence.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.14.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "svelte": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "svelte": "./dist/index.js",
+      "import": "./dist/index.js"
+    },
+    "./RichTextEditor.svelte": {
+      "types": "./dist/RichTextEditor.svelte.d.ts",
+      "svelte": "./dist/RichTextEditor.svelte",
+      "default": "./dist/RichTextEditor.svelte"
+    },
+    "./RichTextToolbar.svelte": {
+      "types": "./dist/RichTextToolbar.svelte.d.ts",
+      "svelte": "./dist/RichTextToolbar.svelte",
+      "default": "./dist/RichTextToolbar.svelte"
+    },
+    "./editor-commands": {
+      "types": "./dist/editor-commands.d.ts",
+      "import": "./dist/editor-commands.js"
+    },
+    "./floating-menus": {
+      "types": "./dist/floating-menus.svelte.d.ts",
+      "import": "./dist/floating-menus.svelte.js"
+    },
+    "./html": {
+      "types": "./dist/html.d.ts",
+      "import": "./dist/html.js"
+    },
+    "./runtime": {
+      "types": "./dist/runtime.d.ts",
+      "import": "./dist/runtime.js"
+    },
+    "./sanitize": {
+      "types": "./dist/sanitize.d.ts",
+      "import": "./dist/sanitize.js"
+    },
+    "./slash-commands": {
+      "types": "./dist/slash-commands.svelte.d.ts",
+      "import": "./dist/slash-commands.svelte.js"
+    },
+    "./toolbar": {
+      "types": "./dist/toolbar.svelte.d.ts",
+      "import": "./dist/toolbar.svelte.js"
+    },
+    "./types": {
+      "types": "./dist/types.d.ts",
+      "import": "./dist/types.js"
+    },
+    "./toolbar-state": {
+      "types": "./dist/toolbar-state.d.ts",
+      "import": "./dist/toolbar-state.js"
+    },
+    "./collaboration": {
+      "types": "./dist/collaboration.d.ts",
+      "import": "./dist/collaboration.js"
+    },
+    "./undo": {
+      "types": "./dist/undo.d.ts",
+      "import": "./dist/undo.js"
+    }
+  },
+  "sideEffects": false,
+  "dependencies": {
+    "@ooopsstudio/ui-svelte": "workspace:^",
+    "sanitize-html": "2.17.7"
+  },
+  "peerDependencies": {
+    "@tiptap/core": "^3.30.5",
+    "@tiptap/pm": "^3.30.5",
+    "@tiptap/starter-kit": "^3.30.5",
+    "svelte": ">=5.55.0",
+    "@tiptap/extension-collaboration": "^3.30.5",
+    "yjs": "^13.6.27"
+  },
+  "peerDependenciesMeta": {
+    "@tiptap/extension-collaboration": {
+      "optional": true
+    },
+    "yjs": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@sveltejs/package": "^2.5.8",
+    "@sveltejs/vite-plugin-svelte": "^6.2.4",
+    "@testing-library/svelte": "^5.4.2",
+    "@types/sanitize-html": "^2.16.1",
+    "@tiptap/core": "3.30.5",
+    "@tiptap/pm": "3.30.5",
+    "@tiptap/starter-kit": "3.30.5",
+    "@tiptap/extension-collaboration": "3.30.5",
+    "svelte": "^5.56.8",
+    "svelte-check": "^4.7.4",
+    "yjs": "^13.6.27",
+    "jsdom": "^27.4.0",
+    "@tiptap/y-tiptap": "3.0.7"
+  },
+  "scripts": {
+    "build": "svelte-package && node scripts/finalize-package.mjs",
+    "typecheck": "svelte-check --tsconfig ./tsconfig.json",
+    "test": "vitest run --config vitest.config.ts",
+    "publint": "publint",
+    "attw": "attw --pack --ignore-rules no-resolution --ignore-rules cjs-resolves-to-esm",
+    "pack:dry": "pnpm build && npm pack --dry-run",
+    "size": "node scripts/check-size.mjs",
+    "depcruise": "depcruise --config ../../.dependency-cruiser.cjs src"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ooops-studio/ooops-ui.git",
+    "directory": "packages/ui-rich-text"
+  },
+  "homepage": "https://github.com/ooops-studio/ooops-ui/tree/main/packages/ui-rich-text#readme",
+  "bugs": {
+    "url": "https://github.com/ooops-studio/ooops-ui/issues"
+  }
+}

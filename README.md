@@ -10,6 +10,7 @@ Accessible, design-neutral UI behavior with framework adapters. The monorepo kee
 | `@ooopsstudio/ui-editor-manifests` | Optional editor adapter metadata for UI components and interactive scenes. |
 | `@ooopsstudio/ui-astro` | Astro 7 markup and progressive-enhancement adapters. |
 | `@ooopsstudio/ui-svelte` | Svelte 5 components backed by the same controllers. |
+| `@ooopsstudio/ui-rich-text` | Optional Tiptap editor, standalone history or host-owned Yjs collaboration. |
 | `@ooopsstudio/scene-core` | Renderer-neutral scene lifecycle, scheduling, interaction modes and resource admission. |
 | `@ooopsstudio/scene-gpu` | Small native WebGPU-first runtime with WebGL 2 fallback. |
 | `@ooopsstudio/scene-astro` | Accessible Astro scene markup, explicit registries and view-transition lifecycle. |

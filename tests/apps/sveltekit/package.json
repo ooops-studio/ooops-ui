@@ -15,7 +15,13 @@
     "@ooopsstudio/ui-primitives": "workspace:*",
     "@ooopsstudio/ui-svelte": "workspace:*",
     "@sveltejs/kit": "^2.70.2",
-    "svelte": "^5.56.8"
+    "svelte": "^5.56.8",
+    "@ooopsstudio/ui-rich-text": "workspace:*",
+    "@tiptap/core": "3.30.5",
+    "@tiptap/pm": "3.30.5",
+    "@tiptap/starter-kit": "3.30.5",
+    "@tiptap/extension-collaboration": "3.30.5",
+    "yjs": "^13.6.27"
   },
   "devDependencies": {
     "@sveltejs/adapter-static": "^3.0.10",

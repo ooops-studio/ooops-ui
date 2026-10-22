@@ -234,6 +234,19 @@
 				"astro",
 				"svelte"
 			]
+		},
+		{
+			"id": "FM-RICH-TEXT",
+			"component": "RichTextEditor/RichTextToolbar",
+			"branches": [
+				"standalone",
+				"concurrent",
+				"local-undo",
+				"reconnect-recovery"
+			],
+			"adapters": [
+				"svelte"
+			]
 		}
 	],
 	"projects": {

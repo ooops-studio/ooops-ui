@@ -18,7 +18,7 @@ const run = (args) => new Promise((resolve, reject) => {
 })
 try {
 	await run(['test:e2e:prepare'])
-	await run(['exec', 'playwright', 'test', 'behavior-matrix.spec.ts', 'buttons.spec.ts', 'calendar.spec.ts', 'drawer.spec.ts', 'customization.spec.ts', '--project=primitives-chromium',
+	await run(['exec', 'playwright', 'test', 'behavior-matrix.spec.ts', 'buttons.spec.ts', 'calendar.spec.ts', 'drawer.spec.ts', 'customization.spec.ts', 'rich-text.spec.ts', '--project=primitives-chromium',
 		'--project=astro-chromium', '--project=svelte-chromium', '--retries=0'])
 	const matrix = JSON.parse(await readFile(new URL('../tests/coverage/feature-matrix.json', import.meta.url)))
 	const report = JSON.parse(await readFile(reportFile))
