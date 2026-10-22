@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.1
+
+### Patch Changes
+
+- Publish the initial CI-provenance release after maintainer bootstrap. The release verifier now tolerates delayed npm indexing before creating the verified tag.
+
 ## 0.1.0
 
 - Extract the shared Tiptap editor, commands and toolbar helpers from Workspace.

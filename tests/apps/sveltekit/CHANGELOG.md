@@ -1,5 +1,12 @@
 # @ooopsstudio/ui-e2e-sveltekit
 
+## 0.0.5
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @ooopsstudio/ui-rich-text@0.1.1
+
 ## 0.0.4
 
 ### Patch Changes

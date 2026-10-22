@@ -42,9 +42,12 @@ export async function publishVerifiedPackage(pkg, {registry, env, root,
 			'--tag', 'latest', '--registry', registry, '--json'], options)
 		log(stdout)
 		let verified = false
-		for (let attempt = 0; attempt < 7; attempt++) {
+		// New npm packages can remain in processing for several minutes after acceptance.
+		const visibilityAttempts = 61 // Initial read plus at most five minutes of waiting.
+		for (let attempt = 0; attempt < visibilityAttempts; attempt++) {
 			if (await exists()) { verified = true; break }
-			if (attempt < 6) await wait()
+			if (attempt === 0) log(`Waiting for ${spec} registry visibility (up to five minutes).`)
+			if (attempt < visibilityAttempts - 1) await wait()
 		}
 		if (!verified) throw new Error(`Publisher exited successfully but ${spec} is absent from ${registry}`)
 		const {stdout: existingTag} = await run('git', ['tag', '--list', spec], {cwd: root, env})
