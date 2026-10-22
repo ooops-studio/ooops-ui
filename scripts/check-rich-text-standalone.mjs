@@ -12,8 +12,15 @@ const run = (command, args, cwd) => new Promise((resolve, reject) => {
 	child.on('exit', (code) => code === 0 ? resolve() : reject(new Error(`${command} exited ${code}`)))
 })
 try {
-	await run('pnpm', ['pack', '--pack-destination', temp], path.join(repo, 'packages/ui-rich-text'))
-	const tarball = (await readdir(temp)).find((name) => name.endsWith('.tgz'))
+	const artifacts = new Map()
+	for (const name of ['ui-primitives', 'ui-svelte', 'ui-rich-text']) {
+		const previous = new Set(await readdir(temp))
+		await run('pnpm', ['pack', '--pack-destination', temp], path.join(repo, `packages/${name}`))
+		const artifact = (await readdir(temp)).find((file) => file.endsWith('.tgz') && !previous.has(file))
+		if (!artifact) throw new Error(`No packed artifact found for ${name}`)
+		artifacts.set(name, artifact)
+	}
+	const tarball = artifacts.get('ui-rich-text')
 	await writeFile(path.join(temp, 'package.json'), JSON.stringify({
 		name: 'standalone-rich-text-consumer', private: true, type: 'module',
 		dependencies: {
@@ -23,7 +30,7 @@ try {
 		}
 	}, null, 2))
 	await writeFile(path.join(temp, 'pnpm-workspace.yaml'),
-		'packages: []\nautoInstallPeers: false\nallowBuilds:\n  esbuild: true\n')
+		`packages: []\nautoInstallPeers: false\nallowBuilds:\n  esbuild: true\noverrides:\n  '@ooopsstudio/ui-primitives': 'file:./${artifacts.get('ui-primitives')}'\n  '@ooopsstudio/ui-svelte': 'file:./${artifacts.get('ui-svelte')}'\n`)
 	await run('pnpm', ['install', '--config.auto-install-peers=false'], temp)
 	const require = createRequire(path.join(temp, 'node_modules/@ooopsstudio/ui-rich-text/dist/index.js'))
 	for (const optional of ['yjs', '@tiptap/extension-collaboration']) {
