@@ -20,7 +20,8 @@ permissions:
 
 jobs:
   release:
-    runs-on: ubuntu-latest
+    # Match the browser validation image used by CI.
+    runs-on: ubuntu-24.04
     env:
       NPM_CONFIG_PROVENANCE: true
       REGISTRY_STRATEGY: npm

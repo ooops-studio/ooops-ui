@@ -324,6 +324,7 @@ The bundled GitHub Actions workflows are local to the repository.
   - before bootstrap it runs a template-safe profile so the fresh template repo stays green
   - after bootstrap it automatically runs the full `pnpm -w validate` pipeline
 - CI also runs `pnpm -w audit:prod` as blocking and `pnpm -w audit:dev` as blocking.
+- Browser, feature-coverage and release jobs pin `ubuntu-24.04` so OS/dependency-image rollovers do not silently change the validation platform.
 - Release stays strict and always uses `pnpm -w validate:release`, including the adapter browser matrix.
 - CI reports primitives, Astro and Svelte browser projects separately and uploads traces, screenshots and videos after failures.
 - Release runs `pnpm -w release:preflight` before publish and supports manual dry-run validation through `workflow_dispatch`.
