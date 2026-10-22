@@ -17,7 +17,7 @@ Accessible, design-neutral UI behavior with framework adapters. The monorepo kee
 
 All styling is optional. Public UI adapters accept per-part classes/styles through `parts`, alongside stable `data-part` and state attributes, so each product can own its visual design.
 
-The component set includes Field, Input, Textarea, Checkbox, RadioGroup, Switch, Select, Combobox, MultiSelect, DropdownMenu, Tooltip, Tabs, Accordion, Slider, NumberInput, SegmentedControl, Dialog, Modal, Popover, Button, IconButton, DatePicker, DateRange and Drawer. Behavior lives once in primitives; Astro and Svelte only adapt markup and lifecycle.
+The component set includes Field, Input, Textarea, Checkbox, RadioGroup, Switch, Select, Combobox, MultiSelect, DropdownMenu, Tooltip, Tabs, Accordion, Slider, NumberInput, SegmentedControl, Dialog, Modal, Popover, Button, IconButton, DatePicker, DateRange and Drawer. `SearchableMultiSelect` is additionally available in the Svelte adapter, including a headless rendering contract for existing entity pickers. Behavior lives once in primitives; Astro and Svelte only adapt markup and lifecycle.
 
 ## Consumer documentation
 

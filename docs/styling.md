@@ -23,6 +23,7 @@ Hidden state, focusability, ARIA and disabled interactions remain behavior contr
 | IconButton | `button`, `icon`, `loading-indicator` |
 | Input | `clear`, `control`, `description`, `error`, `hint`, `input-shell`, `label`, `prefix`, `reveal`, `root`, `suffix` |
 | Modal | `body`, `close`, `description`, `dialog`, `footer`, `header`, `root`, `surface`, `title`, `trigger` |
+| SearchableMultiSelect (Svelte) | `root`, `input`, `menu`, `listbox`, `option`, `empty`, `create`, `chips`, `chip`, `native-input`; option snippet or fully custom children snippet |
 | MultiSelect | `actions`, `chip`, `chip-remove`, `chips`, `clear`, `control`, `empty`, `indicator`, `input`, `label`, `listbox`, `native-input`, `option`, `root`, `select-all` |
 | NumberInput | `control`, `decrement`, `increment`, `input`, `label`, `root` |
 | Part | `caller-supplied part name` |

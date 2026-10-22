@@ -48,3 +48,7 @@ The primitives own behavior, not application copy, visual design or CMS data. Co
 MIT
 
 See [consumer contracts and migration](../../docs/consumer-contracts.md) for native forwarding, Field associations, adapter defaults, layer composition and reactive options.
+
+### Searchable entity multi select
+
+`createSearchableMultiSelectController` provides inline entity search with multiple selected IDs, rich `SelectOption` records, custom filtering, `hideSelected`, result `limit`, disabled guards, per-item add/remove callbacks and an optional create action. It preserves selected IDs absent from the current records. The event methods keep actual keyboard focus on option buttons; adapters provide root/input/option getters and wire the returned input, list and focusout handlers. No framework, DOM markup or product styles are included. Call `configure` for controlled updates and `destroy` on teardown to invalidate pending focus work and subscriptions.

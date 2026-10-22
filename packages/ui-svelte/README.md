@@ -16,7 +16,7 @@ pnpm add @ooopsstudio/ui-svelte @ooopsstudio/ui-primitives @ooopsstudio/accessib
 <Combobox id="country" name="country" options={[{value: 'gr', label: 'Greece'}]} bind:value />
 ```
 
-Components: Button, IconButton, DatePicker, DateRange, Drawer, Field, Input, Textarea, Checkbox, RadioGroup, Switch, Select, Combobox, MultiSelect, DropdownMenu, Tooltip, Tabs, Accordion, Slider, NumberInput, SegmentedControl, Dialog, Modal and Popover.
+Components: Button, IconButton, DatePicker, DateRange, Drawer, Field, Input, Textarea, Checkbox, RadioGroup, Switch, Select, Combobox, MultiSelect, SearchableMultiSelect, DropdownMenu, Tooltip, Tabs, Accordion, Slider, NumberInput, SegmentedControl, Dialog, Modal and Popover.
 
 Built-in copy and accessible default labels can be overridden through `messages` on existing controls; calendar controls expose individual label/help/error props. `Field` uses `${id}-control` as its default control ID; pass `controlId` when the child form control uses another ID.
 
@@ -97,3 +97,11 @@ Calendar content snippets: `calendarIcon`, `previousIcon`, `nextIcon`, `clearIco
 The month picker uses the shared custom DropdownMenu, not an OS-rendered select popup. Its nested styling map is `monthParts` (the DropdownMenu part names: `root`, `trigger`, `content`, `item`, `indicator`, etc.). It remains inside the calendar dialog and uses the existing menu controller for keyboard/focus behavior.
 
 See the [Calendar/Drawer lifecycle and migration contract](../../docs/calendar-and-drawer-contracts.md) for supported live updates, remount policy, form/reset semantics and Workspace preferences.
+
+### SearchableMultiSelect
+
+`SearchableMultiSelect` is an inline searchable entity picker, separate from the non-editable Select. It uses `createSearchableMultiSelectController` from ui-primitives. Bind `values`, provide `options`, and optionally use `hideSelected`, `limit`, `filter`, `restoreFocusOnRemove`, `onAdd`, `onRemove`, and `onCreate(query)`. Creation is a separate action, never a synthetic selected value. Unavailable stored IDs survive option updates. Disabled controls do not mutate selection. Space remains text input; Enter selects the first enabled result (or invokes creation when empty); arrows/Home/End navigate real option focus; Escape closes and returns focus to the search input.
+
+All default elements have `parts` class/style hooks (`root`, `input`, `menu`, `listbox`, `option`, `empty`, `create`, `chips`, `chip`, `native-input`), with an `option` snippet for rich result content. For exact existing layouts, supply `children(state, controller)` and pass the rendered `root`, `input`, and `listbox` references. Wire input/focus/key events to `setQuery`, `open`, `onInputKeydown`; wire root focusout and list keydown to `onFocusOut` and `onListKeydown`. Option buttons call `toggle`, chip buttons call `remove`, and the separate creation button calls `create`. The adapter owns shared controller lifecycle and controlled updates, adds combobox/listbox relationships, and emits no wrapper DOM in this mode. The consumer owns entity data, labels, async creation dialogs, persistence, layout, and any hidden form inputs in headless mode. `name` emits repeated hidden inputs in default mode.
+
+The adapter captures initial values for native form reset, respects canceled reset events and removes reset listeners on teardown. `clearQuery()` is exposed on the component instance for consumers to clear the search only after successful asynchronous creation; canceled creation leaves the query intact.

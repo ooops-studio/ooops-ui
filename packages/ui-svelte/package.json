@@ -144,6 +144,11 @@
 			"types": "./dist/IconButton.svelte.d.ts",
 			"svelte": "./dist/IconButton.svelte",
 			"default": "./dist/IconButton.svelte"
+		},
+		"./SearchableMultiSelect.svelte": {
+			"types": "./dist/SearchableMultiSelect.svelte.d.ts",
+			"svelte": "./dist/SearchableMultiSelect.svelte",
+			"default": "./dist/SearchableMultiSelect.svelte"
 		}
 	},
 	"sideEffects": [

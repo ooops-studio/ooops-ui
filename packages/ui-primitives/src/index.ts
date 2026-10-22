@@ -110,3 +110,6 @@ export type {UiPartStyle, UiParts, UiStylingProps} from './styling'
 
 export {calendarTimeMin, calendarDatePart, calendarTimePart, formatCalendarInput, parseCalendarInput, defaultCalendarTime, joinCalendarValue, isCalendarInputValid} from './calendar-input'
 export type {CalendarInputFormat, CalendarInputMode} from './calendar-input'
+
+export {createSearchableMultiSelectController} from './searchable-multi-select'
+export type {SearchableMultiSelectState, SearchableMultiSelectOptions, SearchableMultiSelectController} from './searchable-multi-select'

@@ -247,6 +247,16 @@
 			"adapters": [
 				"svelte"
 			]
+		},
+		{
+			"id": "FM-SEARCHABLE-MULTI",
+			"component": "SearchableMultiSelect",
+			"branches": [
+				"keyboard-create"
+			],
+			"adapters": [
+				"svelte"
+			]
 		}
 	],
 	"projects": {
