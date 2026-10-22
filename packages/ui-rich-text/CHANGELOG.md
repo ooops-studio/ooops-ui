@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.2
+
+### Patch Changes
+
+- Updated dependencies [`cb66df6`]:
+  - @ooopsstudio/ui-svelte@0.5.0
+
 ## 0.1.1
 
 ### Patch Changes

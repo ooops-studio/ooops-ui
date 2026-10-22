@@ -13,6 +13,7 @@ export type SearchableMultiSelectOptions = {
 	disabled?: boolean
 	hideSelected?: boolean
 	restoreFocusOnRemove?: boolean
+	clearQueryOnEscape?: boolean
 	limit?: number
 	filter?: (option: SelectOption, query: string) => boolean
 	getRoot?: () => HTMLElement | null | undefined
@@ -30,6 +31,7 @@ export function createSearchableMultiSelectController(config: SearchableMultiSel
 	let disabled = config.disabled ?? false
 	let hideSelected = config.hideSelected ?? false
 	let restoreFocusOnRemove = config.restoreFocusOnRemove ?? true
+	let clearQueryOnEscape = config.clearQueryOnEscape ?? false
 	let match = config.filter
 	let limit = config.limit ?? Number.MAX_SAFE_INTEGER
 	let destroyed = false
@@ -105,13 +107,14 @@ export function createSearchableMultiSelectController(config: SearchableMultiSel
 			store.setState({query, open: true}); refresh()
 		},
 		open() { if (!disabled) store.setState({open: true}) },
-		configure(next: Pick<SearchableMultiSelectOptions, 'options' | 'values' | 'disabled' | 'hideSelected' | 'restoreFocusOnRemove' | 'filter' | 'limit'>) {
+		configure(next: Pick<SearchableMultiSelectOptions, 'options' | 'values' | 'disabled' | 'hideSelected' | 'restoreFocusOnRemove' | 'clearQueryOnEscape' | 'filter' | 'limit'>) {
 			const nextLimit = next.limit ?? Number.MAX_SAFE_INTEGER
 			checkLimit(nextLimit)
 			source = snapshotSelectOptions(next.options)
 			disabled = next.disabled ?? false
 			hideSelected = next.hideSelected ?? false
 			restoreFocusOnRemove = next.restoreFocusOnRemove ?? true
+			clearQueryOnEscape = next.clearQueryOnEscape ?? false
 			match = next.filter
 			limit = nextLimit
 			setValues(next.values ?? [])
@@ -131,7 +134,9 @@ export function createSearchableMultiSelectController(config: SearchableMultiSel
 			if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
 				event.preventDefault(); void focusOption(event.key === 'ArrowUp')
 			} else if (event.key === 'Escape' && store.getState().open) {
-				event.preventDefault(); event.stopPropagation(); close()
+				event.preventDefault(); event.stopPropagation()
+				if (clearQueryOnEscape) clearQuery()
+				close()
 			} else if (event.key === 'Enter') {
 				event.preventDefault()
 				const first = store.getState().options.find((entry) => !entry.disabled)

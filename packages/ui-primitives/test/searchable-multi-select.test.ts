@@ -134,3 +134,15 @@ it('reactively updates matching, result limits and selected visibility without c
 	expect(onChange).not.toHaveBeenCalled()
 	picker.destroy()
 })
+
+it('optionally clears the search on input Escape without changing stored selection', () => {
+	const picker = createSearchableMultiSelectController({options, values: ['a'],
+		clearQueryOnEscape: true})
+	picker.setQuery('beta')
+	picker.onInputKeydown(new KeyboardEvent('keydown', {key: 'Escape'}))
+	expect(picker.getState()).toMatchObject({query: '', open: false, values: ['a']})
+	picker.configure({options, values: ['a'], clearQueryOnEscape: false})
+	picker.setQuery('beta'); picker.onInputKeydown(new KeyboardEvent('keydown', {key: 'Escape'}))
+	expect(picker.getState().query).toBe('beta')
+	picker.destroy()
+})

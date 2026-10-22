@@ -1,5 +1,11 @@
 # @ooopsstudio/ui-primitives
 
+## 0.6.0
+
+### Minor Changes
+
+- Add a searchable entity multiselect controller and Svelte adapter with optional headless rendering, custom option content, creation actions, selected chips, per-item callbacks, selected-result filtering and preserved unavailable IDs. Share search, keyboard navigation, disabled handling, focus restoration and lifecycle cleanup without imposing product styles.
+
 ## 0.5.0
 
 ### Minor Changes
