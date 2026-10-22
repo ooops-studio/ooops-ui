@@ -26,7 +26,7 @@
 	const unsubscribe = controller.subscribe(next => { state = next })
 	onDestroy(() => { unsubscribe(); controller.destroy() })
 	$effect(() => {
-		const next = {options: options.map(entry => ({...entry})), values: [...values], disabled, hideSelected, restoreFocusOnRemove, clearQueryOnEscape, persistentQueryResults, filter, ...(limit === undefined ? {} : {limit})}
+		const next = {options: options.map(entry => ({...entry})), values: [...values], disabled, hideSelected, restoreFocusOnRemove, clearQueryOnEscape, persistentQueryResults, ...(filter === undefined ? {} : {filter}), ...(limit === undefined ? {} : {limit})}
 		untrack(() => controller.configure(next))
 	})
 	$effect(() => {

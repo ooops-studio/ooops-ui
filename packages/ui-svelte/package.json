@@ -161,7 +161,7 @@
 		"svelte": ">=5"
 	},
 	"scripts": {
-		"typecheck": "tsc -p tsconfig.json --noEmit",
+		"typecheck": "tsc -p tsconfig.json --noEmit && svelte-check --tsconfig tsconfig.searchable.json",
 		"build": "svelte-package && node ./scripts/finalize-package.mjs",
 		"test": "pnpm --filter @ooopsstudio/ui-primitives build && vitest run",
 		"size": "node ./scripts/check-size.mjs",
@@ -176,7 +176,8 @@
 		"@testing-library/svelte": "^5.4.2",
 		"jsdom": "^27.4.0",
 		"svelte": "^5.56.8",
-		"vite": "^7.3.7"
+		"vite": "^7.3.7",
+		"svelte-check": "^4.7.4"
 	},
 	"license": "MIT",
 	"description": "Svelte 5 adapters for @ooopsstudio/ui-primitives.",
