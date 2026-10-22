@@ -91,6 +91,8 @@ jobs:
           cache: pnpm
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+      - name: Use canonical Ubuntu archive for browser dependencies
+        run: sudo "$(command -v node)" scripts/configure-ubuntu-mirror.mjs
       - name: Install ${{ matrix.browser }}
         run: pnpm exec playwright install --with-deps ${{ matrix.browser }}
       - name: Build E2E fixtures
@@ -125,6 +127,8 @@ jobs:
           cache: pnpm
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+      - name: Use canonical Ubuntu archive for browser dependencies
+        run: sudo "$(command -v node)" scripts/configure-ubuntu-mirror.mjs
       - name: Install Chromium
         run: pnpm exec playwright install --with-deps chromium
       - name: Verify executed feature branches
