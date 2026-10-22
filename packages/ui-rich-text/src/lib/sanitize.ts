@@ -37,6 +37,7 @@ export const sanitizeRichTextHtml = (html: string | null | undefined): string | 
 		allowedSchemes: ['http', 'https', 'mailto', 'tel'],
 		allowProtocolRelative: false,
 		disallowedTagsMode: 'discard',
+		nonTextTags: ['script', 'style', 'textarea', 'option', 'noscript'],
 		enforceHtmlBoundary: true,
 		parseStyleAttributes: false,
 		transformTags: {

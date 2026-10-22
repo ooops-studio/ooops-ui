@@ -19,6 +19,20 @@ describe('rich text html helpers', () => {
 })
 
 describe('rich text sanitizer', () => {
+	it('does not surface hidden noscript content after an implied ancestor close', () => {
+		const input = '<p>Safe</p><div><noscript></div>' +
+			'<a href="https://evil.test">Hidden link</a></noscript>'
+		expect(sanitizeRichTextHtml(input)).toBe('<p>Safe</p>')
+	})
+
+	it.each([
+		'<meta http-equiv="refresh" content="0;url=javascript:alert(1)">',
+		'<meta http-equiv="refresh" content="0;url=data:text/html,malicious">',
+		'<svg><animate attributeName="href" values="javascript:alert(1)"/></svg>'
+	])('drops active metadata and animation payload %s', (payload) => {
+		expect(sanitizeRichTextHtml('<p>Safe</p>' + payload)).toBe('<p>Safe</p>')
+	})
+
 	it('keeps expected formatting and strips unsafe markup', () => {
 		expect(sanitizeRichTextHtml('<p>Hello <strong>world</strong><script>alert(1)</script></p>')).toBe(
 			'<p>Hello <strong>world</strong></p>'
