@@ -1,5 +1,11 @@
 # @ooopsstudio/ui-primitives
 
+## 0.10.0
+
+### Minor Changes
+
+- Add a design-neutral ToastStack controller for generic keyed queues, independent deadlines, interaction-aware expiry deferral, explicit persistence, dismissal callbacks and deterministic teardown. Keep markup, styling, live regions, product event/severity policy and focus recovery in consuming adapters.
+
 ## 0.9.0
 
 ### Minor Changes

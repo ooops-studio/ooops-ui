@@ -18,6 +18,7 @@ pnpm add @ooopsstudio/ui-primitives @ooopsstudio/accessibility
 - Navigation: `createTabsController`, `createAccordionController`.
 - Values: `createSliderController`, `createNumberInputController`.
 - Layers: `createLayerController`, `createPopoverController`, `createTooltipController`, `createDialogController`.
+- Notifications: `createToastStackController` (queue/lifetime; host-rendered content).
 
 Controllers expose immutable state snapshots, `subscribe()`, explicit actions and deterministic `destroy()`. Interactive form controls support controlled/default state, reset and native or hidden form projection. Field validation supports sync/async rules and structurally typed Standard Schema validators.
 
@@ -87,3 +88,23 @@ For controlled dialogs, use `closeOnConfirm: false` when the caller decides visi
 Wire `handlePlaneKeyDown`, `handleHueKeyDown`, `handleHexKeyDown`, the corresponding `handlePlanePointerDown/Move` and `handleHuePointerDown/Move`, and `handlePointerEnd` for pointerup, pointercancel and lostpointercapture. The plane clamps saturation/brightness; hue keyboard movement wraps. Disabled and composing controls do not commit. Call `cancelPointer()` when closing a floating surface and `destroy()` on teardown to release capture and subscribers. A nonprimary pointer, foreign pointer, missing/zero-sized surface or nonfinite coordinate cannot edit the value.
 
 `normalizeHexColor`, `colorHexToRgb`, `colorRgbToHex`, `colorRgbToHsv`, `colorHsvToRgb` and `colorHsvToHex` are available separately. Numeric conversion rejects nonfinite channels, clamps RGB/saturation/brightness and wraps hue. Hosts retain form projection and the timing of native input/change notifications.
+
+## Toast queue and lifetimes
+
+`createToastStackController<Value>({defaultDurationMs, minimumDurationMs, deferIntervalMs, shouldDeferExpiry, onDismiss})`
+exposes `getState`, `subscribe`, `push(value, {durationMs})`, `dismiss(id)`, `clear()` and `destroy()`.
+State contains immutable ordered `items: {id, value}[]`; IDs are monotonic within an owner.
+Payloads are caller-owned: the controller does not deep-clone application data or impose severity, copy, deduplication or a theme.
+
+The default duration is `null` (persistent); an explicit `null` also overrides a finite default.
+Finite durations are clamped to the configured minimum (default zero). Durations must be between zero and
+2147483647 milliseconds. A zero duration expires on a future timer task. `shouldDeferExpiry` is checked
+at each deadline: when true, the deadline is rechecked after `deferIntervalMs` (default 200, positive),
+without resetting or extending other messages. Hosts can use this hook to protect the entire stack
+while a user focuses a close control. No DOM listeners, globals, portals, styling or focus traps are installed.
+
+`onDismiss(item, reason)` runs after state publication with `manual`, `timeout` or `clear`.
+A host that renders synchronously should capture its active element before mutating DOM if it needs focus recovery.
+`clear()` removes its current snapshot and cancels those timers; new messages enqueued by callbacks survive.
+`destroy()` cancels timers, clears state/subscribers and prevents late actions without firing dismissal callbacks.
+Hosts retain live-region semantics, keyed rendering, Escape policy, focus restoration and product event integration.
