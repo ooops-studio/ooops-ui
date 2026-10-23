@@ -1,5 +1,13 @@
 # @ooopsstudio/ui-e2e-sveltekit
 
+## 0.0.8
+
+### Patch Changes
+
+- Updated dependencies [`adec783`]:
+  - @ooopsstudio/ui-primitives@0.8.0
+  - @ooopsstudio/ui-svelte@0.5.2
+
 ## 0.0.7
 
 ### Patch Changes
