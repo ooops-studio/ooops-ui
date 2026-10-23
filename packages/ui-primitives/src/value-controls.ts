@@ -154,6 +154,10 @@ export type SliderControllerOptions = {
 	getRoot: () => HTMLElement | null | undefined
 	getThumbs: () => ReadonlyArray<HTMLElement>
 	getInputs?: () => ReadonlyArray<HTMLInputElement>
+	/** Observe a native range input without replacing its pointer/keyboard defaults. */
+	nativeInput?: () => HTMLInputElement | null | undefined
+	onInput?: (value: number, event: Event) => void
+	onCommit?: (value: number, event: Event) => void
 	onChange?: (value: SliderValue) => void
 }
 
@@ -169,14 +173,15 @@ export const createSliderController = (options: SliderControllerOptions) => {
 	}
 	const validateConfig = (next: typeof config) => {
 		assertNumberRange(next.min, next.max, next.step, 'Slider')
-		if (next.min === next.max) throw new RangeError('Slider requires min to be less than max.')
+		if (next.min === next.max && !options.nativeInput) throw new RangeError('Slider requires min to be less than max.')
 		if (!Number.isFinite(next.minStepsBetweenThumbs) || next.minStepsBetweenThumbs < 0)
 			throw new RangeError('Slider requires minStepsBetweenThumbs to be zero or greater.')
 		if (next.minStepsBetweenThumbs * next.step > next.max - next.min)
 			throw new RangeError('Slider minimum thumb gap cannot exceed its value range.')
 	}
 	validateConfig(config)
-	const initial = options.value ?? options.defaultValue ?? config.min
+	const initial = options.value ?? options.defaultValue
+ ?? options.nativeInput?.()?.valueAsNumber ?? config.min
 	const store = createControllerStore<SliderState>({
 		value: initial,
 		activeThumb: 0,
@@ -188,6 +193,8 @@ export const createSliderController = (options: SliderControllerOptions) => {
 	}
 	const normalize = (value: SliderValue): SliderValue => {
 		const {min, max, step, minStepsBetweenThumbs} = config
+		if (options.nativeInput && typeof value !== 'number')
+			throw new TypeError('Native Slider supports one numeric value.')
 		if (typeof value === 'number') return clamp(snap(value, min, step), min, max)
 		const gap = minStepsBetweenThumbs * step
 		const low = clamp(snap(value[0], min, step), min, max - gap)
@@ -198,8 +205,12 @@ export const createSliderController = (options: SliderControllerOptions) => {
 		const {min, max, orientation, disabled} = config
 		const current = values()
 		const root = options.getRoot()
-		const thumbs = options.getThumbs()
-		const inputs = options.getInputs?.() ?? []
+		const thumbs = options.nativeInput ? [] : options.getThumbs()
+		const native = options.nativeInput?.()
+		const inputs = native ? [native] : options.getInputs?.() ?? []
+		if (native) { native.min = String(min)
+			native.max = String(max)
+			native.step = String(config.step) }
 		root?.setAttribute('data-orientation', orientation)
 		root?.setAttribute('data-disabled', String(disabled))
 		current.forEach((value, index) => {
@@ -212,7 +223,7 @@ export const createSliderController = (options: SliderControllerOptions) => {
 				thumb.dataset.thumb = String(index)
 				thumb.style.setProperty(
 					'--ooops-ui-slider-percent',
-					`${((value - min) / (max - min)) * 100}%`
+					`${max === min ? 0 : ((value - min) / (max - min)) * 100}%`
 				)
 			}
 			if (inputs[index]) {
@@ -281,15 +292,41 @@ export const createSliderController = (options: SliderControllerOptions) => {
 		updateThumb(index, next)
 		options.getThumbs()[index]?.focus()
 	}
+	let native: HTMLInputElement | null | undefined, form: HTMLFormElement | null | undefined
+	let resetTimer: ReturnType<typeof setTimeout> | undefined
+	const nativeInput = (event: Event) => {
+		if (!native || config.disabled || native.disabled) return
+		setValue(native.valueAsNumber, true)
+		options.onInput?.(native.valueAsNumber, event)
+	}
+	const nativeCommit = (event: Event) => {
+		if (!native || config.disabled || native.disabled) return
+		setValue(native.valueAsNumber)
+		options.onCommit?.(native.valueAsNumber, event)
+	}
+	const nativeReset = (event: Event) => {
+		clearTimeout(resetTimer)
+		resetTimer = setTimeout(() => {
+			if (native && !event.defaultPrevented) setValue(native.valueAsNumber)
+		}, 0)
+	}
 	return {
 		getState: store.getState,
 		subscribe: store.subscribe as (subscriber: Subscriber<SliderState>) => () => void,
 		mount() {
 			if (store.getState().mounted) return
 			const root = options.getRoot()
-			if (!root) return
-			root.addEventListener('keydown', onKey)
-			root.addEventListener('pointerdown', onPointer)
+			native = options.nativeInput?.()
+			if (!root || (options.nativeInput && !native)) return
+			if (native) {
+				native.addEventListener('input', nativeInput)
+				native.addEventListener('change', nativeCommit)
+				form = native.form
+				form?.addEventListener('reset', nativeReset)
+			} else {
+				root.addEventListener('keydown', onKey)
+				root.addEventListener('pointerdown', onPointer)
+			}
 			store.setState({mounted: true})
 			setValue(initial)
 		},
@@ -305,6 +342,12 @@ export const createSliderController = (options: SliderControllerOptions) => {
 			store.setState({activeThumb})
 		},
 		destroy() {
+			clearTimeout(resetTimer)
+			native?.removeEventListener('input', nativeInput)
+			native?.removeEventListener('change', nativeCommit)
+			form?.removeEventListener('reset', nativeReset)
+			native = null
+
 			const root = options.getRoot()
 			root?.removeEventListener('keydown', onKey)
 			root?.removeEventListener('pointerdown', onPointer)

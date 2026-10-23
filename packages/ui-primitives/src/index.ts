@@ -115,3 +115,5 @@ export type {CalendarInputFormat, CalendarInputMode} from './calendar-input'
 
 export {createSearchableMultiSelectController} from './searchable-multi-select'
 export type {SearchableMultiSelectState, SearchableMultiSelectOptions, SearchableMultiSelectController} from './searchable-multi-select'
+export {createTokenInputController} from './token-input'
+export type {TokenInputController, TokenInputOptions, TokenInputState} from './token-input'
