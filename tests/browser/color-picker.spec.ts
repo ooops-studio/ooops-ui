@@ -7,6 +7,8 @@ test('color controller retains keyboard, pointer capture, disabled and disposal 
 		const {createColorPickerController} = await import('/packages/ui-primitives/dist/index.js')
 		const root = document.createElement('section')
 		root.id = 'color-contract'
+		// Integer coordinates keep trusted pointer rounding identical across OS engines.
+		root.style.cssText = 'position:fixed;left:20px;top:20px;z-index:100000;background:white'
 		root.innerHTML = '<div role="slider" aria-label="Color plane" tabindex="0"'
    + ' aria-valuemin="0" aria-valuemax="100" style="width:200px;height:100px"></div>'
    + '<div role="slider" aria-label="Color hue" tabindex="0"'
@@ -52,6 +54,8 @@ test('color controller retains keyboard, pointer capture, disabled and disposal 
 	await plane.press('End'); await expect(output).toHaveText('#000000')
 	await page.getByRole('button', {name: 'Restore red'}).click()
 	const box = (await plane.boundingBox())!
+	expect(box.x).toBe(20); expect(box.y).toBe(20)
+	expect(box.width).toBe(200); expect(box.height).toBe(100)
 	await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
 	await page.mouse.down(); await expect(output).toHaveText('#804040')
 	await page.mouse.move(box.x + box.width + 10, box.y - 10)
