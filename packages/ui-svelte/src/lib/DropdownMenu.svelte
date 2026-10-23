@@ -1,6 +1,5 @@
 <script lang="ts">
-	import {getUiPart} from '@ooopsstudio/ui-primitives'
-	import {connectOverlayTrigger, createMenuController, resolveUiMessages, type MenuState, type UiMessages} from '@ooopsstudio/ui-primitives'
+	import {getUiPart, connectOverlayTrigger, createMenuController, resolveUiMessages, type UiMessages} from '@ooopsstudio/ui-primitives'
 	import {onMount, type Snippet} from 'svelte'
 	import {portal} from './portal'
 	import type {DropdownMenuItem} from './types.js'
@@ -8,7 +7,7 @@
 	const generatedId = $props.id()
 	let {anchorEl, portalTarget, placement = 'bottom', align = 'start', offset = 8, zIndex = 1000, matchAnchorWidth = false, beforeClose, id = generatedId, triggerLabel, ariaLabel, items, open = $bindable(false), loop = true, portal: usePortal = true, messages, parts, class: className = '', trigger, item, onSelect}: Props = $props()
 	const uiMessages = $derived(resolveUiMessages(messages))
-	let triggerElement: HTMLButtonElement | null = $state(null), menu: HTMLElement | null = $state(null), state: MenuState = $state({open, activeIndex: -1, mounted: false}), controller: ReturnType<typeof createMenuController> | null = null
+	let triggerElement: HTMLButtonElement | null = $state(null), menu: HTMLElement | null = $state(null), controller: ReturnType<typeof createMenuController> | null = null
 	const findItem = (element: HTMLElement): DropdownMenuItem | undefined => {
 		const find = (entries: DropdownMenuItem[]): DropdownMenuItem | undefined => {
 			for (const entry of entries) { if (entry.id === element.dataset.id) return entry; const child = find(entry.children ?? []); if (child) return child }
@@ -19,14 +18,14 @@
 	onMount(() => { controller = createMenuController({open, loop, placement, align, offset, zIndex, matchAnchorWidth, beforeClose: reason => beforeClose?.(reason), getPortalRoot: () => portalTarget, portal: usePortal, getTrigger: () => anchorEl ?? triggerElement, getMenu: () => menu, getItems: () => Array.from(menu?.querySelectorAll<HTMLElement>('[role^="menuitem"]') ?? []), getSubmenu: (entry) => entry.nextElementSibling as HTMLElement | null, onOpenChange: (next) => { open = next }, onSelect: (element) => { const selected = findItem(element); if (selected) {
  const update = (entries: DropdownMenuItem[]): DropdownMenuItem[] => entries.map(entry => ({...entry, ...(entry.type === 'checkbox' && entry.id === selected.id ? {checked: element.getAttribute('aria-checked') === 'true'} : {}), ...(selected.type === 'radio' && entry.type === 'radio' && entry.group === selected.group ? {checked: entry.id === selected.id} : {}), ...(entry.children ? {children: update(entry.children)} : {})}))
  items = update(items); onSelect?.(findItem(element) ?? selected)
-} }}); const unsubscribe = controller.subscribe((next) => { state = next }); const restoreTrigger = anchorEl ? connectOverlayTrigger(anchorEl, `${id}-menu`, 'menu') : () => {}; controller.mount(); return () => { unsubscribe(); controller?.destroy(); restoreTrigger(); controller = null } })
+} }}); const restoreTrigger = anchorEl ? connectOverlayTrigger(anchorEl, `${id}-menu`, 'menu') : () => {}; controller.mount(); return () => { controller?.destroy(); restoreTrigger(); controller = null } })
 	$effect(() => { if (!controller) return; if (open && !controller.getState().open) controller.open(false); if (!open && controller.getState().open) controller.close(false) })
 </script>
 
-<span  data-ooops-ui {...getUiPart(parts, 'root', `ooops-menu ${className}`.trim(), undefined)} data-part="root" data-state={state.open ? 'open' : 'closed'}>
-	{#if !anchorEl}<button bind:this={triggerElement} type="button" aria-haspopup="menu" aria-controls={`${id}-menu`} aria-expanded={state.open} data-ooops-ui {...getUiPart(parts, 'trigger')} data-part="trigger">{#if trigger}{@render trigger()}{:else}{triggerLabel ?? uiMessages.menu}{/if}</button>{/if}
+<span  data-ooops-ui {...getUiPart(parts, 'root', `ooops-menu ${className}`.trim(), undefined)} data-part="root" data-state={open ? 'open' : 'closed'}>
+	{#if !anchorEl}<button bind:this={triggerElement} type="button" aria-haspopup="menu" aria-controls={`${id}-menu`} aria-expanded={open} data-ooops-ui {...getUiPart(parts, 'trigger')} data-part="trigger">{#if trigger}{@render trigger()}{:else}{triggerLabel ?? uiMessages.menu}{/if}</button>{/if}
 </span>
-<div use:portal={{enabled: usePortal, target: portalTarget}} bind:this={menu} id={`${id}-menu`} role="menu" aria-label={ariaLabel ?? uiMessages.menu} hidden={!state.open} data-ooops-ui {...getUiPart(parts, 'content')} data-part="content">
+<div use:portal={{enabled: usePortal, target: portalTarget ?? null}} bind:this={menu} id={`${id}-menu`} role="menu" aria-label={ariaLabel ?? uiMessages.menu} hidden={!open} data-ooops-ui {...getUiPart(parts, 'content')} data-part="content">
 	{@render renderEntries(items)}
 </div>
 

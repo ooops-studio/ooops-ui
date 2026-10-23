@@ -121,6 +121,9 @@ type DialogConfig = {
 	type: 'dialog' | 'modal'
 }
 
+/** Synchronously register async work during ooops:dialog-confirm-request. */
+export type DialogConfirmRequestDetail = {waitUntil: (promise: PromiseLike<unknown>) => void}
+
 const mountDialog = (root: HTMLElement) => {
 	const config = readConfig<DialogConfig>(root)
 	const dialog = root.querySelector<HTMLDialogElement>(':scope > [data-part="dialog"]')
@@ -139,6 +142,16 @@ const mountDialog = (root: HTMLElement) => {
 		...(config.busy === undefined ? {} : {busy: config.busy}),
 		closeOnBackdrop: config.closeOnBackdrop,
 		closeOnEscape: config.closeOnEscape,
+		onConfirm: async() => {
+			const work: Promise<unknown>[] = []
+			const event = new CustomEvent<DialogConfirmRequestDetail>('ooops:dialog-confirm-request', {
+				bubbles: true, cancelable: true,
+				detail: {waitUntil: (promise) => { work.push(Promise.resolve(promise)) }}
+			})
+			const accepted = root.dispatchEvent(event)
+			await Promise.all(work)
+			return accepted
+		},
 		getRoot: () => root,
 		getDialog: () => dialog,
 		getInitialFocus: () => config.initialFocusId
@@ -166,9 +179,12 @@ const mountDialog = (root: HTMLElement) => {
 	const dismiss = Array.from(root.querySelectorAll<HTMLElement>('[data-modal-close]'))
 		.find((element) => element.closest('[data-ooops-modal-root]') === root)
 	listen(dismiss, () => controller.close('close'))
+	const unsubscribe = controller.subscribe((state) => {
+		for (const action of [cancel, confirm, dismiss]) action?.toggleAttribute('disabled', state.busy)
+	})
 	controller.mount()
 	mounted.set(root, {
-		destroy: () => { for (const remove of cleanup) remove(); controller.destroy() },
+		destroy: () => { unsubscribe(); for (const remove of cleanup) remove(); controller.destroy() },
 		portals: []
 	})
 }
@@ -200,16 +216,12 @@ const mountPopover = (root: HTMLElement) => {
 		`[data-ooops-popover-panel="${escapeSelector(config.id)}"]`
 	)
 	if (!anchor || !panel) return
-	const portals: HTMLElement[] = []
-	if (config.portal &&
-			config.portalTargetId) {
-		document.getElementById(config.portalTargetId)?.appendChild(panel)
-		portals.push(panel)
-	}
-	else ownPortal(panel, config.portal, portals)
+	const portals: HTMLElement[] = config.portal ? [panel] : []
 	const controller: PopoverController = createPopoverController({
 		open: config.open,
-		portal: false,
+		portal: config.portal,
+		getPortalRoot: () => config.portalTargetId
+			? document.getElementById(config.portalTargetId) : null,
 		placement: config.placement,
 		align: config.align,
 		closeOnOutsidePointer: config.closeOnOutside,

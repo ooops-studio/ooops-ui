@@ -1,5 +1,18 @@
 # @ooopsstudio/ui-astro
 
+## 0.5.0
+
+### Minor Changes
+
+- Expose shared modal focus scopes with owned portal isolation and an explicit non-modal focus contract. Fix hoverable tooltip lifecycle, pending Escape, cleanup and ARIA description ownership; constrain submenu navigation to its own menu level and honor initially open menus. Ignore stale async confirmation completions after teardown or remount. Keep Svelte dialog/drawer callbacks and dismissal policies current without remounting an active modal.
+
+  Add headless host contracts for existing geometry/visibility and native menu actions, preserve modal-native portal boundaries, and coordinate dismissal across owned layer branches. Expose controlled async dialog actions and Astro confirmation requests with waitUntil, busy state, cancellation and recoverable failures.
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @ooopsstudio/ui-primitives@0.7.0
+
 ## 0.4.1
 
 ### Patch Changes
@@ -16,7 +29,7 @@
 - [`4a2a3d1`](https://github.com/ooops-studio/ooops-ui/commit/4a2a3d1ffce236638d194e17096f9312d1f2df01) Thanks [@italiour](https://github.com/italiour)! - Add a shared Gregorian calendar controller and DatePicker/DateRange adapters with ISO date values, native form fallback, bounds, unavailable dates, range validation, keyboard navigation and modal focus restoration.
 
 - [`4a2a3d1`](https://github.com/ooops-studio/ooops-ui/commit/4a2a3d1ffce236638d194e17096f9312d1f2df01) Thanks [@italiour](https://github.com/italiour)! - Add Workspace-compatible date formats, local datetime values with time steps, clear controls, direct month/year navigation and customizable calendar content. Provide a consistent consumer-owned parts class/style API across all UI components, including portals and dynamically rendered options/chips. Place optional structural CSS in a low-priority cascade layer.
-  
+
   Fix nested layer Escape handling so a menu inside a dialog closes alone regardless of controller mount order, with permanent regression tests.
 
 - [`4a2a3d1`](https://github.com/ooops-studio/ooops-ui/commit/4a2a3d1ffce236638d194e17096f9312d1f2df01) Thanks [@italiour](https://github.com/italiour)! - Add a Drawer with logical edge placement, a scrolling body and persistent footer, using the shared modal focus, dismissal and busy-state behavior.

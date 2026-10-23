@@ -257,6 +257,22 @@
 			"adapters": [
 				"svelte"
 			]
+		},
+		{
+			"id": "FM-OVERLAY-CONTRACTS",
+			"component": "Modal portals / non-modal scope / async confirmation",
+			"branches": [
+				"native-portals",
+				"submenu-escape",
+				"outside-branch",
+				"hover-focus",
+				"non-modal",
+				"async-confirm"
+			],
+			"adapters": [
+				"astro",
+				"svelte"
+			]
 		}
 	],
 	"projects": {

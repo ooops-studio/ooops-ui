@@ -1,6 +1,5 @@
 <script lang="ts">
-	import {getUiPart} from '@ooopsstudio/ui-primitives'
-	import {createTooltipController} from '@ooopsstudio/ui-primitives'
+	import {getUiPart, createTooltipController} from '@ooopsstudio/ui-primitives'
 	import {onMount, type Snippet} from 'svelte'
 	import {portal} from './portal'
 	type Props = {parts?: import('@ooopsstudio/ui-primitives').UiParts | undefined; id?: string; content: string; openDelayMs?: number; closeDelayMs?: number; touch?: 'disabled' | 'longpress'; portal?: boolean; class?: string; children: Snippet}

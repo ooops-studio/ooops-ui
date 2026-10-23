@@ -1,0 +1,17 @@
+{
+  "extends": "./tsconfig.json",
+  "include": [
+    "src/lib/SearchableMultiSelect.svelte",
+    "src/lib/Tooltip.svelte",
+    "src/lib/Popover.svelte",
+    "src/lib/DropdownMenu.svelte",
+    "src/lib/Dialog.svelte",
+    "src/lib/Modal.svelte",
+    "src/lib/Drawer.svelte"
+  ],
+  "exclude": [
+    "dist",
+    "coverage",
+    "node_modules"
+  ]
+}

@@ -1,5 +1,7 @@
+export {createFocusTrap} from './focus-trap'
+export {createModalFocusController, createNonModalFocusController, createPopoverFocusController, registerModalFocusPortal, focusInitialTarget, restoreFocus} from './focus-scope'
+export type {ModalFocusControllerOptions, PopoverFocusControllerOptions} from './focus-scope'
 export {
-	createFocusTrap,
 	getFocusableElements,
 	trapTabKey,
 	type FocusTrap,

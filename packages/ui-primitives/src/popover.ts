@@ -1,7 +1,8 @@
-import {createFocusTrap, type FocusTrap} from '@ooopsstudio/accessibility'
+import {type FocusTrap} from '@ooopsstudio/accessibility'
 
 import {dispatchUiEvent, isBrowser, isNodeInside, nextFrame} from './dom'
 import {UI_EVENTS} from './events'
+import {createFocusTrap} from './focus-trap'
 import {createLayerController} from './layer'
 import {createControllerStore, type Subscriber} from './store'
 

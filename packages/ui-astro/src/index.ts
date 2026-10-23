@@ -1,3 +1,4 @@
+export type {DialogConfirmRequestDetail} from './runtime'
 export {destroyAstroUi, installAstroUi, mountAstroUi, serializeUiConfig} from './runtime'
 export type * from '@ooopsstudio/ui-primitives'
 export {installCheckbox, installInput, installNumberInput, installRadioGroup, installSegmentedControl, installSlider, installSwitch, installTextarea} from './runtime/forms'

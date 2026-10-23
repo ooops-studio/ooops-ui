@@ -1,4 +1,5 @@
 import {isNodeInside} from './dom'
+import {registerModalFocusPortal} from './focus-scope'
 
 export type LayerPlacement = 'top' | 'bottom' | 'left' | 'right'
 export type LayerAlign = 'start' | 'center' | 'end'
@@ -25,12 +26,19 @@ export type LayerControllerOptions = {
 	zIndex?: number
 	matchAnchorWidth?: boolean
 	portal?: boolean
+	/** Keep host-owned geometry/styles while retaining shared dismissal. */
+	positioning?: boolean
+	restoreFocusOnEscape?: boolean
+	manageVisibility?: boolean
+	pointerEventName?: 'pointerdown' | 'mousedown' | 'click'
+	capturePointer?: boolean
+	captureEscape?: boolean
 	closeOnEscape?: boolean
 	closeOnOutsidePointer?: boolean
 	closeOnOutsideFocus?: boolean
 	isTargetInside?: (target: EventTarget | null) => boolean
 	onPosition?: (position: LayerPosition) => void
-	beforeClose?: (reason: LayerCloseReason) => boolean | void
+	beforeClose?: (reason: LayerCloseReason, event?: Event) => boolean | void
 	onClose?: (reason: LayerCloseReason) => void
 }
 
@@ -47,6 +55,8 @@ type LayerStackEntry = {
 	controller: LayerController
 	layer: () => HTMLElement | null | undefined
 	anchor: () => HTMLElement | null | undefined
+	forceClose: (reason: LayerCloseReason) => void
+	parent: LayerController | null
 }
 const stacks = new WeakMap<Document, LayerStackEntry[]>()
 const handledLayerEscapes = new WeakSet<Event>()
@@ -166,18 +176,35 @@ export const createLayerController = (options: LayerControllerOptions): LayerCon
 	let originalParent: ParentNode | null = null
 	let originalNext: ChildNode | null = null
 	let resizeObserver: ResizeObserver | null = null
+	let releasePortal: (() => void) | null = null
 	const document = () =>
 		options.getDocument?.() ?? options.getAnchor()?.ownerDocument ?? globalThis.document
+	const descendants = () => {
+		const currentDocument = document()
+		if (!currentDocument) return []
+		const stack = stackFor(currentDocument)
+		const index = stack.findIndex((entry) => entry.controller === controller)
+		if (index < 0) return []
+		const branch = new Set([controller])
+		const owned: LayerStackEntry[] = []
+		for (const entry of stack.slice(index + 1)) {
+			if (!entry.parent || !branch.has(entry.parent)) continue
+			owned.push(entry)
+			branch.add(entry.controller)
+		}
+		return owned
+	}
 	const inside = (target: EventTarget | null) =>
-		options.isTargetInside?.(target) ??
-		isNodeInside(target, [options.getAnchor(), options.getLayer()])
+		(options.isTargetInside?.(target) ??
+			isNodeInside(target, [options.getAnchor(), options.getLayer()])) ||
+		descendants().some((entry) => isNodeInside(target, [entry.layer()]))
 	const isTopmost = () => {
 		const currentDocument = document()
 		if (!currentDocument) return false
 		return stackFor(currentDocument).at(-1)?.controller === controller
 	}
 	const update = () => {
-		if (!opened) return
+		if (!opened || options.positioning === false) return
 		const anchor = options.getAnchor()
 		const layer = options.getLayer()
 		const currentDocument = document()
@@ -207,8 +234,9 @@ export const createLayerController = (options: LayerControllerOptions): LayerCon
 		layer.dataset.placement = position.placement
 		options.onPosition?.(position)
 	}
-	const close = (reason: LayerCloseReason = 'close', force = false) => {
-		if (!opened || (!force && options.beforeClose?.(reason) === false)) return
+	const close = (reason: LayerCloseReason = 'close', force = false, event?: Event) => {
+		if (!opened || (!force && options.beforeClose?.(reason, event) === false)) return
+		for (const entry of descendants().reverse()) entry.forceClose(reason)
 		opened = false
 		const currentDocument = document()
 		if (currentDocument) {
@@ -218,25 +246,30 @@ export const createLayerController = (options: LayerControllerOptions): LayerCon
 		}
 		const layer = options.getLayer()
 		if (layer) {
-			layer.hidden = true
-			layer.dataset.state = 'closed'
+			resizeObserver?.unobserve(layer)
+			if (options.manageVisibility !== false) {
+				layer.hidden = true
+				layer.dataset.state = 'closed'
+			}
 		}
+		releasePortal?.()
+		releasePortal = null
 		options.onClose?.(reason)
 	}
-	const onPointer = (event: PointerEvent) => {
-		if (opened && isTopmost() && options.closeOnOutsidePointer !== false && !inside(event.target))
-			close('outside-pointer')
+	const onPointer = (event: Event) => {
+		if (opened && options.closeOnOutsidePointer !== false && !inside(event.target))
+			close('outside-pointer', false, event)
 	}
 	const onFocus = (event: FocusEvent) => {
-		if (opened && isTopmost() && options.closeOnOutsideFocus && !inside(event.target))
-			close('outside-focus')
+		if (opened && options.closeOnOutsideFocus && !inside(event.target))
+			close('outside-focus', false, event)
 	}
 	const onKey = (event: KeyboardEvent) => {
-		if (!opened || handledLayerEscapes.has(event) || !isTopmost() || options.closeOnEscape === false || event.key !== 'Escape') return
+		if (!opened || event.defaultPrevented || handledLayerEscapes.has(event) || !isTopmost() || options.closeOnEscape === false || event.key !== 'Escape') return
 		handledLayerEscapes.add(event)
 		event.preventDefault()
-		close('escape')
-		options.getAnchor()?.focus()
+		close('escape', false, event)
+		if (options.restoreFocusOnEscape !== false) options.getAnchor()?.focus()
 	}
 	const open = () => {
 		if (opened) return
@@ -244,17 +277,27 @@ export const createLayerController = (options: LayerControllerOptions): LayerCon
 		const layer = options.getLayer()
 		if (!currentDocument || !layer) return
 		opened = true
-		if (
-			options.portal !== false &&
-			layer.parentNode !== (options.getPortalRoot?.() ?? currentDocument.body)
-		) {
+		const anchor = options.getAnchor()
+		const portalRoot = options.getPortalRoot?.() ??
+			anchor?.closest<HTMLElement>('dialog') ?? currentDocument.body
+		if (options.portal !== false && layer.parentNode !== portalRoot) {
 			originalParent = layer.parentNode
 			originalNext = layer.nextSibling
-			;(options.getPortalRoot?.() ?? currentDocument.body).appendChild(layer)
+			portalRoot.appendChild(layer)
 		}
-		stackFor(currentDocument).push({controller, layer: options.getLayer, anchor: options.getAnchor})
-		layer.hidden = false
-		layer.dataset.state = 'open'
+		resizeObserver?.observe(layer)
+		if (anchor && !anchor.contains(layer)) releasePortal = registerModalFocusPortal(layer, anchor)
+		const stack = stackFor(currentDocument)
+		const parent = [...stack].reverse()
+			.find((entry) => isNodeInside(anchor ?? null, [entry.layer()]))
+		stack.push({
+			controller, layer: options.getLayer, anchor: options.getAnchor,
+			forceClose: (reason) => close(reason, true), parent: parent?.controller ?? null
+		})
+		if (options.manageVisibility !== false) {
+			layer.hidden = false
+			layer.dataset.state = 'open'
+		}
 		update()
 	}
 	const mount = () => {
@@ -263,9 +306,9 @@ export const createLayerController = (options: LayerControllerOptions): LayerCon
 		const view = currentDocument?.defaultView
 		if (!currentDocument || !view) return
 		mounted = true
-		currentDocument.addEventListener('pointerdown', onPointer, true)
+		currentDocument.addEventListener(options.pointerEventName ?? 'pointerdown', onPointer, options.capturePointer !== false)
 		currentDocument.addEventListener('focusin', onFocus, true)
-		currentDocument.addEventListener('keydown', onKey, true)
+		currentDocument.addEventListener('keydown', onKey, options.captureEscape !== false)
 		view.addEventListener('resize', update)
 		view.addEventListener('scroll', update, true)
 		view.visualViewport?.addEventListener('resize', update)
@@ -283,9 +326,9 @@ export const createLayerController = (options: LayerControllerOptions): LayerCon
 		if (!mounted) return
 		const currentDocument = document()
 		const view = currentDocument?.defaultView
-		currentDocument?.removeEventListener('pointerdown', onPointer, true)
+		currentDocument?.removeEventListener(options.pointerEventName ?? 'pointerdown', onPointer, options.capturePointer !== false)
 		currentDocument?.removeEventListener('focusin', onFocus, true)
-		currentDocument?.removeEventListener('keydown', onKey, true)
+		currentDocument?.removeEventListener('keydown', onKey, options.captureEscape !== false)
 		view?.removeEventListener('resize', update)
 		view?.removeEventListener('scroll', update, true)
 		view?.visualViewport?.removeEventListener('resize', update)

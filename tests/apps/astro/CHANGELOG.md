@@ -1,5 +1,13 @@
 # @ooopsstudio/ui-e2e-astro
 
+## 0.0.6
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @ooopsstudio/ui-primitives@0.7.0
+  - @ooopsstudio/ui-astro@0.5.0
+
 ## 0.0.5
 
 ### Patch Changes

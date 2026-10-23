@@ -1,6 +1,5 @@
 <script lang="ts">
-	import {getUiPart} from '@ooopsstudio/ui-primitives'
-	import {createDialogController, resolveUiMessages, type DialogCloseReason, type DialogState, type UiMessages} from '@ooopsstudio/ui-primitives'
+	import {getUiPart, createDialogController, resolveUiMessages, type DialogCloseReason, type DialogState, type UiMessages} from '@ooopsstudio/ui-primitives'
 	import {onMount, type Snippet} from 'svelte'
 
 	type Props = {parts?: import('@ooopsstudio/ui-primitives').UiParts | undefined;
@@ -22,7 +21,7 @@
 		class?: string
 		trigger?: Snippet
 		children?: Snippet
-		onConfirm?: () => void | Promise<void>
+		onConfirm?: () => boolean | void | Promise<boolean | void>
 		onClose?: (reason: DialogCloseReason) => void
 	}
 
@@ -39,16 +38,19 @@
 	let triggerButton: HTMLButtonElement | null = $state(null)
 	let cancelButton: HTMLButtonElement | null = $state(null)
 	let controller: ReturnType<typeof createDialogController> | null = null
-	let state: DialogState = $state({open: false, busy: false, mounted: false, closeReason: null})
+	let viewState: DialogState = $state({open: false, busy: false, mounted: false, closeReason: null})
 
 	onMount(() => {
 		controller = createDialogController({
-			open, busy: false, closeOnBackdrop, closeOnEscape,
+			open, busy: false,
+			get closeOnBackdrop() { return closeOnBackdrop },
+			get closeOnEscape() { return closeOnEscape },
 			getRoot: () => root, getDialog: () => dialog, getInitialFocus: () => initialFocus?.() ?? cancelButton,
 			getRestoreFocusTo: () => restoreFocusTo?.() ?? triggerButton, beforeClose: reason => beforeClose?.(reason), onConfirmError: error => onConfirmError?.(error),
-			onOpenChange: (next) => { open = next }, onConfirm, onClose
+			onOpenChange: (next) => { open = next },
+			onConfirm: () => onConfirm?.(), onClose: reason => onClose?.(reason)
 		})
-		const unsubscribe = controller.subscribe((next) => { state = next })
+		const unsubscribe = controller.subscribe((next) => { viewState = next })
 		controller.mount()
 		return () => { unsubscribe(); controller?.destroy(); controller = null }
 	})
@@ -67,8 +69,8 @@
 			<header data-ooops-ui {...getUiPart(parts, 'header')} data-part="header"><h2 id={`${id}-title`} {...getUiPart(parts, 'title')} data-ooops-ui data-part="title">{title}</h2>{#if description}<p id={`${id}-description`} {...getUiPart(parts, 'description')} data-ooops-ui data-part="description">{description}</p>{/if}</header>
 			{#if children}<div data-ooops-ui {...getUiPart(parts, 'body')} data-part="body">{@render children()}</div>{/if}
 			<footer data-ooops-ui {...getUiPart(parts, 'footer')} data-part="footer">
-				<button bind:this={cancelButton} type="button" onclick={() => controller?.close('cancel')} disabled={state.busy} data-ooops-ui {...getUiPart(parts, 'cancel')} data-part="cancel">{cancelLabel ?? uiMessages.cancel}</button>
-				<button type="button" onclick={() => void controller?.confirm()} disabled={state.busy} data-ooops-ui {...getUiPart(parts, 'confirm')} data-part="confirm">{confirmLabel ?? uiMessages.confirm}</button>
+				<button bind:this={cancelButton} type="button" onclick={() => controller?.close('cancel')} disabled={viewState.busy} data-ooops-ui {...getUiPart(parts, 'cancel')} data-part="cancel">{cancelLabel ?? uiMessages.cancel}</button>
+				<button type="button" onclick={() => void controller?.confirm()} disabled={viewState.busy} data-ooops-ui {...getUiPart(parts, 'confirm')} data-part="confirm">{confirmLabel ?? uiMessages.confirm}</button>
 			</footer>
 		</div>
 	</dialog>

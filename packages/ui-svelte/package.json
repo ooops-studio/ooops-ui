@@ -1,6 +1,6 @@
 {
 	"name": "@ooopsstudio/ui-svelte",
-	"version": "0.5.0",
+	"version": "0.5.1",
 	"private": false,
 	"type": "module",
 	"publishConfig": {
@@ -161,7 +161,7 @@
 		"svelte": ">=5"
 	},
 	"scripts": {
-		"typecheck": "tsc -p tsconfig.json --noEmit && svelte-check --tsconfig tsconfig.searchable.json",
+		"typecheck": "tsc -p tsconfig.json --noEmit && svelte-check --tsconfig tsconfig.interactions.json",
 		"build": "svelte-package && node ./scripts/finalize-package.mjs",
 		"test": "pnpm --filter @ooopsstudio/ui-primitives build && vitest run",
 		"size": "node ./scripts/check-size.mjs",

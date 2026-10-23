@@ -246,6 +246,7 @@ describe('dialog and popover controller coverage', () => {
 		const root = document.querySelector<HTMLElement>('#root')!
 		const dialog = document.querySelector<HTMLDialogElement>('dialog')!
 		dialog.showModal = vi.fn(() => dialog.setAttribute('open', ''))
+		dialog.show = vi.fn(() => dialog.setAttribute('open', ''))
 		dialog.close = vi.fn((reason?: string) => {
 			dialog.returnValue = reason ?? ''
 			dialog.removeAttribute('open')
@@ -260,6 +261,8 @@ describe('dialog and popover controller coverage', () => {
 		})
 		controller.mount()
 		controller.open()
+		expect(dialog.show).toHaveBeenCalledOnce()
+		expect(dialog.showModal).not.toHaveBeenCalled()
 		dialog.dispatchEvent(new Event('cancel', {cancelable: true}))
 		dialog.dispatchEvent(new PointerEvent('pointerdown', {bubbles: true}))
 		expect(controller.getState().open).toBe(true)

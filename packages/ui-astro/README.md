@@ -95,3 +95,7 @@ Calendar named slots: `calendar-icon`, `previous-icon`, `next-icon`, `clear-icon
 The month picker uses the shared custom DropdownMenu, not an OS-rendered select popup. Its nested styling map is `monthParts` (the DropdownMenu part names: `root`, `trigger`, `content`, `item`, `indicator`, etc.). It remains inside the calendar dialog and uses the existing menu controller for keyboard/focus behavior.
 
 See the [Calendar/Drawer lifecycle and migration contract](../../docs/calendar-and-drawer-contracts.md) for supported live updates, remount policy, form/reset semantics and Workspace preferences.
+
+### Async confirmation requests
+
+Listen for the cancelable `ooops:dialog-confirm-request` event on a Dialog root. During dispatch, register asynchronous work through `(event as CustomEvent<DialogConfirmRequestDetail>).detail.waitUntil(promise)`. The adapter keeps standard actions disabled and sets `aria-busy` while registered work runs. A rejection leaves the dialog open and emits `ooops:dialog-error`; render the domain error and retry when appropriate. `event.preventDefault()` declines automatic closing. Work already registered is still awaited so rejections are handled. Normal dialogs without a listener retain automatic confirmation closing.

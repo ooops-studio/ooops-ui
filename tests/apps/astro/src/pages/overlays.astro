@@ -1,0 +1,53 @@
+---
+import Modal from '@ooopsstudio/ui-astro/Modal.astro';
+import Dialog from '@ooopsstudio/ui-astro/Dialog.astro';
+import Popover from '@ooopsstudio/ui-astro/Popover.astro';
+import DropdownMenu from '@ooopsstudio/ui-astro/DropdownMenu.astro';
+import Tooltip from '@ooopsstudio/ui-astro/Tooltip.astro';
+import Layout from '../layouts/Layout.astro';
+const items=[{id:'more',label:'More',children:[{id:'disabled',label:'Unavailable',disabled:true},{id:'first',label:'First child'},{id:'last',label:'Last child'}]},{id:'other',label:'Other action'}];
+---
+<Layout title="Overlay contracts">
+<h1>Overlay contracts</h1>
+<button id="native-open" data-ooops-modal-open="native-modal">Open overlay workspace</button>
+<Modal id="native-modal" title="Overlay workspace" restoreFocusId="native-open">
+  <label>Modal text <input aria-label="Modal text" /></label>
+  <Popover id="native-popover" triggerLabel="Nested details" ariaLabel="Nested details" focusOnOpen><button type="button" id="nested-action">Nested action</button></Popover>
+  <DropdownMenu id="native-menu" triggerLabel="Nested actions" ariaLabel="Nested actions" items={items} />
+  <Tooltip id="native-help" label="Contextual instructions" openDelayMs={0} closeDelayMs={80}><button type="button">Context help</button></Tooltip>
+</Modal>
+<output aria-label="Action" id="action"></output>
+<button type="button" id="open-drawer">Open non-modal drawer</button>
+<aside hidden role="region" aria-label="Non-modal drawer" id="drawer"><h2>Non-modal drawer</h2><input aria-label="Drawer note" /><button id="close-drawer" type="button">Close drawer</button></aside>
+<button type="button">After drawer</button>
+<Dialog id="save-dialog" title="Save changes" triggerLabel="Open confirmation">
+  <p role="alert" id="error" hidden></p>
+  <button type="button" id="decline">Decline next confirmation</button>
+  <button type="button" id="resolve">Resolve request</button><button type="button" id="reject">Reject request</button>
+</Dialog>
+<output aria-label="Requests" id="requests">0</output>
+<script>
+  import {createNonModalFocusController} from '@ooopsstudio/ui-primitives';
+  import type {DialogConfirmRequestDetail} from '@ooopsstudio/ui-astro';
+  const drawer=document.getElementById('drawer')!;
+  const closeDrawer=()=>{drawer.hidden=true;owner.setOpen(false)};
+  const owner=createNonModalFocusController({getContainer:()=>drawer,onEscape:closeDrawer});
+  drawer.addEventListener('keydown',owner.handleKeydown);
+  document.getElementById('open-drawer')!.addEventListener('click',()=>{drawer.hidden=false;owner.setOpen(true)});
+  document.getElementById('close-drawer')!.addEventListener('click',closeDrawer);
+  document.getElementById('nested-action')!.addEventListener('click',()=>{document.getElementById('action')!.textContent='popover'});
+  document.getElementById('native-menu-menu')!.addEventListener('ooops:menu-select',event=>{document.getElementById('action')!.textContent=(event as CustomEvent).detail.value});
+  let calls=0,resolvePending=()=>{},rejectPending=(_error:Error)=>{},decline=false;
+  document.getElementById('decline')!.addEventListener('click',()=>{decline=true});
+  const root=document.querySelector('[data-ooops-dialog-root="save-dialog"]')!;
+  root.addEventListener('ooops:dialog-confirm-request',event=>{
+    if(decline){decline=false;event.preventDefault();const error=document.getElementById('error')!;error.hidden=false;error.textContent='Review your changes';return}
+    document.getElementById('requests')!.textContent=String(++calls);document.getElementById('error')!.hidden=true;
+    (event as CustomEvent<DialogConfirmRequestDetail>).detail.waitUntil(new Promise<void>((resolve,reject)=>{resolvePending=resolve;rejectPending=reject}));
+  });
+  root.addEventListener('ooops:dialog-error',()=>{const error=document.getElementById('error')!;error.hidden=false;error.textContent='Request failed'});
+  document.getElementById('resolve')!.addEventListener('click',()=>resolvePending());
+  document.getElementById('reject')!.addEventListener('click',()=>rejectPending(new Error('Request failed')));
+  document.documentElement.dataset.overlayReady='true';
+</script>
+</Layout>

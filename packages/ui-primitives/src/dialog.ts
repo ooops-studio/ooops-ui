@@ -1,7 +1,8 @@
-import {createFocusTrap, shouldReduceMotion, type FocusTrap} from '@ooopsstudio/accessibility'
+import {shouldReduceMotion, type FocusTrap} from '@ooopsstudio/accessibility'
 
 import {dispatchUiEvent, isBrowser} from './dom'
 import {UI_EVENTS} from './events'
+import {createFocusTrap} from './focus-trap'
 import {hasLayerEscape} from './layer'
 import {createControllerStore, type Subscriber} from './store'
 
@@ -18,8 +19,11 @@ export type DialogControllerOptions = {
 	open?: boolean
 	busy?: boolean
 	closeOnEscape?: boolean
+	closeOnConfirm?: boolean
 	closeOnBackdrop?: boolean
 	modal?: boolean
+	manageFocus?: boolean
+	manageVisibility?: boolean
 	getRoot: () => HTMLElement | null | undefined
 	getDialog: () => HTMLElement | null | undefined
 	getInitialFocus?: () => HTMLElement | null | undefined
@@ -27,8 +31,9 @@ export type DialogControllerOptions = {
 	onOpenChange?: (open: boolean) => void
 	beforeClose?: (reason: DialogCloseReason) => boolean | void
 	onConfirmError?: (error: unknown) => void
+	onActionError?: (error: unknown, reason: DialogCloseReason) => void
 	onClose?: (reason: DialogCloseReason) => void
-	onConfirm?: () => void | Promise<void>
+	onConfirm?: () => boolean | void | Promise<boolean | void>
 	eventNames?: {
 		close?: string
 		confirm?: string
@@ -43,12 +48,14 @@ export type DialogController = {
 	open: () => void
 	close: (reason?: DialogCloseReason) => void
 	toggle: () => void
+	runAction: (action: DialogControllerOptions['onConfirm'], reason?: DialogCloseReason) => Promise<boolean>
 	confirm: () => Promise<void>
 	setBusy: (busy: boolean) => void
 }
 
 export const createDialogController = (config: DialogControllerOptions): DialogController => {
 	let mounted = false
+	let lifetime = 0
 	let focusTrap: FocusTrap | null = null
 	let approvedClose = false
 	let confirming = false
@@ -63,8 +70,9 @@ export const createDialogController = (config: DialogControllerOptions): DialogC
 	const syncDom = () => {
 		const state = store.getState()
 		const root = config.getRoot()
-		root?.setAttribute('data-state', state.open ? 'open' : 'closed')
+		if (config.manageVisibility !== false) root?.setAttribute('data-state', state.open ? 'open' : 'closed')
 		root?.setAttribute('data-busy', String(state.busy))
+		config.getDialog()?.setAttribute('aria-busy', String(state.busy))
 	}
 
 	const finalizeClose = (reason: DialogCloseReason) => {
@@ -81,10 +89,14 @@ export const createDialogController = (config: DialogControllerOptions): DialogC
 		const dialog = config.getDialog()
 		if (!dialog) return
 		store.setState({open: true, closeReason: null})
-		if (dialog instanceof HTMLDialogElement && !dialog.open) dialog.showModal()
-		else {
-			dialog.hidden = false
-			dialog.setAttribute('aria-modal', 'true')
+		if (config.manageVisibility !== false) {
+			if (dialog instanceof HTMLDialogElement && !dialog.open) {
+				if (config.modal === false) dialog.show()
+				else dialog.showModal()
+			} else {
+				dialog.hidden = false
+				dialog.setAttribute('aria-modal', String(config.modal !== false))
+			}
 		}
 		focusTrap?.activate()
 		syncDom()
@@ -98,34 +110,44 @@ export const createDialogController = (config: DialogControllerOptions): DialogC
 			return
 		}
 		const dialog = config.getDialog()
-		if (dialog instanceof HTMLDialogElement && dialog.open) {
+		if (config.manageVisibility !== false && dialog instanceof HTMLDialogElement && dialog.open) {
 			approvedClose = true
 			dialog.close(reason)
 			return
 		}
-		if (dialog) dialog.hidden = true
+		if (dialog && config.manageVisibility !== false) dialog.hidden = true
 		finalizeClose(reason)
 	}
 
-	const confirm = async() => {
-		if (!store.getState().open || store.getState().busy || confirming) return
+	const runAction: DialogController['runAction'] = async(action, reason = 'action') => {
+		if (!mounted || !store.getState().open || store.getState().busy || confirming) return false
+		const actionLifetime = lifetime
 		confirming = true
 		store.setState({busy: true})
 		syncDom()
+		let accepted: boolean | void
 		try {
-			await config.onConfirm?.()
+			accepted = await action?.()
 		} catch(error) {
-			config.onConfirmError?.(error)
-			dispatchUiEvent(config.getRoot(), 'ooops:dialog-error', {error})
-			return
+			if (!mounted || actionLifetime !== lifetime) return false
+			if (config.onActionError) config.onActionError(error, reason)
+			else config.onConfirmError?.(error)
+			dispatchUiEvent(config.getRoot(), 'ooops:dialog-error', {error, reason})
+			return false
 		} finally {
-			confirming = false
-			store.setState({busy: externalBusy})
-			syncDom()
+			if (mounted && actionLifetime === lifetime) {
+				confirming = false
+				store.setState({busy: externalBusy})
+				syncDom()
+			}
 		}
-		if (!mounted) return
+		return mounted && actionLifetime === lifetime && accepted !== false
+	}
+
+	const confirm = async() => {
+		if (!await runAction(config.onConfirm, 'confirm')) return
 		dispatchUiEvent(config.getRoot(), config.eventNames?.confirm ?? UI_EVENTS.dialogConfirm, {})
-		close('confirm')
+		if (config.closeOnConfirm !== false) close('confirm')
 	}
 
 	const handleCancel = (event: Event) => {
@@ -153,7 +175,8 @@ export const createDialogController = (config: DialogControllerOptions): DialogC
 		const dialog = config.getDialog()
 		if (!dialog) return
 		mounted = true
-		focusTrap = createFocusTrap({
+		lifetime++
+		if (config.manageFocus !== false) focusTrap = createFocusTrap({
 			modal: config.modal !== false,
 			getContainer: config.getDialog,
 			getRoot: config.getRoot,
@@ -164,8 +187,8 @@ export const createDialogController = (config: DialogControllerOptions): DialogC
 				if (config.closeOnEscape !== false) close('escape')
 			}
 		})
-		dialog.addEventListener('pointerdown', handleBackdrop)
-		if (dialog instanceof HTMLDialogElement) {
+		if (config.manageVisibility !== false) dialog.addEventListener('pointerdown', handleBackdrop)
+		if (config.manageVisibility !== false && dialog instanceof HTMLDialogElement) {
 			dialog.addEventListener('cancel', handleCancel)
 			dialog.addEventListener('close', handleNativeClose)
 		}
@@ -188,7 +211,9 @@ export const createDialogController = (config: DialogControllerOptions): DialogC
 		focusTrap?.destroy()
 		focusTrap = null
 		mounted = false
-		store.setState({mounted: false, open: false})
+		lifetime++
+		confirming = false
+		store.setState({mounted: false, open: false, busy: externalBusy})
 		store.clear()
 	}
 
@@ -201,6 +226,7 @@ export const createDialogController = (config: DialogControllerOptions): DialogC
 		close,
 		toggle: () => (store.getState().open ? close() : open()),
 		confirm,
+		runAction,
 		setBusy(busy) {
 			externalBusy = busy
 			store.setState({busy: busy || confirming})

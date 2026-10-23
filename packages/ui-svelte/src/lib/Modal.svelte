@@ -1,6 +1,5 @@
 <script lang="ts">
-	import {getUiPart} from '@ooopsstudio/ui-primitives'
-	import {createDialogController, resolveUiMessages, type DialogCloseReason, type DialogState, type UiMessages} from '@ooopsstudio/ui-primitives'
+	import {getUiPart, createDialogController, resolveUiMessages, type DialogCloseReason, type DialogState, type UiMessages} from '@ooopsstudio/ui-primitives'
 	import {onMount, type Snippet} from 'svelte'
 
 	type Props = {parts?: import('@ooopsstudio/ui-primitives').UiParts | undefined;
@@ -39,16 +38,19 @@
 	let triggerButton: HTMLButtonElement | null = $state(null)
 	let closeButton: HTMLButtonElement | null = $state(null)
 	let controller: ReturnType<typeof createDialogController> | null = null
-	let state: DialogState = $state({open, busy: false, mounted: false, closeReason: null})
+	let viewState: DialogState = $state({open, busy: false, mounted: false, closeReason: null})
 
 	onMount(() => {
 		controller = createDialogController({
-			open, closeOnBackdrop, closeOnEscape, getRoot: () => root, getDialog: () => dialog,
+			open,
+			get closeOnBackdrop() { return closeOnBackdrop },
+			get closeOnEscape() { return closeOnEscape },
+			getRoot: () => root, getDialog: () => dialog,
 			getInitialFocus: () => initialFocus?.() ?? closeButton, getRestoreFocusTo: () => restoreFocusTo?.() ?? triggerButton, beforeClose: reason => beforeClose?.(reason), onConfirmError: error => onConfirmError?.(error),
-			onOpenChange: (next) => { open = next }, onClose,
+			onOpenChange: (next) => { open = next }, onClose: reason => onClose?.(reason),
 			eventNames: {close: 'ooops:modal-close'}
 		})
-		const unsubscribe = controller.subscribe((next) => { state = next })
+		const unsubscribe = controller.subscribe((next) => { viewState = next })
 		controller.mount()
 		return () => { unsubscribe(); controller?.destroy(); controller = null }
 	})
@@ -64,7 +66,7 @@
 <span bind:this={root}  data-ooops-ui {...getUiPart(parts, 'root', `ooops-modal-root ${className}`.trim(), undefined)} data-part="root" data-size={size}>
 	<dialog bind:this={dialog} aria-label={title ? undefined : ariaLabel ?? uiMessages.dialog} aria-labelledby={title ? `${id}-title` : undefined} aria-describedby={description ? `${id}-description` : undefined} data-ooops-ui {...getUiPart(parts, 'dialog')} data-part="dialog">
 		<article data-ooops-ui {...getUiPart(parts, 'surface')} data-part="surface">
-			{#if showCloseButton}<button bind:this={closeButton} type="button" onclick={() => controller?.close('close')} disabled={state.busy} aria-label={closeLabel ?? uiMessages.closeDialog} data-ooops-ui {...getUiPart(parts, 'close')} data-part="close">×</button>{/if}
+			{#if showCloseButton}<button bind:this={closeButton} type="button" onclick={() => controller?.close('close')} disabled={viewState.busy} aria-label={closeLabel ?? uiMessages.closeDialog} data-ooops-ui {...getUiPart(parts, 'close')} data-part="close">×</button>{/if}
 			{#if title || description}<header data-ooops-ui {...getUiPart(parts, 'header')} data-part="header">{#if title}<h2 id={`${id}-title`} {...getUiPart(parts, 'title')} data-ooops-ui data-part="title">{title}</h2>{/if}{#if description}<p id={`${id}-description`} {...getUiPart(parts, 'description')} data-ooops-ui data-part="description">{description}</p>{/if}</header>{/if}
 			{#if children}<div data-ooops-ui {...getUiPart(parts, 'body')} data-part="body">{@render children()}</div>{/if}
 			{#if footer}<footer data-ooops-ui {...getUiPart(parts, 'footer')} data-part="footer">{@render footer()}</footer>{/if}
