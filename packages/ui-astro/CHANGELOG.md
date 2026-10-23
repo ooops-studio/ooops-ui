@@ -1,5 +1,12 @@
 # @ooopsstudio/ui-astro
 
+## 0.5.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @ooopsstudio/ui-primitives@0.9.0
+
 ## 0.5.1
 
 ### Patch Changes

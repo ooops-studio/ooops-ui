@@ -1,5 +1,12 @@
 # @ooopsstudio/ui-svelte
 
+## 0.5.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @ooopsstudio/ui-primitives@0.9.0
+
 ## 0.5.2
 
 ### Patch Changes

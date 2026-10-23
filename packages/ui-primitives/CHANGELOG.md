@@ -1,5 +1,11 @@
 # @ooopsstudio/ui-primitives
 
+## 0.9.0
+
+### Minor Changes
+
+- Add a design-neutral ColorPicker controller with HEX/RGB/HSV conversions, independent drafts, keyboard editing and captured pointer interactions. Include disabled, composition, cancellation and cleanup guards without imposing markup, palette or styling.
+
 ## 0.8.0
 
 ### Minor Changes
