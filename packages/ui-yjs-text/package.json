@@ -1,0 +1,54 @@
+{
+  "name": "@ooopsstudio/ui-yjs-text",
+  "version": "0.1.0",
+  "private": false,
+  "type": "module",
+  "description": "Optional framework-neutral Yjs bindings for native text controls and inline editable text.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.14.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "peerDependencies": {
+    "yjs": "^13.6.27"
+  },
+  "devDependencies": {
+    "yjs": "^13.6.27",
+    "jsdom": "^27.4.0"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint .",
+    "test": "vitest run --config vitest.config.ts",
+    "test:coverage": "vitest run --coverage --config vitest.config.ts",
+    "build": "tsup",
+    "size": "size-limit --config .size-limit.json",
+    "depcruise": "depcruise --config ../../.dependency-cruiser.cjs src",
+    "publint": "publint",
+    "attw": "attw --pack --ignore-rules no-resolution --ignore-rules cjs-resolves-to-esm",
+    "pack:dry": "pnpm build && npm pack --dry-run"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ooops-studio/ooops-ui.git",
+    "directory": "packages/ui-yjs-text"
+  },
+  "homepage": "https://github.com/ooops-studio/ooops-ui/tree/main/packages/ui-yjs-text#readme",
+  "bugs": {
+    "url": "https://github.com/ooops-studio/ooops-ui/issues"
+  }
+}

@@ -99,18 +99,24 @@ export function registerBehaviorCases(adapter: 'astro' | 'svelte') {
 
 	test('tooltip timing and pointer modes', async({page}) => {
 		const f = 'FM-TOOLTIP-POINTER'
+		// Assert configured 180/120 ms delays against virtual time, not scheduler load.
+		const now = new Date('2026-01-01T12:00:00Z')
+		await page.clock.install({time: now})
+		await page.clock.pauseAt(now)
 		const trigger = page.locator(`#${adapter}-tooltip-delayed-trigger`)
 		const tooltip = page.getByRole('tooltip', {name: `Delayed ${svelte ? 'Svelte' : 'Astro'} context`})
 		await branch(f, 'open-delay', async() => {
 			await trigger.hover()
-			await page.waitForTimeout(80)
+			await page.clock.runFor(80)
 			expect(await tooltip.isHidden()).toBe(true)
+			await page.clock.runFor(100)
 			await expect(tooltip).toBeVisible()
 		})
 		await branch(f, 'close-delay', async() => {
 			await page.mouse.move(0, 0)
-			await page.waitForTimeout(60)
+			await page.clock.runFor(60)
 			expect(await tooltip.isVisible()).toBe(true)
+			await page.clock.runFor(60)
 			await expect(tooltip).toBeHidden()
 		})
 		await branch(f, 'coarse-pointer', async() => {
@@ -123,10 +129,10 @@ export function registerBehaviorCases(adapter: 'astro' | 'svelte') {
 					: original(query)
 				document.getElementById(id)?.dispatchEvent(new PointerEvent('pointerenter', {bubbles: true, pointerType: 'mouse'}))
 			}, `${adapter}-tooltip-delayed-trigger`)
-			await page.waitForTimeout(220)
+			await page.clock.runFor(220)
 			await expect(tooltip).toBeHidden()
 		})
-		await branch(f, 'focus-fallback', async() => { await trigger.focus(); await expect(tooltip).toBeVisible() })
+		await branch(f, 'focus-fallback', async() => { await trigger.focus(); await page.clock.runFor(180); await expect(tooltip).toBeVisible() })
 	})
 
 	test('viewport collision positioning', async({page}) => {

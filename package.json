@@ -17,7 +17,7 @@
 		"typecheck": "pnpm build && pnpm -r --filter './packages/*' run typecheck && pnpm -r --filter './tests/apps/*' run typecheck",
 		"lint": "eslint --cache --cache-strategy content --cache-location .cache/eslint --no-error-on-unmatched-pattern .dependency-cruiser.cjs commitlint.config.mjs eslint.config.js playwright.config.ts vitest.config.ts \"scripts/**/*.{js,mjs,cjs,ts,tsx}\" \"examples/**/*.{js,mjs,cjs,ts,tsx}\" \"packages/*/*.{js,mjs,cjs,ts,tsx}\" \"packages/*/{src,test}/**/*.{js,mjs,cjs,ts,tsx}\" \"tests/**/*.{js,mjs,cjs,ts,tsx}\"",
 		"test": "pnpm -r --workspace-concurrency=2 --filter './packages/*' --if-present run test",
-		"test:coverage": "pnpm --filter @ooopsstudio/ui-primitives test:coverage",
+		"test:coverage": "pnpm --filter @ooopsstudio/ui-primitives test:coverage && pnpm --filter @ooopsstudio/ui-yjs-text test:coverage",
 		"test:browser": "pnpm test:e2e",
 		"test:e2e:prepare": "node scripts/generate-scene-test-fixture.mjs && pnpm build && pnpm --filter @ooopsstudio/ui-e2e-astro build && pnpm --filter @ooopsstudio/ui-e2e-sveltekit build",
 		"test:e2e:run:primitives": "playwright test --project=primitives-chromium && playwright test --project=primitives-firefox && playwright test --project=primitives-webkit",
