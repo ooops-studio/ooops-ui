@@ -84,14 +84,16 @@
 	let reactiveSlider = $state<SliderValue>(20)
 
   const loadOptions: ComboboxLoadOptions = async(query, {signal}) => {
-    const delay = query.toLowerCase().includes('navigate') ? 1_000 : query.toLowerCase().includes('slow') ? 120 : 20
+    const waitForNavigation = query.toLowerCase().includes('navigate')
+    const delay = query.toLowerCase().includes('slow') ? 120 : 20
     const pending = Number(sessionStorage.getItem('svelte-async-pending') ?? 0) + 1
     sessionStorage.setItem('svelte-async-pending', String(pending))
     try {
       await new Promise<void>((resolve, reject) => {
-        const timer = window.setTimeout(resolve, delay)
+        // Teardown probes remain pending until abort, independent of scheduler load.
+        const timer = waitForNavigation ? null : window.setTimeout(resolve, delay)
         signal.addEventListener('abort', () => {
-          window.clearTimeout(timer)
+          if (timer !== null) window.clearTimeout(timer)
           const aborted = Number(sessionStorage.getItem('svelte-async-aborted') ?? 0) + 1
           sessionStorage.setItem('svelte-async-aborted', String(aborted))
           reject(new DOMException('Aborted', 'AbortError'))
